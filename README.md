@@ -1,6 +1,6 @@
 # wp-admin
 
-Shell scripts for the centralized mamagement of WordPress. Intended to be kept as simple as possible for maximum legibility. These tools provide maintenance and workflow functions.
+Shell scripts for the centralized management of WordPress. Intended to be kept as simple as possible for maximum legibility. These tools provide maintenance and workflow functions.
 
 * wp-cli
 * apt-get
