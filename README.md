@@ -9,26 +9,19 @@ Shell scripts for the centralized mamagement of WordPress. Intended to be kept a
 * ubuntu
 * WordPress
 
-## Status
+#### Status
 
 Proof-of-concept. The text below is being adapted from another article.
 
-## <a name="maintenance"></a> Maintenance
 
-Each plugin added to WordPress slows down every uncached page view in WordPress, therefore:
+#### <a name="install"></a> Installation
 
-* No plugins will be used for development or maintenance on a live site.
-
-Maintenance will be handled via the terminal from a central WordPress management server ($5 droplet at Digitalocean). This server will contain maintenance logs and database backups for all sites.
-
-The same configuration should run on a Mac, (possibly Windows 10 with bash) and offers the developers some powerful tools and shortcuts. These scripts will be packaged into a git repo so we can share them.
-
-SSH is very flexible, and with the right scripts we can enable push-button controls to perform normal actions. This Android app lets you assign ssh commands to buttons. I use it to check the Gull inventory update log. [Far Commander](https://play.google.com/store/apps/details?id=com.far.sshcommander).
+Clone to your home dir, rename the folder to bin. `~/bin` is in your PATH so you can now run from anywhere.
 
 
 #### <a name="ssh"></a> SSH Configuration
 
-In order to avoid entering a password every time you want to run one of these scripts you must export your public key to the server you're targeting. [Digitalocean's ssh key tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2)
+To run these scripts remotely and avoid entering a password every time you must export your public key to the server you're targeting. [Digitalocean's ssh key tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2)
 
 Host configuration in your local `~/.ssh/config`:
 
@@ -43,8 +36,6 @@ Enter the same info for every site you intend to maintain, with a nifty shortnam
 
 
 #### <a name="updates"></a> Updates
-
-Critical core updates automatically installed by WordPress itself **are disabled** because the web server does not have write access to its own codebase. We can update the core and plugins using WP-CLI, or by merging updated code to master.
 
 You can call the update script below using that same shortname: `wordpress-update clientsite` and pass it straight through to SSH (it becomes the variable $1):
 ```
@@ -90,26 +81,9 @@ TODO:
 
 To copy the live database to the staging environment and update all url's with the staging site port, there is a simple script that uses WP-CLI. 
 
-```
-#!/bin/bash
-echo "Clone live db to staging, search and replace urls, and flush cache."
-read -p "Are you sure? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-        wp --path='/var/www/html' db export /var/www/swap.sql
-        wp --path='/var/www/staging' db import /var/www/swap.sql
-        wp --path='/var/www/staging' search-replace 'dev.clientsite.com' 'dev.clientsite.com:2001' --skip-columns=guid
-        wp --path='/var/www/staging' cache flush
-        echo "https://dev.clientsite.com:2001 is now up to date with the live db."
-fi
-exit 0
-```
-
-This is what happens when you run that script:
 
 ```
-dev@web:~/bin$ clonedb
+dev@web:~/bin$ clonedb clientsite
 Clone live db to staging, search and replace urls, and flush cache.
 Are you sure? y
 Success: Exported to '/var/www/swap.sql'.
@@ -126,31 +100,6 @@ You now have an exact and current copy of the live site running on the same web 
 
 #### <a name="backups"></a> Backups
 
-The codebase is backed up each time it is changed in the repository. The upload directory is backed up 4 times each month with the whole droplet by Digitalocean. More frequent droplet backups are best achieved with a second droplet rsync'd to the live one ever hour or so. [TODO: add that code here]
-
-Droplet snapshots should be manually taken on a regular basis just in case more than a month passes without someone noticing that a site has been hacked and all the automated backups have been overwritten. TODO: use the digitalocean API to do this programmatically on a schedule.
-
-The database backups are written to the management server twice daily​, easily accomplished with wp-cli. [See the [SSH](#ssh) section for hosts configuration]
-
-```
-#!/bin/bash
-cd ~/db-backups
-echo "Rotate backups"
-mv -v ${1}.4.sql.gz ${1}.5.sql.gz
-mv -v ${1}.3.sql.gz ${1}.4.sql.gz
-mv -v ${1}.2.sql.gz ${1}.3.sql.gz
-mv -v ${1}.1.sql.gz ${1}.2.sql.gz
-mv -v ${1}.sql.gz ${1}.1.sql.gz
-echo "Export db from WordPress..."
-# Setup ssh hosts first in ~/.ssh/config
-args="--path=/var/www/html --ssh=$1"
-wp $args db export - > "${1}.sql"
-# Zip it up
-gzip -vf ${1}.sql
-exit 0
-```
-
-And the output of that script:
 ```
 neil@wp-admin:~$ wordpress-backup clientsite
 Rotate backups
