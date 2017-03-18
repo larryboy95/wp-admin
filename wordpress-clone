@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Setup ssh hosts first in ~/.ssh/config
+staging=$(wp --ssh=${1} --path='/var/www/staging' option get siteurl)
+live=$(wp --ssh=${1} --path='/var/www/html' option get siteurl)
+echo "Clone live db for ${1} to staging, search and replace urls, and flush cache."  
+read -p "Are you sure? " -n 1 -r  
+echo    # (optional) move to a new line  
+if [[ $REPLY =~ ^[Yy]$ ]]  
+then  
+        wp --ssh=${1} --path='/var/www/html' db export /var/www/swap.sql
+        wp --ssh=${1} --path='/var/www/staging' db import /var/www/swap.sql
+        wp --ssh=${1} --path='/var/www/staging' search-replace "${live#https://*}" "${live#https://*}:2001" --skip-columns=guid
+        wp --ssh=${1} --path='/var/www/staging' cache flush
+        echo "Staging site $staging is now up to date with the live site $live"
+fi  
+exit 0  

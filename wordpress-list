@@ -1,0 +1,14 @@
+#!/bin/bash
+n=0
+while IFS='' read -r line || [[ -n "$line" ]]; do
+    if [[ $line == *"Host "* ]]; then
+        host[$n]="${line#Host *}"
+        echo $n ${host[$n]} $url
+        ((n++))
+    fi
+done < ~/.ssh/config
+
+#        args="--path=/var/www/html --ssh=$host"
+#        url="$(wp $args option get siteurl)"
+
+exit 0
