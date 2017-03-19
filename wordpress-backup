@@ -1,47 +1,44 @@
 #!/bin/bash
 
 target=${1}.sql
-daily="backups-db-daily"
-hourly="backups-db-hourly"
-manual="backups-db-manual"
+backupDir="/var/backups/wordpress"
 wp=$(which wp)
 gzip=$(which gzip)
 
 function rotate()
 {
-	echo "Rotate backups"
-	mv -v ${1}.7.sql.gz ${1}.8.sql.gz
-	mv -v ${1}.6.sql.gz ${1}.7.sql.gz
-	mv -v ${1}.5.sql.gz ${1}.6.sql.gz
-	mv -v ${1}.4.sql.gz ${1}.5.sql.gz
-	mv -v ${1}.3.sql.gz ${1}.4.sql.gz
-	mv -v ${1}.2.sql.gz ${1}.3.sql.gz
-	mv -v ${1}.1.sql.gz ${1}.2.sql.gz
-	mv -v ${1}.sql.gz ${1}.1.sql.gz
+	echo "Rotate ${1} backups"
+	i="8"
+	while [ $i -gt 0 ]
+	do
+		if [ $i -gt 1 ]; then
+			h=$[i-1]
+			mv ${1}.${h}.sql.gz ${1}.${i}.sql.gz >/dev/null 2>&1
+		else
+			mv ${1}.sql.gz ${1}.1.sql.gz >/dev/null 2>&1
+		fi
+		(( i-- ))
+	done
 }
-
-if [ $2 == "manual" ]; then
-	cd $manual
-	pwd
+# Next line checks if there is a second argument
+if [ ${2+x} ]; then
+	if [ $2 == "daily" ]; then
+		cd ${backupDir}/daily
+		echo "Write daily backup"
+		rotate $1
+	elif [ $2 == "hourly" ]; then
+		cd ${backupDir}/hourly
+		echo "Write hourly backup"
+		rotate $1
+	elif [ $2 == "tmp" ]; then
+		cd /tmp
+		echo "Write new backup to /tmp"
+		rotate $1
+	fi
+else
+	cd ${backupDir}/manual
 	echo "Write manual backup"
 	rotate $1
-elif [ $2 == "daily" ]; then
-	cd $daily
-	pwd
-	echo "Write daily backup"
-	rotate $1
-elif [ $2 == "hourly" ]; then
-	cd $hourly
-	pwd
-	echo "Write hourly backup"
-	rotate $1
-elif [ $2 == "tmp" ]; then
-	cd /tmp
-	pwd
-	echo "Write new backup to /tmp"
-	rotate $1
-else
-	exit 1
 fi
 
 # Setup ssh hosts first in ~/.ssh/config
@@ -53,6 +50,6 @@ $wp $args db export - > "${target}"
 # Zip that shit up
 $gzip -vf ${target}
 
-echo $(date) "Backup completed (${2})" 
+echo $(date) "Backup completed for ${1} (${2})" 
 
 exit 0
