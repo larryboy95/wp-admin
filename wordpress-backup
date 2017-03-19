@@ -1,8 +1,9 @@
 #!/bin/bash
 
 target=${1}.sql
-daily="~/backups-db-daily"
-manual="~/backups-db-manual"
+daily="backups-db-daily"
+hourly="backups-db-hourly"
+manual="backups-db-manual"
 wp=$(which wp)
 gzip=$(which gzip)
 
@@ -29,7 +30,12 @@ elif [ $2 == "daily" ]; then
 	pwd
 	echo "Write daily backup"
 	rotate $1
-elif [ $2 == "temp" ]; then
+elif [ $2 == "hourly" ]; then
+	cd $hourly
+	pwd
+	echo "Write hourly backup"
+	rotate $1
+elif [ $2 == "tmp" ]; then
 	cd /tmp
 	pwd
 	echo "Write new backup to /tmp"
@@ -47,6 +53,6 @@ $wp $args db export - > "${target}"
 # Zip that shit up
 $gzip -vf ${target}
 
-echo $(date) "Backup completed" 
+echo $(date) "Backup completed (${2})" 
 
 exit 0
