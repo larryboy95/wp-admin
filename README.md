@@ -1,6 +1,8 @@
 # wp-admin
 
-Shell scripts for the centralized management of WordPress. Intended to be kept as simple as possible for maximum legibility. These tools provide maintenance and workflow functions.
+Shell scripts for the centralized mamagement of WordPress. Intended to be kept as simple as possible for maximum legibility. These tools provide maintenance and workflow functions.
+
+Used by these scripts:
 
 * wp-cli
 * apt-get
@@ -11,7 +13,11 @@ Shell scripts for the centralized management of WordPress. Intended to be kept a
 
 #### Status
 
-Proof-of-concept. The text below is being adapted from another article.
+Alpha. Tested on Ubuntu 16.04.
+
+#### Goals
+
+* Each script should produce machine readable output wherever possible so scripts can be used together.
 
 
 #### <a name="install"></a> Installation
@@ -35,26 +41,19 @@ Host clientsite
 Enter the same info for every site you intend to maintain, with a nifty shortname (Host) for convenience and legibility. Then you can access your servers over ssh, even with custom ports, like this: `ssh clientsite` 😍
 
 
-#### <a name="updates"></a> Updates
+#### <a name="how"></a> How It Works
 
-You can call the update script below using that same shortname: `wordpress-update clientsite` and pass it straight through to SSH (it becomes the variable $1):
+You call each script below using that same shortname: `wordpress-update clientsite` and pass it straight through to SSH (it becomes the variable $1). For example:
 ```
 #!/bin/bash
 args="--path=/var/www/html --ssh=$1"
-wp $args core version
-wp $args core update
-wp $args core update-db
 wp $args plugin update --all
-exit 0
 ```
 
 This is how it runs:
 
 ```
 neil@wp-admin:~$ wordpress-update clientsite
-4.7.3
-Success: WordPress is up to date.
-Success: WordPress database already at latest db version 38590.
 Enabling Maintenance mode...
 Downloading update from https://downloads.wordpress.org/plugin/woocommerce-gateway-stripe.3.1.1.zip...
 Unpacking the update...
@@ -71,47 +70,81 @@ Success: Updated 1 of 1 plugins.
 neil@wp-admin:~$
 ```
 
+#### <a name="usage"></a> Usage
+
+`wordpress-clone HOST` clones the live db to the staging site for that host.
+
+```
+neil@wp-admin:~$ wordpress-clone personal
+Clone live db for personal to staging, search and replace urls, and flush cache.
+Are you sure? y
+
+Success: Exported to '/var/www/swap.sql'.
+Success: Imported from '/var/www/swap.sql'.
++----------------------------------+-----------------------+--------------+------+
+| Table                            | Column                | Replacements | Type |
++----------------------------------+-----------------------+--------------+------+
+| wp_commentmeta                   | meta_key              | 0            | SQL  |
+| wp_woocommerce_payment_tokenmeta | meta_value            | 0            | SQL  |
++----------------------------------+-----------------------+--------------+------+ ETC
+Success: Made 155 replacements.
+Staging site https://personalsite.com:2001 is now up to date with the live site https://personalsite.com
+```
+
+`wordpress-update HOST` 
+
+```
+neil@wp-admin:~$ wordpress-update personal
+/tmp
+Write new backup to /tmp
+Rotate backups
+mv: cannot stat 'personal.7.sql.gz': No such file or directory
+mv: cannot stat 'personal.6.sql.gz': No such file or directory
+mv: cannot stat 'personal.5.sql.gz': No such file or directory
+'personal.4.sql.gz' -> 'personal.5.sql.gz'
+'personal.3.sql.gz' -> 'personal.4.sql.gz'
+'personal.2.sql.gz' -> 'personal.3.sql.gz'
+'personal.1.sql.gz' -> 'personal.2.sql.gz'
+'personal.sql.gz' -> 'personal.1.sql.gz'
+Export db from WordPress...
+personal.sql:    80.6% -- replaced with personal.sql.gz
+Sat Mar 18 18:31:58 PDT 2017 Backup completed (tmp)
+4.7.3
+Success: WordPress is up to date.
+Success: WordPress database already at latest db version 38590.
+Success: Plugin already updated.
+```
+
+`wordpress-backup HOST MODE`  Mode is one of `manual`, `daily`, `hourly`, or `tmp` and each writes to a different directory (configured in script) No more than 8 backups are kept for each host/mode.
+
+```
+neil@wp-admin:~$ wordpress-backup personal manual
+/home/neil/backups-db-manual
+Write manual backup
+Rotate backups
+mv: cannot stat 'personal.7.sql.gz': No such file or directory
+mv: cannot stat 'personal.6.sql.gz': No such file or directory
+mv: cannot stat 'personal.5.sql.gz': No such file or directory
+'personal.4.sql.gz' -> 'personal.5.sql.gz'
+'personal.3.sql.gz' -> 'personal.4.sql.gz'
+'personal.2.sql.gz' -> 'personal.3.sql.gz'
+'personal.1.sql.gz' -> 'personal.2.sql.gz'
+'personal.sql.gz' -> 'personal.1.sql.gz'
+Export db from WordPress...
+personal.sql:    80.6% -- replaced with personal.sql.gz
+Sat Mar 18 18:21:14 PDT 2017 Backup completed (manual)
+```
+
+`wordpress-remote HOST "COMMAND COMMAND ..."` is for running any arbitrary wp-cli command on the remote host. Use with caution.
+
+`wordpress-list` reads the file `~/.ssh/config` to find WordPress hosts. It should verify the connection to each and output a list of hosts that can be used in batch scripts to run `wordpress-update` or `wordpress-backup` programatically. It's a work-in-progress.
+
+
+
+
+
+
 TODO:
 * test for update failure
 * how to roll back a failed update
 * commit and push to master after updates
-
-
-#### <a name="clone"></a> Clone Database
-
-To copy the live database to the staging environment and update all url's with the staging site port, there is a simple script that uses WP-CLI. 
-
-
-```
-dev@web:~/bin$ clonedb clientsite
-Clone live db to staging, search and replace urls, and flush cache.
-Are you sure? y
-Success: Exported to '/var/www/swap.sql'.
-Success: Imported from '/var/www/swap.sql'.
-[mess of sql output]
-Success: Made 147 replacements.
-Success: The cache was flushed.
-https://dev.clientsite.com:2001 is now up to date with the live db.
-dev@web:~/bin$
-```
-
-You now have an exact and current copy of the live site running on the same web server as the live site, providing the most accurate testing environment possible.
-
-
-#### <a name="backups"></a> Backups
-
-```
-neil@wp-admin:~$ wordpress-backup clientsite
-Rotate backups
-'clientsite.4.sql.gz' -> 'clientsite.5.sql.gz'
-'clientsite.3.sql.gz' -> 'clientsite.4.sql.gz'
-'clientsite.2.sql.gz' -> 'clientsite.3.sql.gz'
-'clientsite.1.sql.gz' -> 'clientsite.2.sql.gz'
-'clientsite.sql.gz' -> 'clientsite.1.sql.gz'
-Export db from WordPress...
-clientsite.sql:        90.1% -- replaced with clientsite.sql.gz
-neil@wp-admin:~$
-```
-
-TODO add section on restoring backups, downloading backups
-
