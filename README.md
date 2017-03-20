@@ -26,7 +26,9 @@ Alpha. Tested on Ubuntu 16.04 with WordPress 4.7.3.
 
 #### <a name="install"></a> Installation
 
-Create a $5 Ubuntu 16.04 droplet. Clone this repo to your home dir, rename the folder to bin. `~/bin` is in your PATH which means you can now run the scripts from anywhere.
+Create a $5 Ubuntu 16.04 droplet at Digitalocean. This droplet will serve as your administration workspace, storing all your SSH keys and database backups. Make sure it is secure.
+
+Clone this repo to your home dir, rename the directory to `bin`. The directory `~/bin` is in your PATH which means you can now run the scripts from anywhere, like `wordpress-backup personal`
 
 
 #### <a name="ssh"></a> SSH Configuration
