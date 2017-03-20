@@ -1,6 +1,6 @@
 # wp-admin
 
-Shell scripts for the centralized mamagement of WordPress. Intended to be kept as simple as possible for maximum legibility. These tools provide maintenance and workflow functions.
+Shell scripts for the centralized management of WordPress. Intended to be kept as simple as possible for maximum legibility. These tools provide maintenance and workflow functions.
 
 Used by these scripts:
 
@@ -13,16 +13,22 @@ Used by these scripts:
 
 #### Status
 
-Alpha. Tested on Ubuntu 16.04.
+Alpha. Tested on Ubuntu 16.04 with WordPress 4.7.3.
 
 #### Goals
 
-* Each script should produce machine readable output wherever possible so scripts can be used together.
+* Intended for use by web developers as an aid in development and to help learn terminal usage
+
+* Backups are written constantly to facilitate easy undo
+
+* Each script should produce machine readable output wherever relevant so scripts can be used together.
 
 
 #### <a name="install"></a> Installation
 
-Clone to your home dir, rename the folder to bin. `~/bin` is in your PATH so you can now run from anywhere.
+Create a $5 Ubuntu 16.04 droplet at Digitalocean. This droplet will serve as your administration workspace, storing all your SSH keys and database backups. Make sure it is secure.
+
+Clone this repo to your home dir, rename the directory to `bin`. The directory `~/bin` is in your PATH which means you can now run the scripts from anywhere, like `wordpress-backup personal`
 
 
 #### <a name="ssh"></a> SSH Configuration
@@ -43,11 +49,10 @@ Enter the same info for every site you intend to maintain, with a nifty shortnam
 
 #### <a name="how"></a> How It Works
 
-You call each script below using that same shortname: `wordpress-update clientsite` and pass it straight through to SSH (it becomes the variable $1). For example:
+You call each script below using that same Host: `wordpress-update clientsite` and pass it straight through to SSH (it becomes the variable $1). For example:
 ```
 #!/bin/bash
-args="--path=/var/www/html --ssh=$1"
-wp $args plugin update --all
+wp --path=/var/www/html --ssh=$1 plugin update --all
 ```
 
 This is how it runs:
