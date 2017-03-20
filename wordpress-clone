@@ -11,6 +11,7 @@ then
         wp --ssh=${1} --path='/var/www/html' db export /var/www/swap.sql
         wp --ssh=${1} --path='/var/www/staging' db import /var/www/swap.sql
         wp --ssh=${1} --path='/var/www/staging' search-replace "${live#https://*}" "${live#https://*}:2001" --skip-columns=guid
+	sleep 1
         wp --ssh=${1} --path='/var/www/staging' cache flush
         echo "Staging site $staging is now up to date with the live site $live"
 fi  
