@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Setup ssh hosts first in ~/.ssh/config
+wordpress-backup ${1} tmp
+live=$(wp --ssh=${1} --path='/var/www/html' option get siteurl)
+echo "Delete ALL posts from ${1}!?"  
+read -p "Are you mad? " -n 1 -r  
+echo    # (optional) move to a new line  
+if [[ $REPLY =~ ^[Yy]$ ]]; then  
+	wordpress-remote ${1} "post delete $(wordpress-remote ${1} "post list --format=ids")"
+fi  
+exit 0  

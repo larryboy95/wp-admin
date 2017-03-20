@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cmd="cd /var/www/html; git add .; git commit -am 'Automatic update.'; git push"
+ssh -t ${1} ${cmd}
+exit 0
