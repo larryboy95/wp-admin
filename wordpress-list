@@ -2,13 +2,11 @@
 n=0
 while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ $line == *"Host "* ]]; then
-        host[$n]="${line#Host *}"
-        args="--path=/var/www/html --ssh=${host}"
-        url="$(wp $args option get siteurl)"
-	wait
-        echo $n ${host[$n]} $url
+        host="${line#Host *}"
+        args="--path=/var/www/html"
+        ssh -q ${host} "[ -f /usr/local/bin/wp ] && wp --quiet $args core is-installed || exit 1" < /dev/null
+	echo $?
         ((n++))
-	sleep 3
     fi
 done < ~/.ssh/config
 
