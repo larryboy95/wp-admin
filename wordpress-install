@@ -28,11 +28,16 @@ main ()
 		sudo mv nginx-snippets/* /etc/nginx/snippets/; \
 		sudo rm /etc/nginx/sites-enabled/digitalocean; \
 		sudo ln -s /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/; \
-		sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048; \
+		#sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048; \
 		sudo service nginx restart; \
 		sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}; \
 		sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt; \
 		sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/; \
+	"
+	ssh ${1} "sudo cat /root/.digitalocean_password" > /tmp/stupid
+	source /tmp/stupid
+	ssh -t ${1} "\
+		mysql -uroot -p\"${root_mysql_pass}\" -e \"drop database ${dbname}; create database ${dbname}; create user ${dbuser}@${dbhost} identified by ${dbpass}; grant all privileges on ${dbname}.* to ${dbuser}@${dbhost}; flush privileges;\" \
 	"
 	ssh -t ${1} "\
 		cd /var/www/html; \
