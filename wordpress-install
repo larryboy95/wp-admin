@@ -18,7 +18,7 @@ main ()
 	read -p "Email: " email
 	cd ${scriptdir}
 	cp -vr assets/nginx-* /tmp
-	sed -i -e "s/BRANCH/live/g" /tmp/nginx-wordpress
+	sed -i -e "s/BRANCH/${dbname}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs.conf
 	scp -r /tmp/nginx-* ${1}:
@@ -33,6 +33,7 @@ main ()
 		sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}; \
 		sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt; \
 		sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/; \
+		sudo service nginx restart; \
 	"
 	ssh ${1} "sudo cat /root/.digitalocean_password" > /tmp/stupid
 	source /tmp/stupid
@@ -50,7 +51,6 @@ main ()
 			--dbname=${dbname} \
 			--dbuser=${dbuser} \
 			--dbpass=${dbpass}; \
-		wp db create; \
 		wp core install \
 			--url=${fqdn} \
 			--title=${title} \
