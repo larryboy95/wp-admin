@@ -1,0 +1,37 @@
+#!/bin/bash
+main ()
+{
+	read -p "Database host: [localhost] " dbhost
+	dbhost=${dbhost:-localhost}
+	read -p "Database user: [wp] " dbuser
+	dbuser=${dbuser:-wp}
+	read -p "Database name: [live] " dbname
+	dbname=${dbname:-live}
+	read -p "Database password: " dbpass
+	read -p "FQDN: " url
+	read -p "Site title: [Title] " title
+	title=${title:-Title}
+	read -p "User: [admin] " user
+	user=${user:-admin}
+	read -p "Password: " password
+	read -p "Email: " email
+	ssh -t ${1} "\
+		cd /var/www/html; \
+		wp core download; \
+		wp core config \
+			--dbhost=$dbhost \
+			--dbname=$dbname \
+			--dbuser=$dbuser \
+			--dbpass=$dbpass; \
+		wp db create; \
+		wp core install \
+			--url=$url \
+			--title=$title \
+			--admin_user=$user \
+			--admin_password=$password \
+			--admin_email=$email \
+			--skip-email \
+		"
+	}
+main ${1}
+exit 0		
