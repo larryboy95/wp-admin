@@ -2,12 +2,9 @@
 
 target=${1}.sql
 backupDir="/var/backups/wordpress"
-wp=$(which wp)
-gzip=$(which gzip)
 
 function rotate()
 {
-	echo "Rotate ${1} backups"
 	i="8"
 	while [ $i -gt 0 ]
 	do
@@ -24,31 +21,25 @@ function rotate()
 if [ ${2+x} ]; then
 	if [ $2 == "daily" ]; then
 		cd ${backupDir}/daily
-		echo "Write daily backup"
 		rotate $1
 	elif [ $2 == "hourly" ]; then
 		cd ${backupDir}/hourly
-		echo "Write hourly backup"
 		rotate $1
 	elif [ $2 == "tmp" ]; then
 		cd /tmp
-		echo "Write new backup to /tmp"
 		rotate $1
 	fi
 else
 	cd ${backupDir}/manual
-	echo "Write manual backup"
 	rotate $1
 fi
 
-# Setup ssh hosts first in ~/.ssh/config
-args="--path=/var/www/html --ssh=$1"
-
+args="--path=/var/www/html"
 echo "Export db from WordPress..."
-$wp $args db export - > "${target}"
-
-# Zip that shit up
-$gzip -vf ${target}
+ssh ${1} "\
+	wp ${args} db export /var/www/${target};
+	gzip -vf /var/www/${target}"
+scp ${1}:/var/www/${target}.gz .
 
 echo $(date) "Backup completed for ${1} (${2})" 
 

@@ -1,11 +1,11 @@
 #!/bin/bash
-
-# Setup ssh hosts first in ~/.ssh/config
-args="--path=/var/www/html --ssh=$1"
 wordpress-backup $1 tmp
-wp $args core version
-wp $args core update
-wp $args core update-db
-wp $args plugin update --all
+# Setup ssh hosts first in ~/.ssh/config
+args="--path=/var/www/html"
+ssh -t ${1} "\
+	wp $args core version;\
+	wp $args core update;\
+	wp $args core update-db;\
+	wp $args plugin update --all"
 
 exit 0
