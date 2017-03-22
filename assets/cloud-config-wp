@@ -41,4 +41,4 @@ runcmd:
   - printf "\n/swapfile   none    swap    sw    0   0" >> /etc/fstab
   - rm -f /var/www/html/*
   - ln -s /var/www /home/dev/www
-
+  - mysql -e "create database live; create user 'wp'@'localhost' identified by 'PASSWORD'; grant all privileges on live.* to 'wp'@'localhost'; flush privileges;"
