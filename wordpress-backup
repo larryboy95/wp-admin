@@ -1,5 +1,15 @@
 #!/bin/bash
 
+args="--path=/var/www/html"
+ssh -q ${1} "\
+	[ -f /usr/local/bin/wp ] \
+	&& wp --quiet $args core is-installed \
+	|| exit 1" < /dev/null
+if [ ! $? -eq 0 ]; then
+	echo "${1} is not online. Proceed manually."
+	exit 1
+fi
+
 target=${1}.sql
 backupDir="/var/backups/wordpress"
 
