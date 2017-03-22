@@ -18,18 +18,21 @@ main ()
 	read -p "Email: " email
 	cd ${scriptdir}
 	cp -vr assets/nginx-* /tmp
-	sed -i -e 's/[BRANCH]/live/g' /tmp/nginx-wordpress
-	sed -i -e 's/[FQDN]/${fqdn}/g' /tmp/nginx-wordpress
-	sed -i -e 's/[FQDN]/${fqdn}/g' /tmp/nginx-snippets/ssl-certs.conf
+	sed -i -e "s/BRANCH/live/g" /tmp/nginx-wordpress
+	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-wordpress
+	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs.conf
 	scp -r /tmp/nginx-* ${1}:
 	ssh -t ${1} "\
 		sudo mv nginx-letsencrypt /etc/nginx/sites-available/; \
 		sudo mv nginx-wordpress /etc/nginx/sites-available/; \
 		sudo mv nginx-snippets/* /etc/nginx/snippets/; \
 		sudo rm /etc/nginx/sites-enabled/digitalocean; \
-		sudo ln -s /etc/nginx/sites-available/nginx-* /etc/nginx/sites-enabled/; \
-		sudo service ngonx restart; \
-		sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}
+		sudo ln -s /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/; \
+		sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048; \
+		sudo service nginx restart; \
+		sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}; \
+		sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt; \
+		sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/; \
 	"
 	ssh -t ${1} "\
 		cd /var/www/html; \
