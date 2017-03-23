@@ -81,6 +81,7 @@ neil@wp-admin:~$
 
 #### <a name="usage"></a> Usage
 
+```
 wordpress-list
 	- Checks every host in ~/.ssh/config for a compatible WP install, outputs clean list of hosts that pass the test
 wordpress-backup HOST FREQUENCY
@@ -101,7 +102,7 @@ wordpress-deleteAll
 	- Delete all posts
 os-update HOST
 	- Basic apt-get stuff
-
+```
 
 #### <a name="examples"></a> Examples
 
