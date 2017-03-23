@@ -13,7 +13,7 @@ Packages and prerequisites:
 
 #### Status
 
-Alpha. Tested on Ubuntu 16.04 with WordPress 4.7.3.
+Beta. Tested on Ubuntu 16.04 with WordPress 4.7.3.
 
 #### Goals
 
@@ -80,6 +80,30 @@ neil@wp-admin:~$
 
 
 #### <a name="usage"></a> Usage
+
+wordpress-list
+	- Checks every host in ~/.ssh/config for a compatible WP install, outputs clean list of hosts that pass the test
+wordpress-backup HOST FREQUENCY
+	- Where FREQUENCY is one of hourly, daily, manual or tmp
+wordpress-restore HOST FREQUENCY
+	- Restores the latest backup for HOST in the FREQUENCY dir
+wordpress-clone HOST
+	- Clones the live db for HOST to /var/www/stagin site on same server
+wordpress-update HOST
+	- Updates core and plugins
+wordpress-commit HOST
+	- Commits and pushes changes to master branch (for post-update)
+wordpress-install HOST
+	- Configures web and db servers, LetsEncrypt SSL, installs WP. For use with new LEMP droplets at Digitalocean created with the cloud-config script in `assets/`
+wordpress-remote HOST "CMD CMD CMD CMD"
+	- Run arbitrary wp-cli commands on HOST
+wordpress-deleteAll
+	- Delete all posts
+os-update HOST
+	- Basic apt-get stuff
+
+
+#### <a name="examples"></a> Examples
 
 `wordpress-clone HOST` clones the live db to the staging site for that host.
 
