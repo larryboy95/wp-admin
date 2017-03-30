@@ -1,0 +1,50 @@
+#!/bin/bash
+
+main()
+{
+	read -p "Repo url: " repo
+	read -p "Port for git-auto-deploy [7777]: " gadport
+	gadport=${gadport:-7777}
+	read -p "Branch [master]: " branch
+	branch=${branch:-master}
+	read -p "Path [/var/www/html]: " webroot
+	webroot=${webroot:-/var/www/html}
+	read -p "Ssh credentials dir [~/essentials/dev-ssh]: " identity
+	identity=${identity:-~/essentials/dev-ssh}
+	scaffold=~/essentials/git-auto-deploy.scaffold
+	# escape string:
+	wresc=$(printf "%q" webroot)
+
+	# Search and replace values in scaffold
+	sed -i -e "s/GADPORT/${gadport}/g" ${scaffold}
+	sed -i -e "s/BRANCH/${branch}/g" ${scaffold}
+	sed -i -e "s/REPOURL/${repo}/g" ${scaffold}
+	sed -i -e "s/WEBROOT/${wresc}/g" ${scaffold}
+
+	# First setup the standard dev user git credentials
+	ssh ${1} "mkdir ~/.ssh"
+	scp ${identity}/* ${1}:.ssh/
+	scp ${scaffold} ${1}:
+	ssh ${1} "sudo mv git-auto-deploy.scaffold /etc/git-auto-deploy.conf.json"
+
+	cmd="chmod 600 ~/.ssh/id_rsa; \
+		sudo apt-get update; \
+		sudo apt-get install -y software-properties-common; \
+		sudo add-apt-repository -y ppa:olipo186/git-auto-deploy; \
+		sudo apt-get update; \
+		sudo apt-get install -y git-auto-deploy; \
+		sudo cp ~/.ssh/* /etc/git-auto-deploy/.ssh/; \
+		sudo chown -R git-auto-deploy:git-auto-deploy /etc/git-auto-deploy; \
+		sudo chown -R git-auto-deploy:git-auto-deploy ${webroot}; \
+		sudo chown -R www-data:www-data ${webroot}/wp-content/uploads; \
+		sudo service git-auto-deploy start; \
+	"
+	ssh -t ${1} ${cmd}
+}
+echo "Install/configure dev keys/git-auto-deploy on ${1}?"
+read -p "Are you sure? " -n 1 -r  
+echo    # (optional) move to a new line  
+if [[ $REPLY =~ ^[Yy]$ ]]; then  
+	main ${1}
+fi
+exit 0

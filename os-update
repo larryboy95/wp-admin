@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cmd="sudo apt-get update; sudo apt-get -y autoremove; sudo apt-get -y upgrade"
+cmd="sudo apt-get update; sudo apt-get -y upgrade"
 ssh -t ${1} ${cmd}
 exit 0
