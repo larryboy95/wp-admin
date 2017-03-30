@@ -1,6 +1,7 @@
 #!/bin/bash
 
 args="--path=/var/www/html"
+# See wordpress-list for explanation of this code:
 ssh -q ${1} "\
 	[ -f /usr/local/bin/wp ] \
 	&& wp --quiet $args core is-installed \
@@ -15,7 +16,7 @@ backupDir="/var/backups/wordpress"
 
 function rotate()
 {
-	i="8"
+	i="24"
 	while [ $i -gt 0 ]
 	do
 		if [ $i -gt 1 ]; then
@@ -40,14 +41,15 @@ if [ ${2+x} ]; then
 		rotate $1
 	fi
 else
+	# Set second positional argument
+	set -- ${1} "manual"
 	cd ${backupDir}/manual
 	rotate $1
 fi
 
 args="--path=/var/www/html"
-echo "Export db from WordPress..."
 ssh ${1} "\
-	wp ${args} db export /var/www/${target};
+	wp ${args} db export /var/www/${target}; \
 	gzip -vf /var/www/${target}"
 scp ${1}:/var/www/${target}.gz .
 
