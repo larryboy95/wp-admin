@@ -17,11 +17,13 @@ Beta. Tested on Ubuntu 16.04 with WordPress 4.7.3.
 
 #### Goals
 
-* Intended for use by web developers as an aid in development and to help learn terminal server administration
+* Readability to help new users learn scripting
 
 * Every write function must be preceeded by a backup and offer an undo
 
-* Each script should produce machine readable output wherever relevant so scripts can be used together
+* Scripts should be single purpose and built to work as part of a higher order script
+
+* Output should be concise and consotent for logging
 
 * Each script should be portable enough for cron
 
@@ -48,34 +50,6 @@ Host clientsite
 ```
 Enter the same info for every site you intend to maintain, with a nifty shortname (Host) for convenience and legibility. Then you can access your servers over ssh, even with custom ports, like this: `ssh clientsite` 😍
 
-
-#### <a name="how"></a> How It Works
-
-You call each script below using that same Host: `wordpress-update clientsite` and pass it straight through to SSH (it becomes the variable $1). For example:
-```
-#!/bin/bash
-wp --path=/var/www/html --ssh=$1 plugin update --all
-```
-
-This is how it runs:
-
-```
-neil@wp-admin:~$ wordpress-update clientsite
-Enabling Maintenance mode...
-Downloading update from https://downloads.wordpress.org/plugin/woocommerce-gateway-stripe.3.1.1.zip...
-Unpacking the update...
-Installing the latest version...
-Removing the old version of the plugin...
-Plugin updated successfully.
-Disabling Maintenance mode...
-+----------------------------+-------------+-------------+---------+
-| name                       | old_version | new_version | status  |
-+----------------------------+-------------+-------------+---------+
-| woocommerce-gateway-stripe | 3.0.7       | 3.1.1       | Updated |
-+----------------------------+-------------+-------------+---------+
-Success: Updated 1 of 1 plugins.
-neil@wp-admin:~$
-```
 
 
 
@@ -164,10 +138,10 @@ Tue Mar 21 22:06:03 PDT 2017 Backup completed for personal (tmp)
 
 `wordpress-remote HOST "COMMAND COMMAND ..."` is for running any arbitrary wp-cli command on the remote host. Use with caution.
 
-`wordpress-list` reads the file `~/.ssh/config` to find WordPress hosts. It should verify the connection to each and output a list of hosts that can be used in batch scripts to run `wordpress-update` or `wordpress-backup` programatically. It's a work-in-progress.
+`wordpress-list` reads the file `~/.ssh/config` to find WordPress hosts. It verifies the connection to each and outputs a list of hosts that can be used in batch scripts to run `wordpress-update` or `wordpress-backup` programatically.
 
 
-`os-install-gad`
+`os-install-gad HOST`
 ```
 neil@wp-admin:~$ os-install-gad testing
 Install/configure dev keys/git-auto-deploy on testing?
@@ -218,8 +192,3 @@ Connection to testing.neilscudder.com closed.
 ```
 
 
-
-TODO:
-* test for update failure
-* how to roll back a failed update
-* commit and push to master after updates
