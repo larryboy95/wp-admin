@@ -101,7 +101,9 @@ wordpress-remote HOST "CMD CMD CMD CMD"
 wordpress-deleteAll
 	- Delete all posts
 os-update HOST
-	- Basic apt-get stuff
+	- Update and upgrade system software
+os-install-gad HOST
+	- Install and configure git-auto-deploy with the same ssh keys as the dev user
 ```
 
 #### <a name="examples"></a> Examples
@@ -165,7 +167,55 @@ Tue Mar 21 22:06:03 PDT 2017 Backup completed for personal (tmp)
 `wordpress-list` reads the file `~/.ssh/config` to find WordPress hosts. It should verify the connection to each and output a list of hosts that can be used in batch scripts to run `wordpress-update` or `wordpress-backup` programatically. It's a work-in-progress.
 
 
-
+`os-install-gad`
+```
+neil@wp-admin:~$ os-install-gad testing
+Install/configure dev keys/git-auto-deploy on testing?
+Are you sure? y
+Repo url: riri
+Port for git-auto-deploy [7777]:
+Branch [master]:
+Path [/var/www/html]:
+Ssh credentials dir [~/essentials/dev-ssh]:
+mkdir: cannot create directory ‘/home/dev/.ssh’: File exists
+authorized_keys                                               100%  746     0.7KB/s   00:00
+id_rsa                                                        100% 1679     1.6KB/s   00:00
+id_rsa.pub                                                    100%  393     0.4KB/s   00:00
+known_hosts                                                   100%  888     0.9KB/s   00:00
+git-auto-deploy.scaffold                                      100%  333     0.3KB/s   00:00
+Get:1 http://security.ubuntu.com/ubuntu xenial-security InRelease [102 kB]
+Hit:2 http://ppa.launchpad.net/olipo186/git-auto-deploy/ubuntu xenial InRelease
+Hit:3 http://nyc2.mirrors.digitalocean.com/ubuntu xenial InRelease
+Hit:4 http://nyc2.mirrors.digitalocean.com/ubuntu xenial-updates InRelease
+Hit:5 http://nyc2.mirrors.digitalocean.com/ubuntu xenial-backports InRelease
+Fetched 102 kB in 0s (111 kB/s)
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+software-properties-common is already the newest version (0.96.20.5).
+0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+gpg: keyring `/tmp/tmpnw1pw9oo/secring.gpg' created
+gpg: keyring `/tmp/tmpnw1pw9oo/pubring.gpg' created
+gpg: requesting key 0199DC32 from hkp server keyserver.ubuntu.com
+gpg: /tmp/tmpnw1pw9oo/trustdb.gpg: trustdb created
+gpg: key 0199DC32: public key "Launchpad PPA for Oliver Poignant" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)
+OK
+Hit:1 http://mirrors.digitalocean.com/ubuntu xenial InRelease
+Hit:2 http://mirrors.digitalocean.com/ubuntu xenial-updates InRelease
+Hit:3 http://mirrors.digitalocean.com/ubuntu xenial-backports InRelease
+Hit:4 http://ppa.launchpad.net/olipo186/git-auto-deploy/ubuntu xenial InRelease
+Hit:5 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+git-auto-deploy is already the newest version (0.13~xenial-xenial).
+0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+Connection to testing.neilscudder.com closed.
+```
 
 
 
