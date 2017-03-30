@@ -1,5 +1,4 @@
 #!/bin/bash
-n=0
 while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ $line == *"Host "* ]]; then
         host="${line#Host *}"
@@ -11,7 +10,6 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 	if [ $? -eq 0 ]; then
 		echo ${host}
 	fi
-        ((n++))
     fi
 done < ~/.ssh/config
 
