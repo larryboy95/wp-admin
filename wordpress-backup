@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Check if there is a first argument
+if [  ${1+x} ]; then
+	if [ $1 == "daily" ] || [ $1 == "hourly" ] || [ $1 == "manual" ] || [ $1 == "tmp" ]; then
+		echo "Error in first argument."
+		exit 1
+	fi
+else
+	echo "Missing first argument."
+	exit 1
+fi
+
 args="--path=/var/www/html"
 # See wordpress-list for explanation of this code:
 ssh -q ${1} "\
