@@ -12,13 +12,14 @@ main()
 	read -p "Ssh credentials dir [~/essentials/dev-ssh]: " identity
 	identity=${identity:-~/essentials/dev-ssh}
 	scaffold=~/essentials/git-auto-deploy.scaffold
-	# escape string:
-	wresc=$(printf "%q" webroot)
+	# escape strings:
+	wesc=$(printf "%q" webroot)
+	resc=$(printf "%q" repo)
 
 	# Search and replace values in scaffold
 	sed -i -e "s/GADPORT/${gadport}/g" ${scaffold}
 	sed -i -e "s/BRANCH/${branch}/g" ${scaffold}
-	sed -i -e "s/REPOURL/${repo}/g" ${scaffold}
+	sed -i -e "s/REPOURL/${resc}/g" ${scaffold}
 	sed -i -e "s/WEBROOT/${wresc}/g" ${scaffold}
 
 	# First setup the standard dev user git credentials
