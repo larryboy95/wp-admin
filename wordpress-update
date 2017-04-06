@@ -2,10 +2,12 @@
 wordpress-backup $1 tmp
 # Setup ssh hosts first in ~/.ssh/config
 args="--path=/var/www/html"
-ssh -t ${1} "\
-	wp $args core version;\
-	wp $args core update;\
-	wp $args core update-db;\
-	wp $args plugin update --all"
-
+ssh -t ${1} "wp $args core is-installed"
+[ ! $? -eq 0 ] && exit $?
+ssh -t ${1} "wp $args core update"
+[ ! $? -eq 0 ] && exit $?
+ssh -t ${1} "wp $args core update-db"
+[ ! $? -eq 0 ] && exit $?
+ssh -t ${1} "wp $args plugin update --all"
+[ ! $? -eq 0 ] && exit $?
 exit 0
