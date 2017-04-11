@@ -1,13 +1,19 @@
 #!/bin/bash
-wordpress-backup $1 tmp
+wordpress-backup ${1} tmp
 # Setup ssh hosts first in ~/.ssh/config
 args="--path=/var/www/html"
 ssh -t ${1} "wp $args core is-installed"
 [ ! $? -eq 0 ] && exit $?
 ssh -t ${1} "wp $args core update"
 [ ! $? -eq 0 ] && exit $?
-ssh -t ${1} "wp $args core update-db"
-[ ! $? -eq 0 ] && exit $?
 ssh -t ${1} "wp $args plugin update --all"
 [ ! $? -eq 0 ] && exit $?
+ssh -t ${1} "wp $args core update-db"
+[ ! $? -eq 0 ] && exit $?
+
+read -p "Commit and push changes. Are you sure? " -n 1 -r  
+echo    # (optional) move to a new line  
+if [[ $REPLY =~ ^[Yy]$ ]] ; then 
+	wordpress-commit ${1}
+fi
 exit 0
