@@ -1,0 +1,21 @@
+{
+  "pidfilepath": "~/.gitautodeploy.pid",
+  "http-enabled": false,
+  "https-enabled": true,
+  "https-host": "0.0.0.0",
+  "https-port": GADPORT,
+  "repositories": [
+    {
+      "url": "REPOURL",
+      "branch": "BRANCH",
+      "remote": "origin",
+      "path": "WEBROOT",
+      "filters": [
+        {
+          "object_kind": "push",
+          "ref": "refs/heads/BRANCH"
+        }
+      ]
+    }
+  ]
+}

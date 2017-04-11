@@ -17,10 +17,6 @@ main()
 	identity=${identity:-~/essentials/dev-ssh}
 	cp ${scriptdir}/assets/git-auto-deploy.scaffold /tmp/
 	scaffold=/tmp/git-auto-deploy.scaffold
-	# escape strings:
-	wesc=$(printf '%b' ${webroot})
-	resc=$(printf '%b' ${repo})
-	echo $wesc $resc
 	# Search and replace values in scaffold
 	sed -i -e 's/GADPORT/'${gadport}'/g' ${scaffold}
 	sed -i -e 's/BRANCH/'${branch}'/g' ${scaffold}
