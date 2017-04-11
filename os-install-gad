@@ -18,14 +18,14 @@ main()
 	cp ${scriptdir}/assets/git-auto-deploy.scaffold /tmp/
 	scaffold=/tmp/git-auto-deploy.scaffold
 	# escape strings:
-	wesc=$(printf '%q' ${webroot})
-	resc=$(printf '%q' ${repo})
-
+	wesc=$(printf '%b' ${webroot})
+	resc=$(printf '%b' ${repo})
+	echo $wesc $resc
 	# Search and replace values in scaffold
 	sed -i -e 's/GADPORT/'${gadport}'/g' ${scaffold}
 	sed -i -e 's/BRANCH/'${branch}'/g' ${scaffold}
-	sed -i -e 's/REPOURL/'${resc}'/g' ${scaffold}
-	sed -i -e 's/WEBROOT/'${wresc}'/g' ${scaffold}
+	sed -i -e "s/REPOURL/${repo//\//\\/}/g" ${scaffold}
+	sed -i -e "s/WEBROOT/${webroot//\//\\/}/g" ${scaffold}
 
 	# First setup the standard dev user git credentials
 	ssh ${1} "[ ! -d ~/.ssh ] && mkdir ~/.ssh || echo 'folder exists'" < /dev/null
@@ -52,23 +52,28 @@ main()
 	"
 	ssh -t ${1} ${cmd}
 }
+# Error handling a la http://stackoverflow.com/a/22224317
 abort()
 {
-	# http://stackoverflow.com/a/22224317
 	echo "An error occurred. Exiting..." >&2
 	exit 1
 }
 trap 'abort' 0
 set -e
-
+# Check if there is no first argument
+if [ ! ${1+x} ]; then
+	echo "Missing host argument"
+	exit 1
+fi
+# Confirm user's intent
 echo "Install/configure dev keys/git-auto-deploy on ${1}?"
 read -p "Are you sure? (y/n) " -r  
 if [[ $REPLY =~ ^[Yy]$ ]]; then  
 	main ${1}
 fi
-# ditto
+# Trap all errors
 trap : 0
-
+# Exit normally
 echo >&2 '
 ************
 *** DONE *** 
