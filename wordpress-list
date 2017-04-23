@@ -10,7 +10,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
         args="--path=/var/www/html"
 	# The remote command is a conditional: if wp is found then execute, or exit status 1
         # The < /dev/null is needed to keep ssh from reading the rest of script as stdin
-        ssh -q ${host} "\
+        ssh -o ConnectTimeout=1 -o ConnectionAttempts=1 -q ${host} "\
 		[ -f /usr/local/bin/wp ] \
 		&& wp --quiet $args core is-installed \
 		|| exit 1" < /dev/null
