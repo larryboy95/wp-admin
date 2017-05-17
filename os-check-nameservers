@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+# Check if there is no first argument
+if [ ! ${1+x} ]; then
+	echo "Missing host argument"
+	exit 1
+fi
+
+ssh ${1} "grep nameserver /etc/resolv.conf"
+
+exit 0
