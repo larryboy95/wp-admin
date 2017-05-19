@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Usage: os-copy-uploads-dir HOST WORDPRESS_PATH
+
+ssh ${1} "cd ${2}/wp-content && tar -cf - uploads | gzip -9" > uploads.tgz
+
+exit 0
