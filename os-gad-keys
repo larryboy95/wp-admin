@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ssh ${1} "sudo cp .ssh/* /etc/git-auto-deploy/.ssh/; \
+	sudo chown git-auto-deploy:git-auto-deploy -R /etc/git-auto-deploy/.ssh; \
+"
+exit 0

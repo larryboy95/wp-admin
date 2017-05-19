@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ssh ${1} "sudo chown git-auto-deploy /var/www/html -R; \
+	sudo chown www-data /var/www/html/wp-content/uploads; \
+"
