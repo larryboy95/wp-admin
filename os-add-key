@@ -1,5 +1,22 @@
 #!/bin/bash
 
-ssh ${1} "echo "$2" >> ~/.ssh/authorized_keys"
+set -e
+# Check if there is no first argument
+if [ ! ${1+x} ]; then
+	echo "Missing host argument"
+	exit 1
+fi
+# Check if there is no second argument
+if [ ! ${2+x} ]; then
+	echo "Missing public key"
+	exit 1
+fi
+
+# Confirm user's intent
+echo "Authorize this key on ${1}"
+read -p "Are you sure? (y/n) " -r  
+if [[ $REPLY =~ ^[Yy]$ ]]; then  
+	ssh ${1} "echo "$2" >> ~/.ssh/authorized_keys"
+fi
 
 exit 0
