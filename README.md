@@ -11,10 +11,6 @@ Packages and prerequisites:
 * ubuntu
 * WordPress
 
-#### Status
-
-Beta. Tested on Ubuntu 16.04 with WordPress 4.7.3.
-
 #### Goals
 
 * Readability to help new users learn scripting
@@ -23,9 +19,14 @@ Beta. Tested on Ubuntu 16.04 with WordPress 4.7.3.
 
 * Scripts should be single purpose and built to work as part of a higher order script
 
-* Output should be concise and consotent for logging
+* Output should be concise and consistent for logging
 
 * Each script should be portable enough for cron
+
+#### Status
+
+Beta. Tested on Ubuntu 16.04 with WordPress 4.7.3.
+
 
 
 #### <a name="install"></a> Installation
