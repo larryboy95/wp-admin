@@ -8,11 +8,11 @@ backupsToKeep=28
 # Check if there is a first argument
 if [  ${1+x} ]; then
 	if [ $1 == "daily" ] || [ $1 == "hourly" ] || [ $1 == "manual" ] || [ $1 == "tmp" ]; then
-		echo "Error in first argument."
+		notify "Error in first argument, $1 $2 backup."
 		exit 1
 	fi
 else
-	echo "Missing first argument."
+	notify "Missing first argument $1 $2 backup."
 	exit 1
 fi
 
@@ -22,7 +22,7 @@ ssh -q ${1} "\
 	&& wp --quiet $args core is-installed \
 	|| exit 1" < /dev/null
 if [ ! $? -eq 0 ]; then
-	echo "${1} is not online. Proceed manually."
+	notify "${1} is not online. What the heck?"
 	exit 1
 fi
 
@@ -61,14 +61,14 @@ fi
 
 ssh ${1} "wp ${args} db export /var/www/${target}"
 if [ ! $? -eq 0  ]; then
-	echo $(date) "Backup export failed for ${1} (${2})" 
+	notify "Backup export failed for ${1} (${2})" 
 	exit 1
 fi
 ssh ${1} "gzip -vf /var/www/${target}"
 if [ ! $? -eq 0  ]; then
-	echo $(date) "Backup gzip failed for ${1} (${2})" 
+	notify "Backup gzip failed for ${1} (${2})" 
 	exit 1
 fi
 scp ${1}:/var/www/${target}.gz .
-echo $(date) "Backup completed for ${1} (${2})" 
+notify "Backup completed for ${1} (${2})" 
 exit 0

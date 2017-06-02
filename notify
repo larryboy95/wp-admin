@@ -1,0 +1,4 @@
+#!/bin/sh
+. ~/.tweet.sh.conf
+tweet.sh post "${1} ${2} ${3}" >> ~/log.tweets
+exit 0
