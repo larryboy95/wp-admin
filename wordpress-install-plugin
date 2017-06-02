@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ssh -t ${1} "\
+	wp --path=/var/www/html plugin install ${2} ;\
+	wp --path=/var/www/html plugin activate ${2} ;\
+	cd /var/www/html ;\
+	git add . ;\
+	git commit -am "Add ${2} plugin" ;\
+	git push ;\
+"
