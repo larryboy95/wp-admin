@@ -70,5 +70,5 @@ if [ ! $? -eq 0  ]; then
 	exit 1
 fi
 scp ${1}:/var/www/${target}.gz .
-notify "Backup completed for ${1} (${2})" 
+echo $(date) "Backup completed for ${1} (${2})" 
 exit 0
