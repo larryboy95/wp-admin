@@ -1,6 +1,19 @@
 #!/bin/bash
 
-ssh ${1} "sudo chown -R git-auto-deploy /var/www/html; \
+# Check if there is no first argument
+if [ ! ${1+x} ]; then
+	echo "Missing host argument ${!}"
+	exit 1
+elif [ ! ${2+x} ]; then
+	read -p "User: [git-auto-deploy]" webroot_owner
+	webroot_owner=${webroot_owner:-git-auto-deploy}
+else
+	webroot_owner=${2}
+fi
+ssh ${1} "sudo chown -R ${webroot_owner}  /var/www/html; \
 	sudo chown -R www-data /var/www/html/wp-content/uploads; \
 	sudo chown -R www-data /var/www/html/wp-content/banners; \
+	sudo find /var/www/html -type f -exec chmod 644 {} +; \
+	sudo find /var/www/html -type d -exec chmod 755 {} +; \
 "
+exit 0

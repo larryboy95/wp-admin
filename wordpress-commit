@@ -1,8 +1,10 @@
 #!/bin/bash
 
 cmd="cd /var/www/html; \ 
-	git add .; \
+	git add -A; \
+	git add -A; \
 	git commit -am 'Automatic update.'; \
+	git config --global push.default simple; \
 	git push; \
 	sudo chown git-auto-deploy -R /var/www/html; \
 	sudo chown www-data -R /var/www/html/wp-content/uploads; \

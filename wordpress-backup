@@ -16,7 +16,7 @@ else
 	exit 1
 fi
 
-# See wordpress-list for explanation of this code:
+# There is no explanation for this code
 ssh -q ${1} "\
 	[ -f /usr/local/bin/wp ] \
 	&& wp --quiet $args core is-installed \
