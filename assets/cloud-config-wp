@@ -3,12 +3,12 @@
 users:
   - name: dev
     ssh-authorized-keys:
-  - [PUBLICKEY]
+      - YOUR KEY GOES HERE
     groups: sudo
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
 runcmd:
-  - sed -i -e '/^Port/s/^.*$/Port [SSHDPORT]/' /etc/ssh/sshd_config
+  - sed -i -e '/^Port/s/^.*$/Port 9999/' /etc/ssh/sshd_config
   - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
   - sed -i -e '$aAllowUsers dev' /etc/ssh/sshd_config
   - service ssh restart
@@ -16,11 +16,11 @@ runcmd:
   - ufw allow 9999/tcp
   - ufw allow http
   - ufw allow https
-  - ufw allow from [ADMINIP]
+  - ufw allow from YOUR IP GOES HERE
   - ufw --force enable
   - apt-get update
   - apt-get -y upgrade
-  - apt-get -y install git php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc glances vim software-properties-common curl
+  - apt-get -y install git php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php7.0-tidy vim software-properties-common curl
   - add-apt-repository -y ppa:olipo186/git-auto-deploy
   - apt-get update
   - apt-get -y install git-auto-deploy
@@ -41,4 +41,4 @@ runcmd:
   - printf "\n/swapfile   none    swap    sw    0   0" >> /etc/fstab
   - rm -f /var/www/html/*
   - ln -s /var/www /home/dev/www
-  - mysql -e "create database live; create user 'wp'@'localhost' identified by 'PASSWORD'; grant all privileges on live.* to 'wp'@'localhost'; flush privileges;"
+
