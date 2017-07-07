@@ -40,7 +40,7 @@ Host configuration in your local `~/.ssh/config`:
 
 ```
 Host clientsite
-        HostName www.clientsite.com
+        HostName 10.1.1.1
         Port 22
         User dev
         IdentityFile ~/.ssh/id_rsa
