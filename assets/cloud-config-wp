@@ -3,7 +3,7 @@
 users:
   - name: dev
     ssh-authorized-keys:
-      - YOUR KEY GOES HERE
+      - [YOUR PUBLIC SSH KEY GOES HERE]
     groups: sudo
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
@@ -16,7 +16,7 @@ runcmd:
   - ufw allow 9999/tcp
   - ufw allow http
   - ufw allow https
-  - ufw allow from YOUR IP GOES HERE
+  - ufw allow from [YOUR IP GOES HERE]
   - ufw --force enable
   - apt-get update
   - apt-get -y upgrade
