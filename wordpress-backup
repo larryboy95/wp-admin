@@ -16,7 +16,7 @@ else
 	exit 1
 fi
 
-# There is no explanation for this code
+# Look for the wp-cli binary, if found then run test to see if wp installed
 ssh -q ${1} "\
 	[ -f /usr/local/bin/wp ] \
 	&& wp --quiet $args core is-installed \
