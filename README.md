@@ -80,7 +80,7 @@ Enter the same info for every site you intend to maintain, with a nifty shortnam
 	- For use with new LEMP droplets at Digitalocean created with the cloud-config script in `assets/`
 - wordpress-remote HOST "CMD CMD CMD CMD"
 	- Run arbitrary wp-cli commands on HOST
-- wordpress-deleteAll
+- wordpress-deleteAll HOST
 	- Delete all posts
 - os-update HOST
 	- Update and upgrade system software
