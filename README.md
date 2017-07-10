@@ -52,44 +52,43 @@ Host clientsite
 Enter the same info for every site you intend to maintain, with a nifty shortname (Host) for convenience and legibility. Then you can access your servers over ssh, even with custom ports, like this: `ssh clientsite` 😍
 
 ## Usage
-```
-wordpress-list
+
+- wordpress-list
 	- Checks every host in ~/.ssh/config for a compatible WP install, outputs clean list of hosts that pass the test
-wordpress-backup HOST FREQUENCY
+- wordpress-backup HOST FREQUENCY
 	- Where FREQUENCY is one of hourly, daily, manual or tmp. Defaults to manual
-wordpress-backup-all FREQUENCY
+- wordpress-backup-all FREQUENCY
 	- Script in alpha status, use with caution
 	- Reads a file ~/wp.sitelist with one Host alias per line
 	- Frequency argument is not optional
 	- Use `wordpress-list > ~/wp.sitelist` to update site list
 	- Executes the wordpress-backup script once per host in parallel
-wordpress-restore HOST FREQUENCY
+- wordpress-restore HOST FREQUENCY
 	- Script in alpha status, use with caution
 	- Restores the latest backup for HOST in the FREQUENCY dir
-wordpress-update HOST
+- wordpress-update HOST
 	- Updates core only
-wordpress-update-plugins HOST
+- wordpress-update-plugins HOST
 	- Updates all plugins (use with caution)
-wordpress-permissions HOST USER
+- wordpress-permissions HOST USER
 	- Will prompt for user name if not supplied
 	- Used in the update script to switch ownership back and forth between dev and git-auto-deploy
-wordpress-commit HOST
+- wordpress-commit HOST
 	- Commits and pushes changes (for post-update)
-wordpress-install HOST
+- wordpress-install HOST
 	- Configures web and db servers, LetsEncrypt SSL, installs WP. 
 	- For use with new LEMP droplets at Digitalocean created with the cloud-config script in `assets/`
-wordpress-remote HOST "CMD CMD CMD CMD"
+- wordpress-remote HOST "CMD CMD CMD CMD"
 	- Run arbitrary wp-cli commands on HOST
-wordpress-deleteAll
+- wordpress-deleteAll
 	- Delete all posts
-os-update HOST
+- os-update HOST
 	- Update and upgrade system software
-os-setup-gad HOST
+- os-setup-gad HOST
 	- Install and configure git-auto-deploy with the same ssh keys as the dev user
-os-setup-certbot HOST
+- os-setup-certbot HOST
 	- Install and configure automatic SSL certificate updates
 	- Requires fully configured server with LetsEncrypt certs already installed
-```
 
 
 
