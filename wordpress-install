@@ -5,6 +5,7 @@ error_exit() {
 	echo "Command [$lc] exited with code [$rc]"
 }
 trap error_exit EXIT
+set -e
 
 main() 
 {
@@ -24,26 +25,27 @@ main()
 	read -p "Password: " password
 	read -p "Email: " email
 
-	# check if dir exists
 	cd ${scriptdir}
 	cp -vr assets/nginx-* /tmp
-	
+
+	# if dbname or fqdn empty abort	
+	[[ -z $dbname ]] && exit "db Name must not be empty"
+	[[ -z $fqdn ]] && exit "domain name must not be empty"
 	sed -i -e "s/BRANCH/${dbname}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs.conf
 	scp -r /tmp/nginx-* ${1}:
 
-	ssh -t ${1} "[ ! -f /etc/nginx/sites-available/nginx-letsencrypt ] && sudo mv nginx-letsencrypt /etc/nginx/sites-available/"
-	ssh -t ${1} "sudo mv nginx-wordpress /etc/nginx/sites-available/"
-	ssh -t ${1} "sudo mv nginx-snippets/* /etc/nginx/snippets/"
-	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/*"
-	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/"
-	# check if exists already
+	ssh -t ${1} "sudo mv -v nginx-letsencrypt /etc/nginx/sites-available/"
+	ssh -t ${1} "sudo mv -v nginx-wordpress /etc/nginx/sites-available/"
+	ssh -t ${1} "sudo mv -v nginx-snippets/* /etc/nginx/snippets/"
+	ssh -t ${1} "sudo rm -v /etc/nginx/sites-enabled/*"
+	ssh -t ${1} "sudo ln -sv /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/"
 	ssh -t ${1} "sudo service nginx restart"
-	# check dns resolution
-	# check if certs exist before proceeding
+	# TODO: check dns resolution matches ip
+	# TODO: check if certs exist before proceeding
 	ssh -t ${1} "sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}"
-	# check that certs exist before proceeding
+	# TODO: check that certs exist before proceeding
 	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
 	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
 	ssh -t ${1} "sudo service nginx restart"
@@ -75,6 +77,5 @@ main()
 		" 
 }
 
-set -e
 main ${1}
 exit 0		
