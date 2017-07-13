@@ -1,1 +1,5 @@
 terminus
+*.swp
+*.gz
+*.sql
+*.conf
