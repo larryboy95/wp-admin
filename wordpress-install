@@ -55,7 +55,7 @@ main()
 	source /tmp/stupid
 	rm -f /tmp/stupid
 	myargs="-u root -p${root_mysql_pass} -e"
-	ssh ${1} "mysql ${myargs} \"drop database ${dbname};\"" 
+	ssh ${1} "mysql ${myargs} \"drop database ${dbname};\" || exit 0" 
 	ssh ${1} "mysql ${myargs} \"create database ${dbname};\"" 
 	ssh ${1} "mysql ${myargs} \"create user '${dbuser}'@'${dbhost}' identified by '${dbpass}';\"" 
 	ssh ${1} "mysql ${myargs} \"grant all privileges on ${dbname}.* to '${dbuser}'@'${dbhost}';\"" 
