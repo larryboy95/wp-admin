@@ -41,6 +41,7 @@ main()
 	ssh -t ${1} "sudo mv -v nginx-snippets/* /etc/nginx/snippets/"
 	ssh -t ${1} "sudo rm -v /etc/nginx/sites-enabled/*"
 	ssh -t ${1} "sudo ln -sv /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/"
+	ssh -t ${1} "[ ! -f /etc/ssl/certs/dhparam.pem ] && sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 || exit 0"
 	ssh -t ${1} "sudo service nginx restart"
 	# TODO: check dns resolution matches ip
 	# TODO: check if certs exist before proceeding
@@ -53,12 +54,12 @@ main()
 	ssh ${1} "sudo cat /root/.digitalocean_password" > /tmp/stupid
 	source /tmp/stupid
 	rm -f /tmp/stupid
-	myargs="-s -u root -p${root_mysql_pass} -e"
-	ssh ${1} "mysql ${myargs} \"drop database ${dbname};\"" \
-	ssh ${1} "mysql ${myargs} \"create database ${dbname};\"" \
-	ssh ${1} "mysql ${myargs} \"create user '${dbuser}'@'${dbhost}' identified by '${dbpass}';\"" \
-	ssh ${1} "mysql ${myargs} \"grant all privileges on ${dbname}.* to '${dbuser}'@'${dbhost}';\"" \
-	ssh ${1} "mysql ${myargs} \"flush privileges;\"" \
+	myargs="-u root -p${root_mysql_pass} -e"
+	ssh ${1} "mysql ${myargs} \"drop database ${dbname};\"" 
+	ssh ${1} "mysql ${myargs} \"create database ${dbname};\"" 
+	ssh ${1} "mysql ${myargs} \"create user '${dbuser}'@'${dbhost}' identified by '${dbpass}';\"" 
+	ssh ${1} "mysql ${myargs} \"grant all privileges on ${dbname}.* to '${dbuser}'@'${dbhost}';\"" 
+	ssh ${1} "mysql ${myargs} \"flush privileges;\"" 
 	ssh -t ${1} "\
 		cd /var/www/html; \
 		wp core download; \
