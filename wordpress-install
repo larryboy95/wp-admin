@@ -44,9 +44,16 @@ main()
 	ssh -t ${1} "[ ! -f /etc/ssl/certs/dhparam.pem ] && sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 || exit 0"
 	ssh -t ${1} "sudo service nginx restart"
 	# TODO: check dns resolution matches ip
-	# TODO: check if certs exist before proceeding
+	ssh -t ${1} "ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | grep -v 'addr:10\.' | cut -d: -f2 | cut -d ' ' -f 1" > /tmp/${fqdn}-ip
+	targetIP=$(cat /tmp/${fqdn}-ip)
+	ssh -t ${1} "host -4 -t A ${fqdn} | cut -d ' ' -f 4" > /tmp/${fqdn}-dns
+	dnsIP=$(cat /tmp/${fqdn}-dns)
+	if [ "$dnsIP" != "$targetIP" ]; then 
+		exit "The domain name ${fqdn} does not resolve to the specified droplet (${1})."
+	elif [ "$dnsIP" == "found:" ]; then
+		exit "The domain could not be resolved to any ip address. Check DNS records."
+	fi
 	ssh -t ${1} "sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}"
-	# TODO: check that certs exist before proceeding
 	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
 	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
 	ssh -t ${1} "sudo service nginx restart"
