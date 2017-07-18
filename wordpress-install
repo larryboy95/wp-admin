@@ -34,6 +34,7 @@ main()
 	sed -i -e "s/BRANCH/${dbname}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs.conf
+	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs-www.conf
 	scp -r /tmp/nginx-* ${1}:
 
 	ssh -t ${1} "sudo mv -v nginx-letsencrypt /etc/nginx/sites-available/"
@@ -54,6 +55,7 @@ main()
 		exit "The domain could not be resolved to any ip address. Check DNS records."
 	fi
 	ssh -t ${1} "sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}"
+	ssh -t ${1} "sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d www.${fqdn}"
 	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
 	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
 	ssh -t ${1} "sudo service nginx restart"

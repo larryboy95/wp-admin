@@ -53,3 +53,14 @@ server {
 	return 301 http://FQDN$request_uri;
 }
 
+# Redirect https://www to bare domain
+server {
+        # SSL configuration
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+        include snippets/ssl-certs-www.conf;
+        include snippets/ssl-params.conf;
+        #
+        server_name www.FQDN;
+        return 301 https://FQDN$request_uri;
+}
