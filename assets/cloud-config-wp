@@ -20,7 +20,7 @@ runcmd:
   - ufw --force enable
   - apt-get update
   - apt-get -y upgrade
-  - apt-get -y install git php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php7.0-tidy vim software-properties-common curl
+  - apt-get -y install git php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php7.0-tidy vim software-properties-common curl fail2ban
   - add-apt-repository -y ppa:olipo186/git-auto-deploy
   - apt-get update
   - apt-get -y install git-auto-deploy
