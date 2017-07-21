@@ -54,8 +54,9 @@ main()
 	elif [ "$dnsIP" == "found:" ]; then
 		exit "The domain could not be resolved to any ip address. Check DNS records."
 	fi
-	ssh -t ${1} "sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}"
-	ssh -t ${1} "sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d www.${fqdn}"
+	ssh -t ${1} "sudo certbot certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}"
+	ssh -t ${1} "sudo certbot certonly -a webroot --webroot-path=/var/www/html -d www.${fqdn}"
+	ssh -t ${1} "(sudo crontab -l ; echo '1 1 * * * /usr/bin/certbot renew --quiet --renew-hook \"/bin/systemctl reload nginx\"') | sort - | uniq - | sudo crontab -"
 	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
 	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
 	ssh -t ${1} "sudo service nginx restart"

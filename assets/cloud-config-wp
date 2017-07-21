@@ -3,7 +3,7 @@
 users:
   - name: dev
     ssh-authorized-keys:
-      - [YOUR PUBLIC SSH KEY GOES HERE]
+      - PUBLICKEY
     groups: sudo
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
@@ -16,11 +16,12 @@ runcmd:
   - ufw allow 9999/tcp
   - ufw allow http
   - ufw allow https
-  - ufw allow from [YOUR IP GOES HERE]
+  - ufw allow from ADMINIP
   - ufw --force enable
+  - add-apt-repository -y ppa:certbot/certbot
   - apt-get update
   - apt-get -y upgrade
-  - apt-get -y install git php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php7.0-tidy vim software-properties-common curl fail2ban
+  - apt-get -y install git php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php7.0-tidy vim software-properties-common curl fail2ban certbot
   - add-apt-repository -y ppa:olipo186/git-auto-deploy
   - apt-get update
   - apt-get -y install git-auto-deploy
