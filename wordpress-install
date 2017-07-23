@@ -3,6 +3,9 @@
 error_exit() {
 	local lc="$BASH_COMMAND" rc=$?
 	echo "Command [$lc] exited with code [$rc]"
+	rm -f /tmp/stupid
+	rm -rf /tmp/nginx-*
+	rm -f /tmp/${fqdn}*
 }
 trap error_exit EXIT
 set -e
@@ -34,7 +37,6 @@ main()
 	sed -i -e "s/BRANCH/${dbname}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-wordpress
 	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs.conf
-	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs-www.conf
 	scp -r /tmp/nginx-* ${1}:
 
 	ssh -t ${1} "sudo mv -v nginx-letsencrypt /etc/nginx/sites-available/"
@@ -44,7 +46,6 @@ main()
 	ssh -t ${1} "sudo ln -sv /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/"
 	ssh -t ${1} "[ ! -f /etc/ssl/certs/dhparam.pem ] && sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 || exit 0"
 	ssh -t ${1} "sudo service nginx restart"
-	# TODO: check dns resolution matches ip
 	ssh -t ${1} "ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | grep -v 'addr:10\.' | cut -d: -f2 | cut -d ' ' -f 1" > /tmp/${fqdn}-ip
 	targetIP=$(cat /tmp/${fqdn}-ip)
 	ssh -t ${1} "host -4 -t A ${fqdn} | cut -d ' ' -f 4" > /tmp/${fqdn}-dns
@@ -54,8 +55,7 @@ main()
 	elif [ "$dnsIP" == "found:" ]; then
 		exit "The domain could not be resolved to any ip address. Check DNS records."
 	fi
-	ssh -t ${1} "sudo certbot certonly -a webroot --webroot-path=/var/www/html -d ${fqdn}"
-	ssh -t ${1} "sudo certbot certonly -a webroot --webroot-path=/var/www/html -d www.${fqdn}"
+	ssh -t ${1} "sudo certbot certonly -m ${email} --agree-tos -a webroot --webroot-path=/var/www/html -d ${fqdn},www.${fqdn}"
 	ssh -t ${1} "(sudo crontab -l ; echo '1 1 * * * /usr/bin/certbot renew --quiet --renew-hook \"/bin/systemctl reload nginx\"') | sort - | uniq - | sudo crontab -"
 	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
 	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
@@ -63,7 +63,6 @@ main()
 
 	ssh ${1} "sudo cat /root/.digitalocean_password" > /tmp/stupid
 	source /tmp/stupid
-	rm -f /tmp/stupid
 	myargs="-u root -p${root_mysql_pass} -e"
 	ssh ${1} "mysql ${myargs} \"drop database ${dbname};\" || exit 0" 
 	ssh ${1} "mysql ${myargs} \"create database ${dbname};\"" 
