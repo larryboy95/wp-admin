@@ -55,20 +55,19 @@ main()
 	elif [ "$dnsIP" == "found:" ]; then
 		exit "The domain could not be resolved to any ip address. Check DNS records."
 	fi
-	ssh -t ${1} "sudo certbot certonly -m ${email} --agree-tos -a webroot --webroot-path=/var/www/html -d ${fqdn},www.${fqdn}"
+	ssh -t ${1} "sudo certbot certonly -n -m ${email} --agree-tos -a webroot --webroot-path=/var/www/html -d ${fqdn},www.${fqdn}"
 	ssh -t ${1} "(sudo crontab -l ; echo '1 1 * * * /usr/bin/certbot renew --quiet --renew-hook \"/bin/systemctl reload nginx\"') | sort - | uniq - | sudo crontab -"
 	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
 	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
 	ssh -t ${1} "sudo service nginx restart"
 
-	ssh ${1} "sudo cat /root/.digitalocean_password" > /tmp/stupid
-	source /tmp/stupid
-	myargs="-u root -p${root_mysql_pass} -e"
-	ssh ${1} "mysql ${myargs} \"drop database ${dbname};\" || exit 0" 
-	ssh ${1} "mysql ${myargs} \"create database ${dbname};\"" 
-	ssh ${1} "mysql ${myargs} \"create user '${dbuser}'@'${dbhost}' identified by '${dbpass}';\"" 
-	ssh ${1} "mysql ${myargs} \"grant all privileges on ${dbname}.* to '${dbuser}'@'${dbhost}';\"" 
-	ssh ${1} "mysql ${myargs} \"flush privileges;\"" 
+	myargs="-e"
+	ssh ${1} "sudo mysql ${myargs} \"drop database if exists ${dbname};\" || exit 0" 
+	ssh ${1} "sudo mysql ${myargs} \"create database ${dbname};\"" 
+	ssh ${1} "sudo mysql ${myargs} \"drop user if exists '${dbuser}'@'${dbhost}';\"" 
+	ssh ${1} "sudo mysql ${myargs} \"create user '${dbuser}'@'${dbhost}' identified by '${dbpass}';\"" 
+	ssh ${1} "sudo mysql ${myargs} \"grant all privileges on ${dbname}.* to '${dbuser}'@'${dbhost}';\"" 
+	ssh ${1} "sudo mysql ${myargs} \"flush privileges;\"" 
 	ssh -t ${1} "\
 		cd /var/www/html; \
 		wp core download; \
