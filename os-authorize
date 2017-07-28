@@ -14,10 +14,10 @@ else
 fi
 
 # Confirm user's intent
-echo "Replace authorized_keys file on ${1}"
-read -p "Are you sure? (y/n) " -r  
-if [[ $REPLY =~ ^[Yy]$ ]]; then  
+#echo "Replace authorized_keys file on ${1}"
+#read -p "Are you sure? (y/n) " -r  
+#if [[ $REPLY =~ ^[Yy]$ ]]; then  
 	scp ${authfile} ${1}:.ssh/authorized_keys
-fi
+#fi
 
 exit 0
