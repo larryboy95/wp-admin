@@ -72,10 +72,11 @@ fi
 scp ${1}:/var/www/${target}.gz .
 
 if [ -f /usr/local/bin/restic ]; then
-	sudo umount ~/mnt
-	sshfs ${1}:/var/www ~/mnt
-	restic backup ~/mnt/html --tag ${1}
-	sudo umount ~/mnt
+	rdir=~/mnt/${1}
+	mkdir ${rdir}
+	sshfs ${1}:/var/www ${rdir}
+	restic backup ${rdir}/html --tag ${1}
+	sudo umount ${rdir}
 	restic backup ${target}.gz --tag ${1}
 else
 	notify "Restic binary not found on ${HOST}"
