@@ -70,5 +70,16 @@ if [ ! $? -eq 0  ]; then
 	exit 1
 fi
 scp ${1}:/var/www/${target}.gz .
+
+if [ -f /usr/local/bin/restic ]; then
+	sudo umount ~/mnt
+	sshfs ${1}:/var/www ~/mnt
+	restic backup ~/mnt/html --tag ${1}
+	sudo umount ~/mnt
+	restic backup ${target}.gz --tag ${1}
+else
+	notify "Restic binary not found on ${HOST}"
+fi
+
 echo $(date) "Backup completed for ${1} (${2})" 
 exit 0
