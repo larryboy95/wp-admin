@@ -71,7 +71,7 @@ if [ ! $? -eq 0  ]; then
 fi
 scp ${1}:/var/www/${target}.gz .
 
-if [ -f /usr/local/bin/restic ]; then
+if [ -f /usr/local/bin/restic ] && [ ${2} != "hourly" ]; then
 	rdir=~/mnt/${1}
 	mkdir ${rdir}
 	sshfs ${1}:/var/www ${rdir}
