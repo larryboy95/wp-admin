@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source $HOME/.bashrc
 args="--path=/var/www/html"
 target=${1}.sql
 backupDir="/var/backups/wordpress"
@@ -71,13 +72,14 @@ if [ ! $? -eq 0  ]; then
 fi
 scp ${1}:/var/www/${target}.gz .
 
-if [ -f /usr/local/bin/restic ] && [ ${2} != "hourly" ]; then
+restic=/usr/local/bin/restic
+if [ -f $restic ] && [ ${2} != "hourly" ]; then
 	rdir=~/mnt/${1}
 	mkdir ${rdir}
 	sshfs ${1}:/var/www ${rdir}
-	restic backup ${rdir}/html --tag ${1}
+	$restic backup ${rdir}/html --tag ${1}
 	sudo umount ${rdir}
-	restic backup ${target}.gz --tag ${1}
+	$restic backup ${target}.gz --tag ${1}
 else
 	notify "Restic binary not found on ${HOST}"
 fi
