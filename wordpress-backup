@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $HOME/.bashrc
+source $HOME/.wp-admin
 args="--path=/var/www/html"
 target=${1}.sql
 backupDir="/var/backups/wordpress"
@@ -73,15 +73,19 @@ fi
 scp ${1}:/var/www/${target}.gz .
 
 restic=/usr/local/bin/restic
-if [ -f $restic ] && [ ${2} != "hourly" ]; then
+if [ ! -f $restic ]; then
+	notify "Restic binary not found on ${HOSTNAME}"
+elif [ ! -f ~/.wp-admin ]; then
+	notify "wp-admin config file not found"
+elif [ ${2} = "hourly" ]; then
+	:
+else
 	rdir=~/mnt/${1}
 	mkdir ${rdir}
 	sshfs ${1}:/var/www ${rdir}
 	$restic backup ${rdir}/html --tag ${1}
 	sudo umount ${rdir}
 	$restic backup ${target}.gz --tag ${1}
-else
-	notify "Restic binary not found on ${HOST}"
 fi
 
 echo $(date) "Backup completed for ${1} (${2})" 
