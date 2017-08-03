@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if ! mkdir -p ~/tmp/wordpress-backup.lock; then
+    printf "Failed to aquire lock.\n" >&2
+    exit 1
+fi
+trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT  # remove the lockdir on exit
+
+
 source $HOME/.wp-admin
 args="--path=/var/www/html"
 target=${1}.sql
