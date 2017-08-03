@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ -f /usr/local/bin/tweet.sh ]; then
 	. ~/.tweet.sh.conf
-	tweet.sh post "$1" >> ~/log.tweets
+	tweet.sh post $1 >> ~/log.tweets
 fi
-echo "$1"
+echo $1
 exit 0
