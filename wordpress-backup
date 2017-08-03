@@ -81,11 +81,12 @@ elif [ ${2} = "hourly" ]; then
 	:
 else
 	rdir=~/mnt/${1}
-	mkdir ${rdir}
+	[ ! -d $rdir ] && mkdir ${rdir}
 	sshfs ${1}:/var/www ${rdir}
-	$restic backup ${rdir}/html --tag ${1}
+	$restic backup ${rdir}/html --tag ${1} || $restic prune
 	sudo umount ${rdir}
-	$restic backup ${target}.gz --tag ${1}
+	$restic backup ${target}.gz --tag ${1} || $restic prune
+	notify $(tail -n 2 ~/log)
 fi
 
 echo $(date) "Backup completed for ${1} (${2})" 
