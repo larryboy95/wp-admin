@@ -86,7 +86,7 @@ else
 	$restic backup ${rdir}/html --tag ${1} || $restic prune
 	sudo umount ${rdir}
 	$restic backup ${target}.gz --tag ${1} || $restic prune
-	notify $(tail -n 2 ~/log)
+	notify $(tail -n 5 ~/log)
 fi
 
 echo $(date) "Backup completed for ${1} (${2})" 
