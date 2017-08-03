@@ -67,17 +67,17 @@ else
 	rotate $1
 fi
 
-ssh ${1} "wp ${args} db export /var/www/${target}"
+ssh ${1} "wp --quiet ${args} db export /var/www/${target}"
 if [ ! $? -eq 0  ]; then
 	notify "Backup export failed for ${1} (${2})" 
 	exit 1
 fi
-ssh ${1} "gzip -vf /var/www/${target}"
+ssh ${1} "gzip -f /var/www/${target}"
 if [ ! $? -eq 0  ]; then
 	notify "Backup gzip failed for ${1} (${2})" 
 	exit 1
 fi
-scp ${1}:/var/www/${target}.gz .
+scp -q ${1}:/var/www/${target}.gz .
 
 restic=/usr/local/bin/restic
 if [ ! -f $restic ]; then
