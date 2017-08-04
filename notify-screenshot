@@ -1,0 +1,11 @@
+#!/bin/sh
+if [ -f /usr/local/bin/tweet.sh ]; then
+	pageres --filename="${1}" $1 1024x768 
+	. ~/.tweet.sh.conf
+	mid=$(tweet.sh upload ${1}.png | jq -r '.media_id_string')
+	echo $mid
+	sleep 3
+	tweet.sh post -m $mid "Screenshot of ${1}"
+fi
+echo $1
+exit 0
