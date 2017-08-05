@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ -f /usr/local/bin/tweet.sh ]; then
 	rm twitter-temp.png
-	pageres --crop --filename="twitter-temp" $1 900x2400
+	pageres --crop --delay=3 --filename="twitter-temp" $1 900x2400
 	. ~/.tweet.sh.conf
 	mid=$(tweet.sh upload twitter-temp.png | jq -r '.media_id_string')
 	echo $mid
