@@ -83,7 +83,7 @@ restic=/usr/local/bin/restic
 if [ ! -f $restic ]; then
 	notify "Restic binary not found on ${HOSTNAME}"
 elif [ ! -f ~/.wp-admin ]; then
-	notify "wp-admin config file not found"
+	notify "~/.wp-admin config file not found on ${HOSTNAME}, backup to s3 disabled."
 elif [ ${2} = "hourly" ]; then
 	:
 elif [ ${2} = "tmp" ]; then
@@ -95,8 +95,8 @@ else
 	$restic backup ${rdir}/html --tag ${1} || $restic prune
 	sudo umount ${rdir}
 	$restic backup ${target}.gz --tag ${1} || $restic prune
-	notify-screenshot $siteurl "Full backup completed for ${siteurl}. Post-backup screenshot at 900px:"
 fi
 
+notify-screenshot $siteurl "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
 echo $(date) "Backup completed for ${1} (${2})" 
 exit 0

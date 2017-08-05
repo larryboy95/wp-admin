@@ -8,7 +8,7 @@ siteurl=$(ssh ${1} "wp $args option get siteurl")
 ssh -t ${1} "wp $args plugin update --all"
 ssh -t ${1} "wp $args core update-db"
 sleep 1
-notify-screenshot "$siteurl" "Plugins updated at ${$siteurl}. Post-update, pre-commit screenshot at 900px:"
+notify-screenshot "$siteurl" "Plugins updated at ${$siteurl}. Post-update, pre-commit screenshot:"
 read -p "Commit and push changes. Are you sure? " -n 1 -r  
 echo    # (optional) move to a new line  
 if [[ $REPLY =~ ^[Yy]$ ]] ; then 
