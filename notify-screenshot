@@ -1,11 +1,12 @@
 #!/bin/sh
 if [ -f /usr/local/bin/tweet.sh ]; then
-	pageres --filename="${1}" $1 1024x768 
+	rm twitter-temp.png
+	pageres --crop --filename="twitter-temp" $1 900x2400
 	. ~/.tweet.sh.conf
-	mid=$(tweet.sh upload ${1}.png | jq -r '.media_id_string')
+	mid=$(tweet.sh upload twitter-temp.png | jq -r '.media_id_string')
 	echo $mid
-	sleep 3
-	tweet.sh post -m $mid "Screenshot of ${1}"
+	rm twitter-temp.png
+	tweet.sh post -m $mid "Screenshot of ${1} at 900px wide."
 fi
 echo $1
 exit 0
