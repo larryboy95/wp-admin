@@ -6,7 +6,7 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	mid=$(tweet.sh upload twitter-temp.png | jq -r '.media_id_string')
 	echo $mid
 	rm twitter-temp.png
-	tweet.sh post -m $mid "Screenshot of ${1} at 900px wide."
+	tweet.sh post -m $mid "${2}"
 fi
 echo $1
 exit 0

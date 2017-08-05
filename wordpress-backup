@@ -86,6 +86,8 @@ elif [ ! -f ~/.wp-admin ]; then
 	notify "wp-admin config file not found"
 elif [ ${2} = "hourly" ]; then
 	:
+elif [ ${2} = "tmp" ]; then
+	:
 else
 	rdir=~/mnt/${1}
 	[ ! -d $rdir ] && mkdir ${rdir}
