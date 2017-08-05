@@ -4,6 +4,7 @@ wordpress-permissions ${1} dev
 args="--path=/var/www/html"
 ssh -t ${1} "wp $args core is-installed"
 [ ! $? -eq 0 ] && exit $?
+siteurl=$(ssh ${1} "wp $args option get siteurl")
 ssh -t ${1} "wp $args core update"
 [ ! $? -eq 0 ] && exit $?
 #ssh -t ${1} "wp $args plugin update --all"
@@ -14,6 +15,10 @@ read -p "Commit and push changes. Are you sure? " -n 1 -r
 echo    # (optional) move to a new line  
 if [[ $REPLY =~ ^[Yy]$ ]] ; then 
 	wordpress-commit ${1}
+	wordpress-permissions ${1} git-auto-deploy
+else
+	wordpress-permissions ${1} git-auto-deploy
+	exit 0
 fi
-wordpress-permissions ${1} git-auto-deploy
+notify-screenshot "$siteurl"
 exit 0
