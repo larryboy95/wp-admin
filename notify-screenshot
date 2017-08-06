@@ -1,12 +1,33 @@
-#!/bin/sh
+#!/bin/bash
+cd /tmp
+tempURLs=".tw-urls.tmp"
+tempJPG="tw-tmp"
+n=1
+pargs="--crop --delay=2 --format=jpg"
 if [ -f /usr/local/bin/tweet.sh ]; then
-	rm twitter-temp.png
-	pageres --crop --delay=2 --filename="twitter-temp" $1 1600x4000
 	. ~/.tweet.sh.conf
-	mid=$(tweet.sh upload twitter-temp.png | jq -r '.media_id_string')
-	echo $mid
-	rm twitter-temp.png
-	tweet.sh post -m $mid "${2}"
+	rm ${tempJPG}-*.jpg
+	curl -s "$1" \
+		| grep -Po '(?<=href=")[^"]*' \
+		| grep "$1" \
+		| grep -v 'css\|rss\|xml\|json\|feed\|.ico' \
+		| awk '{ print length($0) " " $0; }' $file \
+		| sort -r -n \
+		| cut -d ' ' -f 2- \
+		| uniq \
+		| head -n 3 \
+		> ${tempURLs};
+	pageres $pargs --filename="${tempJPG}-0" ${1} 1600x2100
+	mid[0]=$(tweet.sh upload ${tempJPG}-0.jpg | jq -r '.media_id_string')
+	while IFS='' read -r line || [[ -n "$line" ]]; do
+		pageres $pargs --filename="${tempJPG}-${n}" ${line} 1600x2100
+		((n++))
+	done < "${tempURLs}"
+	mid[1]=$(tweet.sh upload ${tempJPG}-1.jpg | jq -r '.media_id_string')
+	mid[2]=$(tweet.sh upload ${tempJPG}-2.jpg | jq -r '.media_id_string')
+	mid[3]=$(tweet.sh upload ${tempJPG}-3.jpg | jq -r '.media_id_string')
+	echo ${mid[@]}
+	#rm ${tempJPG}-*.jpg
+	tweet.sh post -m ${mid[0]},${mid[1]},${mid[2]},${mid[3]} "${2}"
 fi
-echo $1
 exit 0
