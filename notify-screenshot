@@ -27,7 +27,8 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	mid[2]=$(tweet.sh upload ${tempJPG}-2.jpg | jq -r '.media_id_string')
 	mid[3]=$(tweet.sh upload ${tempJPG}-3.jpg | jq -r '.media_id_string')
 	echo ${mid[@]}
-	#rm ${tempJPG}-*.jpg
+	rm ${tempJPG}-*.jpg
+	rm ${tempURLs}
 	tweet.sh post -m ${mid[0]},${mid[1]},${mid[2]},${mid[3]} "${2}"
 fi
 exit 0

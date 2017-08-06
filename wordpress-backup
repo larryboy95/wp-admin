@@ -97,6 +97,6 @@ else
 	$restic backup ${target}.gz --tag ${1} || $restic prune
 fi
 
-notify-screenshot $siteurl "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
+notify-screenshot "$siteurl" "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
 echo $(date) "Backup completed for ${1} (${2})" 
 exit 0
