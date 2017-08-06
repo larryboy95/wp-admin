@@ -10,7 +10,7 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	curl -s "$1" \
 		| grep -Po '(?<=href=")[^"]*' \
 		| grep "$1" \
-		| grep -v 'css\|rss\|xml\|json\|feed\|.ico' \
+		| grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js' \
 		| awk '{ print length($0) " " $0; }' $file \
 		| sort -r -n \
 		| cut -d ' ' -f 2- \
