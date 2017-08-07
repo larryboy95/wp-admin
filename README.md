@@ -89,6 +89,11 @@ Enter the same info for every site you intend to maintain, with a nifty shortnam
 - os-setup-certbot HOST
 	- Install and configure automatic SSL certificate updates
 	- Requires fully configured server with LetsEncrypt certs already installed
-
+- notify "Tweet body"
+	- sends a tweet with the included text
+- notify-screenshot URL "Tweet body"
+	- Sends a tweet with a screenshot of the page at URL and screenshots of three other links
+filtered out of the page body, if found. Resolution is 1600x2100. 
+Example: notify-screenshot "https://about.gitlab.com" "Test"
 
 
