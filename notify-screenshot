@@ -29,6 +29,6 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	echo ${mid[@]}
 	rm ${tempJPG}-*.jpg
 	rm ${tempURLs}
-	tweet.sh post -m ${mid[0]},${mid[1]},${mid[2]},${mid[3]} "${2}"
+	tweet.sh post -m ${mid[0]},${mid[1]},${mid[2]},${mid[3]} "${2} $(date +%s)"
 fi
 exit 0
