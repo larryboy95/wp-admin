@@ -1,0 +1,8 @@
+#!/bin/bash
+[ ! -f ~/ESSENTIALS/user.rules ] && exit 1
+scp ~/ESSENTIALS/user* ${1}:
+ssh -t ${1} "sudo chown root:root user*; \
+	sudo mv user*  /etc/ufw/; \
+	sudo ufw reload; \
+"
+exit 0
