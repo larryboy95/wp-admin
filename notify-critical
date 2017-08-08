@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ -f /usr/local/bin/tweet.sh ]; then
-	. ~/.tw.conf
+	. ~/.tw-critical.conf
 	tweet.sh post $1 >> ~/log.tweets
 fi
 echo $1

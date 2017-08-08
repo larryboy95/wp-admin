@@ -16,11 +16,11 @@ backupsToKeep=28
 # Check if there is a first argument
 if [  ${1+x} ]; then
 	if [ $1 == "daily" ] || [ $1 == "hourly" ] || [ $1 == "manual" ] || [ $1 == "tmp" ]; then
-		notify "Error in first argument, $1 $2 backup."
+		notify-critical "Error in first argument, $1 $2 backup."
 		exit 1
 	fi
 else
-	notify "Missing first argument $1 $2 backup."
+	notify-critical "Missing first argument $1 $2 backup."
 	exit 1
 fi
 
@@ -30,7 +30,7 @@ ssh -q ${1} "\
 	&& wp --quiet $args core is-installed \
 	|| exit 1" < /dev/null
 if [ ! $? -eq 0 ]; then
-	notify "${1} is not online. What the heck?"
+	notify-critical "${1} is not online. What the heck?"
 	exit 1
 fi
 siteurl=$(ssh ${1} "wp $args option get siteurl")
@@ -69,21 +69,21 @@ fi
 
 ssh ${1} "wp --quiet ${args} db export /var/www/${target}"
 if [ ! $? -eq 0  ]; then
-	notify "Backup export failed for ${1} (${2})" 
+	notify-critical "Backup export failed for ${1} (${2})" 
 	exit 1
 fi
 ssh ${1} "gzip -f /var/www/${target}"
 if [ ! $? -eq 0  ]; then
-	notify "Backup gzip failed for ${1} (${2})" 
+	notify-critical "Backup gzip failed for ${1} (${2})" 
 	exit 1
 fi
 scp -q ${1}:/var/www/${target}.gz .
 
 restic=/usr/local/bin/restic
 if [ ! -f $restic ]; then
-	notify "Restic binary not found on ${HOSTNAME}"
+	notify-critical "Restic binary not found on ${HOSTNAME}"
 elif [ ! -f ~/.wp-admin ]; then
-	notify "~/.wp-admin config file not found on ${HOSTNAME}, backup to s3 disabled."
+	notify-critical "~/.wp-admin config file not found on ${USER}@${HOSTNAME}, backup to s3 disabled for ${1}."
 elif [ ${2} = "hourly" ]; then
 	:
 elif [ ${2} = "tmp" ]; then

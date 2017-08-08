@@ -5,7 +5,7 @@ tempJPG="tw-tmp"
 n=1
 pargs="--crop --delay=2 --format=jpg"
 if [ -f /usr/local/bin/tweet.sh ]; then
-	. ~/.tweet.sh.conf
+	. ~/.tw.conf
 	rm ${tempJPG}-*.jpg
 	curl -s "$1" \
 		| grep -Po '(?<=href=")[^"]*' \
