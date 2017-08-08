@@ -69,12 +69,12 @@ fi
 
 ssh ${1} "wp --quiet ${args} db export /var/www/${target}"
 if [ ! $? -eq 0  ]; then
-	notify-critical "Backup export failed for ${1} (${2})" 
+	notify-critical "Backup export failed for ${1} (${2}) at ${siteurl}" 
 	exit 1
 fi
 ssh ${1} "gzip -f /var/www/${target}"
 if [ ! $? -eq 0  ]; then
-	notify-critical "Backup gzip failed for ${1} (${2})" 
+	notify-critical "Backup gzip failed for ${1} (${2}) at ${siteurl}" 
 	exit 1
 fi
 scp -q ${1}:/var/www/${target}.gz .

@@ -8,9 +8,9 @@ if [ ! $? -eq 0 ]; then
 fi
 siteurl=$(ssh ${1} "wp $args option get siteurl")
 ssh -t ${1} "wp $args core update"
-[ ! $? -eq 0 ] && notify-critical "Error in wp core update for ${1}"
+[ ! $? -eq 0 ] && notify-critical "Error in wp core update for ${1} at ${siteurl}"
 ssh -t ${1} "wp $args core update-db"
-[ ! $? -eq 0 ] && notify-critical "Error in wp core update-db for ${1}"
+[ ! $? -eq 0 ] && notify-critical "Error in wp core update-db for ${1} at ${siteurl}"
 sleep 1
 notify-screenshot "$siteurl" "Core update completed for ${siteurl}. Post-upgrade, pre-commit screenshot:"
 read -p "Commit and push changes. Are you sure? " -n 1 -r  
