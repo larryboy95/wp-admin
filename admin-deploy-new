@@ -15,8 +15,14 @@ main()
 	sed -i -e "s/WEBROOT/${webroot//\//\\/}/g" ${scaffold}
 	newrepo=$(cat $scaffold)
 	cat /etc/git-auto-deploy.conf.json \
-		| jq ".repositories[.repositories| length] += ${newrepo}"	
+		| jq ".repositories[.repositories| length] += ${newrepo}" \
 		> /tmp/git-auto-deploy.conf.json
+	cp /etc/git-auto-deploy.conf.json ~/.gad.conf.json.backup
+	sudo cp /tmp/git-auto-deploy.conf.json /etc/git-auto-deploy.conf.json
+	sudo service git-auto-deploy stop
+	sudo pkill git-auto-deploy
+	sudo service git-auto-deploy start
+	sudo tail -f /var/log/git-auto-deploy.log
 }
 # Error handling a la http://stackoverflow.com/a/22224317
 abort()
