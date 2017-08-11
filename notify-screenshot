@@ -20,7 +20,7 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	pageres $pargs --filename="${tempJPG}-0" ${1} 1600x2100
 	pageres \
 		$pargs \
-		--userAgent 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19' \
+		--userAgent 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 6P Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36' \
 		--filename="${tempJPG}-1" \
 		${1}\
 		700x2100

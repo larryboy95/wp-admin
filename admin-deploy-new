@@ -1,0 +1,47 @@
+#!/bin/bash
+
+main()
+{
+	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+	read -p "Repo url: " repo
+	read -p "Branch [master]: " branch
+	branch=${branch:-master}
+	webroot=/var/repos/${1}
+	cp ${scriptdir}/assets/gad-repo.scaffold /tmp/
+	scaffold=/tmp/gad-repo.scaffold
+	# Search and replace values in scaffold
+	sed -i -e 's/BRANCH/'${branch}'/g' ${scaffold}
+	sed -i -e "s/REPO/${repo//\//\\/}/g" ${scaffold}
+	sed -i -e "s/WEBROOT/${webroot//\//\\/}/g" ${scaffold}
+	newrepo=$(cat $scaffold)
+	cat /etc/git-auto-deploy.conf.json \
+		| jq ".repositories[.repositories| length] += ${newrepo}"	
+		> /tmp/git-auto-deploy.conf.json
+}
+# Error handling a la http://stackoverflow.com/a/22224317
+abort()
+{
+	echo "An error occurred. Exiting..." >&2
+	exit 1
+}
+trap 'abort' 0
+set -e
+# Check if there is no first argument
+if [ ! ${1+x} ]; then
+	echo "Missing host argument"
+	exit 1
+fi
+
+main ${1}
+
+# Trap all errors
+trap : 0
+# Exit normally
+echo >&2 '
+************
+*** DONE *** 
+************
+'
+
+
+exit 0
