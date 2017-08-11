@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rsync -r /var/repos/${1}/ ${1}://var/www/html \
-	&& notify "Deploy complete for ${1} by $USER@$HOSTNAME" \
-	|| notify-critical "rsync exited with code $? for $USER@$HOSTNAME \
+	&& notify "Deploy complete for ${1} by ${LOGNAME}@${HOSTNAME}" \
+	|| notify-critical "rsync exited with code $? for ${LOGNAME}@${HOSTNAME} \
 		while attempting to deploy ${1}"
 exit 0
