@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rsync -r --exclude='.git/' /var/repos/${1}/ ${1}://var/www/html \
+rsync -r /var/repos/${1}/ ${1}://var/www/html \
 	&& notify "Deploy complete for ${1} by $USER@$HOSTNAME" \
 	|| notify-critical "rsync exited with code $? for $USER@$HOSTNAME \
 		while attempting to deploy ${1}"
