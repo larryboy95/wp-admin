@@ -3,7 +3,7 @@
       "branch": "BRANCH",
       "remote": "origin",
       "path": "WEBROOT",
-      "deploy": "admin-deploy-post HOST",
+      "deploy": "export PATH=${PATH}:/usr/local/bin:/opt/wp-admin/; admin-deploy-post HOST",
       "filters": [
         {
           "object_kind": "push",
