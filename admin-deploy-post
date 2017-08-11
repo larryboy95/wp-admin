@@ -2,5 +2,6 @@
 
 rsync -a --delete /var/repos/${1}/ ${1}://var/www/html \
 	&& notify "Deploy complete for ${1} by $USER@$HOSTNAME" \
-	|| notify-critical "rsync exited withcode $? for $USER@$HOSTNAME \
-		while attmpting to deploy ${1}"
+	|| notify-critical "rsync exited with code $? for $USER@$HOSTNAME \
+		while attempting to deploy ${1}"
+exit 0
