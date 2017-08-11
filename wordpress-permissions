@@ -10,7 +10,7 @@ elif [ ! ${2+x} ]; then
 else
 	webroot_owner=${2}
 fi
-ssh ${1} "sudo chown -R ${webroot_owner}  /var/www/html; \
+ssh ${1} "sudo chown -R ${webroot_owner}:${webroot_owner}  /var/www/html; \
 	sudo chown -R www-data /var/www/html/wp-content/uploads; \
 	sudo chown -R www-data /var/www/html/wp-content/banners; \
 	sudo find /var/www/html -type f -exec chmod 644 {} +; \
