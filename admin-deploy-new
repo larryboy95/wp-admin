@@ -13,6 +13,7 @@ main()
 	sed -i -e 's/BRANCH/'${branch}'/g' ${scaffold}
 	sed -i -e "s/REPO/${repo//\//\\/}/g" ${scaffold}
 	sed -i -e "s/WEBROOT/${webroot//\//\\/}/g" ${scaffold}
+	sed -i -e "s/HOST/${1//\//\\/}/g" ${scaffold}
 	newrepo=$(cat $scaffold)
 	cat /etc/git-auto-deploy.conf.json \
 		| jq ".repositories[.repositories| length] += ${newrepo}" \

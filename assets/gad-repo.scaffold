@@ -1,0 +1,13 @@
+    {
+      "url": "REPO",
+      "branch": "BRANCH",
+      "remote": "origin",
+      "path": "WEBROOT",
+      "deploy": "admin-deploy-post HOST",
+      "filters": [
+        {
+          "object_kind": "push",
+          "ref": "refs/heads/BRANCH"
+        }
+      ]
+    }
