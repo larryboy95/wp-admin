@@ -30,6 +30,8 @@ main()
 # Error handling a la http://stackoverflow.com/a/22224317
 abort()
 {
+	rm -f /tmp/gad*
+	rm -f /tmp/git-auto-deploy*
 	echo "An error occurred. Exiting..." >&2
 	exit 1
 }
