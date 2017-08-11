@@ -1,6 +1,6 @@
 #!/bin/bash
 wordpress-backup ${1} tmp
-wordpress-permissions ${1} dev
+#wordpress-permissions ${1} dev
 args="--path=/var/www/html"
 ssh -t ${1} "wp $args core is-installed"
 [ ! $? -eq 0 ] && exit $?
@@ -14,5 +14,5 @@ echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]] ; then 
 	wordpress-commit ${1}
 fi
-wordpress-permissions ${1} git-auto-deploy
+#wordpress-permissions ${1} git-auto-deploy
 exit 0
