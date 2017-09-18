@@ -98,5 +98,5 @@ else
 	notify-screenshot "$siteurl" "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
 fi
 
-echo $(date) "Backup completed for ${1} (${2})" 
+notify-log "Backup completed for ${1} (${2})" 
 exit 0

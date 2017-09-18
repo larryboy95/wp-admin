@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "<p>$(date) - ${1}</p>"
+exit 0
