@@ -81,5 +81,5 @@ Thumbs.db
 ########
 /migration-scripts/
 wp-content/themes/pen/migration/data
-
-
+wp-content/themes/pen-archive/js/assets/application.coffee
+!wp-tinymce.js.gz
