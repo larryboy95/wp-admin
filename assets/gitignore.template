@@ -9,7 +9,7 @@
 wp-config.php
 wp-config-local.php
 wp-cli.local.yml
-wp-content/uploads
+wp-content/uploads/
 wp-content/blogs.dir/
 wp-content/upgrade/
 wp-content/backup-db/
@@ -92,3 +92,4 @@ wp-content/banners
 wp-content/themes/pen/migration/data
 wp-content/themes/pen-archive/js/assets/application.coffee
 !wp-tinymce.js.gz
+wp-content/mmr/
