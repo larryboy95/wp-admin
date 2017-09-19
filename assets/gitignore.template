@@ -1,0 +1,70 @@
+# WordPress #
+############
+wp-config.php
+wp-config-local.php
+wp-cli.local.yml
+wp-content/uploads
+wp-content/blogs.dir/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/updraft/
+wp-content/backupwordpress-*/
+wp-content/managewp/backups/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+sitemap.xml
+sitemap.xml.gz
+*.log
+
+node_modules/
+gulpfile.js
+
+# writable paths
+wp-content/cache/
+wp-content/backups/
+wp-content/banners
+
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.bz2
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.tgz
+
+# Logs and databases #
+######################
+*.log
+*.sql
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+._*
+
+# Dev generated files #
+######################
+*.un~
+*.swp
+*.sublime-workspace
+*.sublime-project
+
+# SASS #
+##########
+.sass-cache
+
+# Site-Custom (eliminate these) #
+########
+/migration-scripts/
+wp-content/themes/pen/migration/data
+
+
