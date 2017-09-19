@@ -1,5 +1,11 @@
+# Standard gitignore
+
+# Always Keep #
+###############
+!.gitignore
+
 # WordPress #
-############
+#############
 wp-config.php
 wp-config-local.php
 wp-cli.local.yml
@@ -16,17 +22,13 @@ sitemap.xml
 sitemap.xml.gz
 *.log
 
-node_modules/
-gulpfile.js
-
-# writable paths
+# Writeable Paths #
+###################
 wp-content/cache/
 wp-content/backups/
-wp-content/banners
 
-
-# Packages #
-############
+# File Archives #
+#################
 *.7z
 *.dmg
 *.gz
@@ -66,19 +68,22 @@ Temporary Items
 ehthumbs.db
 Thumbs.db
 
-# Dev generated files #
-######################
+# Dev Generated Files #
+#######################
 *.un~
 *.swp
 *.sublime-workspace
 *.sublime-project
 
-# SASS #
-##########
+# Third Party #
+###############
 .sass-cache
+node_modules/
+gulpfile.js
 
 # Site-Custom (eliminate these) #
-########
+#################################
+wp-content/banners
 /migration-scripts/
 wp-content/themes/pen/migration/data
 wp-content/themes/pen-archive/js/assets/application.coffee
