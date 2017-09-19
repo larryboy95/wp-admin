@@ -5,8 +5,8 @@ if [ ! ${1+x} ]; then
 	echo "Missing host argument ${!}"
 	exit 1
 elif [ ! ${2+x} ]; then
-	read -p "User: [git-auto-deploy]" webroot_owner
-	webroot_owner=${webroot_owner:-git-auto-deploy}
+	read -p "User: [dev]" webroot_owner
+	webroot_owner=${webroot_owner:-dev}
 else
 	webroot_owner=${2}
 fi
