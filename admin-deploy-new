@@ -5,8 +5,10 @@ main()
 	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 	read -p "Repo url: " repo
 	read -p "Branch [master]: " branch
+	read -p "Remote deploy path [/var/www/html]: " deploypath
 	branch=${branch:-master}
 	webroot=/var/repos/${1}
+	deploypath=${deploypath:-/var/www/html}
 	cp ${scriptdir}/assets/gad-repo.scaffold /tmp/
 	scaffold=/tmp/gad-repo.scaffold
 	# Search and replace values in scaffold
@@ -14,6 +16,7 @@ main()
 	sed -i -e "s/REPO/${repo//\//\\/}/g" ${scaffold}
 	sed -i -e "s/WEBROOT/${webroot//\//\\/}/g" ${scaffold}
 	sed -i -e "s/HOST/${1//\//\\/}/g" ${scaffold}
+	sed -i -e "s/DEPLOYPATH/${deploypath//\//\\/}/g" ${scaffold}
 	newrepo=$(cat $scaffold)
 	cat /etc/git-auto-deploy.conf.json \
 		| jq ".repositories[.repositories| length] += ${newrepo}" \
@@ -50,7 +53,7 @@ trap : 0
 # Exit normally
 echo >&2 '
 ************
-*** DONE *** 
+*** DONE ***
 ************
 '
 
