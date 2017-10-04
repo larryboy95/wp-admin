@@ -84,7 +84,6 @@ index.nginx-debian.html
 ###############
 .sass-cache
 node_modules/
-gulpfile.js
 
 # Site-Custom (eliminate these) #
 #################################
