@@ -25,6 +25,10 @@ main()
 	sudo cp /tmp/git-auto-deploy.conf.json /etc/git-auto-deploy.conf.json
 	sudo cp ~/.ssh/config /etc/git-auto-deploy/.ssh/
 	sudo cp ~/.ssh/known_hosts /etc/git-auto-deploy/.ssh/
+	sudo chmod 600 /etc/git-auto-deploy/.ssh/config
+	sudo chmod 600 /etc/git-auto-deploy/.ssh/id_rsa
+	sudo chmod 660 /etc/git-auto-deploy/.ssh/known_hosts
+	sudo chmod 660 /etc/git-auto-deploy/.ssh/id_rsa.pub
 	sudo chown git-auto-deploy:git-auto-deploy /etc/git-auto-deploy/.ssh/config
 	sudo service git-auto-deploy stop
 	sudo pkill git-auto-deploy
