@@ -10,7 +10,7 @@ trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT  # remove the lockdir on exit
 source $HOME/.wp-admin
 args="--path=/var/www/html"
 target=${1}.sql
-backupDir="/var/backups/wordpress"
+backupDir="/var/backups/wp-db-backups"
 backupsToKeep=28
 
 # Check if there is a first argument
@@ -89,11 +89,10 @@ elif [ ${2} = "hourly" ]; then
 elif [ ${2} = "tmp" ]; then
 	:
 else
-	rdir=~/mnt/${1}
-	[ ! -d $rdir ] && mkdir ${rdir}
-	sshfs ${1}:/var/www ${rdir}
-	$restic backup ${rdir}/html --tag ${1} || $restic prune
-	sudo umount ${rdir}
+	fullBackupDir=/var/wp-full-backups/${1}
+	[ ! -d $fullBackupDir ] && mkdir ${fullBackupDir}
+	rsync -qr ${1}:/var/www ${fullBackupDir}
+	$restic backup ${fullBackupDir}/html --tag ${1} || $restic prune
 	$restic backup ${target}.gz --tag ${1} || $restic prune
 	notify-screenshot "$siteurl" "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
 fi
