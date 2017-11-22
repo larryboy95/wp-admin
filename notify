@@ -1,7 +1,20 @@
 #!/bin/sh
+
+lastRun=$(cat ~/.tw.lastRun)
+sinceLastRun=`$(date +%s) - $lastRun`
+if [ $sinceLastRun > 30 ]; then
+	echo $sinceLastRun
+	exit 1
+fi
+
 if [ -f /usr/local/bin/tweet.sh ]; then
+	markov=$(/opt/markov-sentence-generator/sentence-generator.py /opt/markov-sentence-generator/360.txt.utf-8 5 | cut -d " " -f 1-7)
 	. ~/.tw.conf
-	tweet.sh post "${1} $(date +%s)" >> ~/log.tweets
+	tweet.sh post "${1} ${markov}" >> ~/log.tweets
+	echo $(date +%s) > ~/.tw.lastRun
+else 
+	echo "Could not find tweet.sh"
+	exit 2
 fi
 echo $1
 exit 0
