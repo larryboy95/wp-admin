@@ -89,7 +89,7 @@ elif [ ${2} = "hourly" ]; then
 elif [ ${2} = "tmp" ]; then
 	:
 else
-	fullBackupDir=/var/wp-full-backups/${1}
+	fullBackupDir="/var/backups/wp-full-backups/${1}"
 	[ ! -d $fullBackupDir ] && mkdir ${fullBackupDir}
 	rsync -qr ${1}:/var/www ${fullBackupDir}
 	$restic backup ${fullBackupDir}/html --tag ${1} || $restic prune
