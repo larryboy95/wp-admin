@@ -8,7 +8,7 @@ if [ $sinceLastRun > 30 ]; then
 fi
 
 if [ -f /usr/local/bin/tweet.sh ]; then
-	markov=$(/opt/markov-sentence-generator/sentence-generator.py /opt/markov-sentence-generator/360.txt.utf-8 5 | cut -d " " -f 1-7)
+	markov=$(/opt/markov-sentence-generator/sentence-generator.py /opt/markov-sentence-generator/360.txt.utf-8 5 | cut -d " " -f 1-20)
 	. ~/.tw.conf
 	tweet.sh post "${1} ${markov}" >> ~/log.tweets
 	echo $(date +%s) > ~/.tw.lastRun

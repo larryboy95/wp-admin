@@ -35,7 +35,7 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	echo ${mid[@]}
 	rm ${tempJPG}-*.jpg
 	rm ${tempURLs}
-	markov=$(/opt/markov-sentence-generator/sentence-generator.py /opt/markov-sentence-generator/360.txt.utf-8 5 | cut -d " " -f 1-7)
+	markov=$(/opt/markov-sentence-generator/sentence-generator.py /opt/markov-sentence-generator/360.txt.utf-8 5 | cut -d " " -f 1-20)
 	tweet.sh post -m ${mid[0]},${mid[1]},${mid[2]},${mid[3]} "${2} ${markov}"
 fi
 exit 0
