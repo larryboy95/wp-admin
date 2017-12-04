@@ -56,7 +56,8 @@ Enter the same info for every site you intend to maintain, with a nifty shortnam
 - wordpress-list
 	- Checks every host in ~/.ssh/config for a compatible WP install, outputs clean list of hosts that pass the test
 - wordpress-backup HOST FREQUENCY
-	- Where FREQUENCY is one of hourly, daily, manual or tmp. Defaults to manual
+	- Where FREQUENCY is one of hourly, daily, manual, tmp or dreamhost. Defaults to manual
+	- If 2nd arg is 'dreamhost', a 3rd (wwwroot dir) and 4th (siteurl) are required
 - wordpress-backup-all FREQUENCY
 	- Script in alpha status, use with caution
 	- Reads a file ~/wp.sitelist with one Host alias per line
