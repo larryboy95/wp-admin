@@ -59,19 +59,17 @@ else
 fi
 
 # Look for the wp-cli binary, if found then run test to see if wp installed
-if [ ${2} != "dreamhost" ]; then
-	ssh -q ${1} "\
-		[ -f /usr/local/bin/wp ] \
-		&& wp --quiet $args core is-installed \
-		|| exit 1" < /dev/null
-	if [ ! $? -eq 0 ]; then
-		notify-critical "${1} is not online. What the heck?"
-		exit 1
-	fi
-	siteurl=$(ssh ${1} "wp $args option get siteurl")
+ssh -q ${1} "\
+	[ -f /usr/local/bin/wp ] \
+	&& wp --quiet $args core is-installed \
+	|| exit 1" < /dev/null
+if [ ! $? -eq 0 ]; then
+	notify-critical "${1} is not online. What the heck?"
+	exit 1
 fi
+siteurl=$(ssh ${1} "wp $args option get siteurl")
 # Failover to 4th argument for dreamhost:
-siteurl="${siteurl:-$4}"
+# siteurl="${siteurl:-$4}"
 
 ssh ${1} "wp --quiet ${args} db export /var/www/${target}"
 if [ ! $? -eq 0  ]; then
