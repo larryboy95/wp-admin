@@ -91,7 +91,7 @@ elif [ ${2} = "tmp" ]; then
 else
 	fullBackupDir="/var/backups/wp-full-backups/${1}"
 	[ ! -d $fullBackupDir ] && mkdir ${fullBackupDir}
-	rsync -qr ${1}:/var/www ${fullBackupDir}
+	rsync -qLr ${1}:/var/www ${fullBackupDir}
 	$restic backup ${fullBackupDir}/www --tag ${1} || $restic prune
 	$restic backup ${target}.gz --tag ${1} || $restic prune
 	notify-screenshot "$siteurl" "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
