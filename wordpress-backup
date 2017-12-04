@@ -9,6 +9,7 @@ trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT  # remove the lockdir on exit
 
 source $HOME/.wp-admin
 args="${3:-/var/www/html}"
+args="--path=${args}"
 target=${1}.sql
 backupDir="/var/backups/wp-db-backups"
 backupsToKeep=28
