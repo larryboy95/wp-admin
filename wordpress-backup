@@ -61,7 +61,7 @@ fi
 
 # Look for the wp-cli binary, if found then run test to see if wp installed
 ssh -q ${1} "\
-	[ -f /usr/local/bin/wp ] \
+	[ -f /usr/local/bin/wp || -f /usr/bin/wp ] \
 	&& wp --quiet $args core is-installed \
 	|| exit 1" < /dev/null
 if [ ! $? -eq 0 ]; then
