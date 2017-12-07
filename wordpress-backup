@@ -8,8 +8,8 @@ trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT  # remove the lockdir on exit
 
 
 source $HOME/.wp-admin
-args="${3:-/var/www/html}"
-args="--path=${args}"
+webroot="${3:-/var/www/html}"
+args="--path=${webroot}"
 target=${1}.sql
 backupDir="/var/backups/wp-db-backups"
 backupsToKeep=28
@@ -72,17 +72,17 @@ siteurl=$(ssh ${1} "wp $args option get siteurl")
 # Failover to 4th argument for dreamhost:
 # siteurl="${siteurl:-$4}"
 
-ssh ${1} "wp --quiet ${args} db export /var/www/${target}"
+ssh ${1} "wp --quiet ${args} db export ${webroot}/${target}"
 if [ ! $? -eq 0  ]; then
 	notify-critical "Backup export failed for ${1} (${2}) at ${siteurl}" 
 	exit 1
 fi
-ssh ${1} "gzip -f /var/www/${target}"
+ssh ${1} "gzip -f ${webroot}/${target}"
 if [ ! $? -eq 0  ]; then
 	notify-critical "Backup gzip failed for ${1} (${2}) at ${siteurl}" 
 	exit 1
 fi
-scp -q ${1}:/var/www/${target}.gz .
+scp -q ${1}:${webroot}/${target}.gz .
 
 restic=/usr/local/bin/restic
 if [ ! -f $restic ]; then
