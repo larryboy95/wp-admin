@@ -63,22 +63,24 @@ ssh -q ${1} "wp --quiet --path=\"${webroot}\" core is-installed" < /dev/null
 if [ ! $? -eq 0 ]; then
 	notify-critical "${1} is not online. What the heck?"
 	# exit 1
+else 
+	echo "Good to go."
 fi
 siteurl=$(ssh ${1} "wp --path=\"${webroot}\" option get siteurl")
 # Failover to 4th argument for dreamhost:
 # siteurl="${siteurl:-$4}"
 
-ssh ${1} "wp --quiet --path=\"${webroot}\" db export ${webroot}/${target}"
+ssh ${1} "wp --path=\"${webroot}\" db export ${webroot}/../${target}"
 if [ ! $? -eq 0  ]; then
 	notify-critical "Backup export failed for ${1} (${2}) at ${siteurl}" 
 	exit 1
 fi
-ssh ${1} "gzip -f ${webroot}/${target}"
+ssh ${1} "gzip -vf ${webroot}/../${target}"
 if [ ! $? -eq 0  ]; then
 	notify-critical "Backup gzip failed for ${1} (${2}) at ${siteurl}" 
 	exit 1
 fi
-scp -q ${1}:${webroot}/${target}.gz .
+scp ${1}:${webroot}/../${target}.gz .
 
 restic=/usr/local/bin/restic
 if [ ! -f $restic ]; then
