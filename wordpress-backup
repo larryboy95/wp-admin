@@ -47,6 +47,12 @@ if [ ${2+x} ]; then
 	elif [ $2 == "hourly" ]; then
 		cd ${backupDir}/hourly
 		rotate $1
+	elif [ $2 == "dreamhost" ]; then
+		cd ${backupDir}/dreamhost
+		rotate $1
+	elif [ $2 == "manual" ]; then
+		cd ${backupDir}/manual
+		rotate $1
 	elif [ $2 == "tmp" ]; then
 		cd /tmp
 		rotate $1
