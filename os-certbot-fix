@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+# Check if there is no first argument
+if [ ! ${1+x} ]; then
+	echo "Missing host argument"
+	exit 1
+fi
+
+ssh ${1} "sudo certbot certificates | grep VALID"
+ssh ${1} "sudo nginx -t"
+ssh ${1} "sudo service nginx restart"
+ssh ${1} "sudo crontab -r"
+ssh -t ${1} "(sudo crontab -l ; echo '1 1 * * * /usr/bin/certbot renew --quiet --post-hook \"/usr/sbin/service nginx restart\"') | sort - | uniq - | sudo crontab -"
+echo "--- fin ---"
+
+exit 0
