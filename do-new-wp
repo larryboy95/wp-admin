@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "
+do-new-wp 0.1
+Usage: do-new-wp CONFIGFILE"
+    exit 1
+fi
+
+. ./do-new-wp.conf
+# add ses creds
+# generate db/wp passwords
+# auto retrieve admin ip
+ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+# generate doer config file in /tmp
+DOERCONF=/tmp/do-new-wp-12345.conf
+echo "mode create
+token ${DOTOKEN}
+name ${NAME}
+image lemp-16-04
+size 1gb
+publickey ${PUBLICKEY}
+adminip ${ADMINIP}" > $DOERCONF
+
+# Provision the droplet
+doer -config $DOERCONF
+
+# Need ip back from doer
+
+# Run ansible playbook to set up servers
+
+# Run wordpress-install new / clone repo
+
+# Uploads dir??
+
+exit 0
