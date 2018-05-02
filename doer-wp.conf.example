@@ -1,0 +1,8 @@
+mode create
+token PUTYERTOKENHERE
+name doer-example
+image lemp-16-04
+size 1024mb
+userdatafile ./templates/cloud-config-wp
+publickey YERPUBKEY
+adminip ADMINSERVERIP
