@@ -3,14 +3,11 @@
 error_exit() {
 	local lc="$BASH_COMMAND" rc=$?
 	echo "Command [$lc] exited with code [$rc]"
-	rm -f /tmp/stupid
-	rm -rf /tmp/nginx-*
-	rm -f /tmp/${fqdn}*
 }
 trap error_exit EXIT
 set -e
 
-main() 
+interactive() 
 {
 	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 	read -p "Database host: [localhost] " dbhost
@@ -26,11 +23,8 @@ main()
 	read -p "WP Admin User: [admin] " user
 	user=${user:-admin}
 	read -p "WP Admin Password: " password
-	read -p "Email (must be valid): " email
+	read -p "WP Email: " email
 
-	# if dbname or fqdn empty abort	
-	[[ -z $dbname ]] && exit "db Name must not be empty"
-	[[ -z $fqdn ]] && exit "domain name must not be empty"
 	ssh -t ${1} "\
 		cd /var/www/html; \
 		wp core download; \
@@ -49,5 +43,45 @@ main()
 		" 
 }
 
-main ${1}
+inline() 
+{
+	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+	title=$1	
+	fqdn=$2
+	user=$3
+    email=$4
+    password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
+	dbhost="localhost"
+	dbuser="wp"
+	dbname="wp"
+	dbpass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
+
+	ssh -t ${1} "\
+		cd /var/www/html; \
+		wp core download; \
+		wp core config \
+			--dbhost=${dbhost} \
+			--dbname=${dbname} \
+			--dbuser=${dbuser} \
+			--dbpass=${dbpass}; \
+		wp core install \
+			--url=${fqdn} \
+			--title=${title} \
+			--admin_user=${user} \
+			--admin_password=${password} \
+			--admin_email=${email} \
+			--skip-email \
+		" 
+        echo "WP password:"
+        echo $password
+}
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 HOST [DOMAIN WPUSER WPEMAIL]
+    Interactive if only HOST is supplied." >&2
+    exit 1
+elif [ "$#" -eq 1 ]; then
+    interactive $1
+elif [ "$#" -gt 1 ]; then
+    inline $@
+fi
 exit 0		
