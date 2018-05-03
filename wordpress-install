@@ -28,9 +28,6 @@ main()
 	read -p "WP Admin Password: " password
 	read -p "Email (must be valid): " email
 
-	cd ${scriptdir}
-	cp -vr assets/nginx-* /tmp
-
 	# if dbname or fqdn empty abort	
 	[[ -z $dbname ]] && exit "db Name must not be empty"
 	[[ -z $fqdn ]] && exit "domain name must not be empty"
