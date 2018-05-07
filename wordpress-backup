@@ -1,117 +1,117 @@
 #!/bin/bash
 
 if ! mkdir -p ~/tmp/wordpress-backup.lock; then
-    printf "Failed to aquire lock.\n" >&2
-    exit 1
-fi
-trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT  # remove the lockdir on exit
-
-
-source $HOME/.wp-admin
-webroot="${3:-/var/www/html}"
-target=${1}.sql
-backupDir="/var/backups/wp-db-backups"
-backupsToKeep=28
-
-# Check if there is a first argument
-if [  ${1+x} ]; then
-	if [ $1 == "daily" ] || [ $1 == "hourly" ] || [ $1 == "manual" ] || [ $1 == "tmp" ]; then
-		notify-critical "Error in first argument, $1 $2 backup."
-		exit 1
-	fi
-else
-	notify-critical "Missing first argument $1 $2 backup."
+	printf "Failed to aquire lock. (Script already running?)\n" >&2
 	exit 1
 fi
+trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT	# remove the lockdir on exit
+
+
+# Is there a first argument
+if [  ${1+x} ]; then
+	HOST=${1}
+else
+	notify-critical "Missing first argument ${HOST} ${TYPE} backup."
+	exit 1
+fi
+TYPE="${2:-manual}"
+WEBROOT="${3:-/var/www/html}"
+TARGET=${HOST}.sql
+EXCLUDE="sites/default/files/legacy"
+# Below can be set as environment variables
+BUPDIR="${BUPDIR:-/var/backups/wp-db-backups}"
+FULLBUPDIR="${FULLBUPDIR:-/var/backups/wp-full-backups}"
+KEEP=${KEEP:-28}
+RESTIC=${RESTIC:-/usr/local/bin/restic}
 
 function rotate()
 {
-	i=$backupsToKeep
+	echo "Rotate db backups"
+	i=$KEEP
 	while [ $i -gt 0 ]
 	do
 		if [ $i -gt 1 ]; then
 			h=$[i-1]
-			mv ${1}.${h}.sql.gz ${1}.${i}.sql.gz >/dev/null 2>&1
+			if [ -f ${HOST}.${h}.sql.gz ]; then
+				mv ${HOST}.${h}.sql.gz ${HOST}.${i}.sql.gz >/dev/null 2>&1
+			fi
 		else
-			mv ${1}.sql.gz ${1}.1.sql.gz >/dev/null 2>&1
+			if [ -f ${HOST}.sql.gz ]; then
+				mv ${HOST}.sql.gz ${HOST}.1.sql.gz >/dev/null 2>&1
+			fi
 		fi
 		(( i-- ))
 	done
 }
 
-# Next line checks if there is a second argument
-if [ ${2+x} ]; then
-	if [ $2 == "daily" ]; then
-		cd ${backupDir}/daily
-		rotate $1
-	elif [ $2 == "hourly" ]; then
-		cd ${backupDir}/hourly
-		rotate $1
-	elif [ $2 == "dreamhost" ]; then
-		cd ${backupDir}/dreamhost
-		rotate $1
-	elif [ $2 == "manual" ]; then
-		cd ${backupDir}/manual
-		rotate $1
-	elif [ $2 == "tmp" ]; then
-		cd /tmp
-		rotate $1
-	fi
-else
-	# Set second positional argument
-	set -- ${1} "manual"
-	cd ${backupDir}/manual
-	rotate $1
+if [ ${HOST} == "daily" ] \
+    || [ ${HOST} == "hourly" ] \
+    || [ ${HOST} == "manual" ] \
+    || [ ${HOST} == "tmp" ]; then
+	notify-critical "Error in first argument, ${HOST} ${TYPE} backup."
+	exit 1
+fi
+
+if [ ${TYPE} == "daily" ] \
+    || [ ${TYPE} == "hourly" ] \
+    || [ ${TYPE} == "manual" ] \
+    || [ ${TYPE} == "tmp" ]; then
+	BUPDIR=${BUPDIR}/${TYPE}
+	[ ! -d $BUPDIR ] && mkdir $BUPDIR
+    cd ${BUPDIR}
+    rotate ${HOST}
 fi
 
 # Look for the wp-cli binary, if found then run test to see if wp installed
-ssh -q ${1} "wp --quiet --path=\"${webroot}\" core is-installed" < /dev/null
+ssh -q ${HOST} "wp --quiet --path=\"${WEBROOT}\" core is-installed" < /dev/null
+# Check if the exit code from last command ^^ is non zero
 if [ ! $? -eq 0 ]; then
-	notify-critical "${1} is not online. What the heck?"
-	# exit 1
+	notify-critical "${HOST} WP does not appear to be running. What the heck?"
+	exit 1
 else 
-	echo "Good to go."
+	siteurl=$(ssh ${HOST} "wp --path=\"${WEBROOT}\" option get siteurl")
+	echo "Proceeding with backup for ${HOST}."
 fi
-siteurl=$(ssh ${1} "wp --path=\"${webroot}\" option get siteurl")
-# Failover to 4th argument for dreamhost:
-# siteurl="${siteurl:-$4}"
 
-ssh ${1} "wp --path=\"${webroot}\" db export ${webroot}/../${target}"
+# Save a new db dump one level up from the webroot
+ssh ${HOST} "wp --path=\"${WEBROOT}\" db export ${WEBROOT}/../${TARGET}"
 if [ ! $? -eq 0  ]; then
-	notify-critical "Backup export failed for ${1} (${2}) at ${siteurl}" 
+	notify-critical "Database export failed for ${HOST} (${TYPE}) at ${siteurl}" 
 	exit 1
 fi
-ssh ${1} "gzip -vf ${webroot}/../${target}"
+
+ssh ${HOST} "gzip -vf ${WEBROOT}/../${TARGET}"
 if [ ! $? -eq 0  ]; then
-	notify-critical "Backup gzip failed for ${1} (${2}) at ${siteurl}" 
+	notify-critical "Backup gzip failed for ${HOST} (${TYPE}) at ${siteurl}" 
 	exit 1
 fi
-scp ${1}:${webroot}/../${target}.gz .
 
-restic=/usr/local/bin/restic
-if [ ! -f $restic ]; then
-	notify-critical "Restic binary not found on ${HOSTNAME}"
-elif [ ! -f ~/.wp-admin ]; then
-	notify-critical "~/.wp-admin config file not found on ${USER}@${HOSTNAME}, backup to s3 disabled for ${1}."
-elif [ ${2} = "hourly" ]; then
-	:
-elif [ ${2} = "tmp" ]; then
-	:
-elif [ ${2} = "dreamhost" ]; then
-	fullBackupDir="/var/backups/wp-full-backups/${1}"
-	[ ! -d $fullBackupDir ] && mkdir ${fullBackupDir}
-	rsync -ptLr --exclude='sites/default/files/legacy' ${1}:${3} ${fullBackupDir}
-	$restic backup ${fullBackupDir}/ --tag ${1}
-	$restic backup ${target}.gz --tag ${1}
-	notify-screenshot "$siteurl" "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
+# Copy gzipped db backup to admin server
+scp ${HOST}:${WEBROOT}/../${TARGET}.gz .
+
+if [ ${TYPE} = "hourly" ]; then
+	echo "Hourly backup, skipping full sync."
+elif [ ${TYPE} = "tmp" ]; then
+	echo "Temporary backup, skipping full sync."
 else
-	fullBackupDir="/var/backups/wp-full-backups/${1}"
-	[ ! -d $fullBackupDir ] && mkdir ${fullBackupDir}
-	rsync -ptLr --exclude='sites/default/files/legacy' ${1}:/var/www/html ${fullBackupDir}
-	$restic backup ${fullBackupDir}/html --tag ${1}
-	$restic backup ${target}.gz --tag ${1}
-	notify-screenshot "$siteurl" "Backup (${2}) completed for ${siteurl}. Post-backup screenshot:"
+	FULLBUPDIR="${FULLBUPDIR}/${HOST}"
+	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
+	rsync \
+		-ptLr \
+		--exclude=${EXCLUDE} \
+		${HOST}:${WEBROOT} \
+		${FULLBUPDIR}
+	if [ -f $RESTIC ] && [ -f ~/.wp-admin ]; then
+		source $HOME/.wp-admin
+		$RESTIC backup ${FULLBUPDIR}/ --tag ${HOST}
+		$RESTIC backup ${TARGET}.gz --tag ${HOST}
+	else
+		notify-critical \
+		"Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOST} is not happening."
+	fi
+	notify-screenshot \
+	"$siteurl" "Backup (${TYPE}) completed for ${siteurl}. Post-backup screenshot:"
 fi
 
-notify-log "Backup completed for ${1} (${2})" 
+notify-log "Backup completed for ${HOST} (${TYPE})" 
 exit 0
