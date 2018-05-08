@@ -12,8 +12,23 @@ if [  ${1+x} ]; then
 	HOST=${1}
 else
 	notify-critical "Missing first argument ${HOST} ${TYPE} backup."
+    echo "
+
+Usage: wordpress-backup HOST TYPE [WEBROOT]
+Where:
+- HOST must be available in ssh config
+- TYPE can be one of:
+    - full, backup webroot and db to s3
+    - db, backup db to admin server
+    - tmp, backup db to /tmp on admin server
+    - manual, full backup to s3, not rotated
+- WEBROOT is optional, defaults to /var/www/html
+
+    "
 	exit 1
 fi
+
+# Set defaults if arguments absent
 TYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
 TARGET=${HOST}.sql
@@ -44,19 +59,19 @@ function rotate()
 	done
 }
 
-if [ ${HOST} == "daily" ] \
-    || [ ${HOST} == "hourly" ] \
+if [ ${HOST} == "full" ] \
+    || [ ${HOST} == "db" ] \
     || [ ${HOST} == "manual" ] \
     || [ ${HOST} == "tmp" ]; then
 	notify-critical "Error in first argument, ${HOST} ${TYPE} backup."
 	exit 1
 fi
 
-if [ ${TYPE} == "daily" ] \
-    || [ ${TYPE} == "hourly" ] \
+if [ ${TYPE} == "full" ] \
+    || [ ${TYPE} == "db" ] \
     || [ ${TYPE} == "manual" ] \
     || [ ${TYPE} == "tmp" ]; then
-	BUPDIR=${BUPDIR}/${TYPE}
+    [ ${TYPE} == "tmp" ] && BUPDIR=/tmp
 	[ ! -d $BUPDIR ] && mkdir $BUPDIR
     cd ${BUPDIR}
     rotate ${HOST}
@@ -89,10 +104,10 @@ fi
 # Copy gzipped db backup to admin server
 scp ${HOST}:${WEBROOT}/../${TARGET}.gz .
 
-if [ ${TYPE} = "hourly" ]; then
-	echo "Hourly backup, skipping full sync."
+if [ ${TYPE} = "db" ]; then
+	echo "Database backup, skipping full sync."
 elif [ ${TYPE} = "tmp" ]; then
-	echo "Temporary backup, skipping full sync."
+	echo "Backup db to /tmp, skipping full sync. This backup will not be written to s3."
 else
 	FULLBUPDIR="${FULLBUPDIR}/${HOST}"
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
@@ -104,14 +119,15 @@ else
 	if [ -f $RESTIC ] && [ -f ~/.wp-admin ]; then
 		source $HOME/.wp-admin
 		$RESTIC backup ${FULLBUPDIR}/ --tag ${HOST}
+        [ ! $? -eq 0  ] && notify-critical "Restic error"
 		$RESTIC backup ${TARGET}.gz --tag ${HOST}
+        [ ! $? -eq 0  ] && notify-critical "Restic error"
 	else
 		notify-critical \
-		"Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOST} is not happening."
+            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOST} is not happening."
 	fi
 	notify-screenshot \
 	"$siteurl" "Backup (${TYPE}) completed for ${siteurl}. Post-backup screenshot:"
 fi
 
-notify-log "Backup completed for ${HOST} (${TYPE})" 
 exit 0
