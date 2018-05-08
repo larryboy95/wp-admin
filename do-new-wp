@@ -2,8 +2,22 @@
 
 if [ $# -eq 0 ]; then
     echo "
-do-new-wp 0.1
-Usage: do-new-wp CONFIGFILE"
+
+Usage: do-new-wp CONFIGFILE
+
+Config file vars, required:
+DOTOKEN
+PUBLICKEY
+
+ADMINIP is automatically pulled from eth0
+
+Optional vars and their default values:
+SIZE s-1vcpu-1gb
+IMAGE lemp-16-04
+REGION sfo2
+NAME unnamed
+
+"
     exit 1
 fi
 # Include the config file
