@@ -22,6 +22,7 @@ NAME unnamed
 fi
 # Include the config file
 . $1
+# auto retrieve admin ip
 ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 SIZE=${SIZE:-s-1vcpu-1gb}
 IMAGE=${IMAGE:-lemp-16-04}
@@ -29,11 +30,10 @@ REGION=${REGION:-sfo2}
 NAME=${NAME:-unnamed}
 # add ses creds
 # generate db/wp passwords
-# auto retrieve admin ip
 # generate doer config file in /tmp
 
 # Provision the droplet
-doctl compute droplet create \
+DID=$(doctl compute droplet create \
     ${NAME} \
     -t ${DOTOKEN} \
     -o json \
@@ -42,10 +42,17 @@ doctl compute droplet create \
     --region ${REGION} \
     --enable-backups \
     --enable-monitoring \
+    | jq '.[0] .id' | tr -d '\n')
 
+
+echo "Wait for droplet creation..."
+sleep 1
 
 # Need ip back from do
+DIP=$(doctl compute droplet get ${DID} -t ${DOTOKEN} -o json \
+    | jq '.[0] .networks.v4[0].ip_address' | tr -d '\n')
 
+echo $DIP
 # Run ansible playbook to set up servers
 
 # Run wordpress-install new / clone repo
