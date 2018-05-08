@@ -71,8 +71,7 @@ if [ ${TYPE} == "full" ] \
     || [ ${TYPE} == "db" ] \
     || [ ${TYPE} == "manual" ] \
     || [ ${TYPE} == "tmp" ]; then
-	BUPDIR=${BUPDIR}/${TYPE}
-    [ ${TYPE} == "tmp" ] && BUPDIR=/tmp || BUPDIR=${BUPDIR}/${TYPE}
+    [ ${TYPE} == "tmp" ] && BUPDIR=/tmp || BUPDIR=${BUPDIR}/db
 	[ ! -d $BUPDIR ] && mkdir $BUPDIR
     cd ${BUPDIR}
     rotate ${HOST}
