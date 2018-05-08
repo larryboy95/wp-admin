@@ -130,5 +130,4 @@ else
 	"$siteurl" "Backup (${TYPE}) completed for ${siteurl}. Post-backup screenshot:"
 fi
 
-notify-log "Backup completed for ${HOST} (${TYPE})" 
 exit 0
