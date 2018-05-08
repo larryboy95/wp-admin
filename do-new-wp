@@ -9,23 +9,28 @@ fi
 # Include the config file
 . $1
 ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
-DOERCONF=/tmp/do-new-wp-12345.conf
+SIZE=${SIZE:-s-1vcpu-1gb}
+IMAGE=${IMAGE:-lemp-16-04}
+REGION=${REGION:-sfo2}
+NAME=${NAME:-unnamed}
 # add ses creds
 # generate db/wp passwords
 # auto retrieve admin ip
 # generate doer config file in /tmp
-echo "mode create
-token ${DOTOKEN}
-name ${NAME}
-image lemp-16-04
-size s-1vcpu-1gb
-publickey ${PUBLICKEY}
-adminip ${ADMINIP}" > $DOERCONF
 
 # Provision the droplet
-doer -config $DOERCONF
+doctl compute droplet create \
+    ${NAME} \
+    -t ${DOTOKEN} \
+    -o json \
+    --size ${SIZE} \
+    --image ${IMAGE} \
+    --region ${REGION} \
+    --enable-backups \
+    --enable-monitoring \
 
-# Need ip back from doer
+
+# Need ip back from do
 
 # Run ansible playbook to set up servers
 
