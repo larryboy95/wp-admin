@@ -72,6 +72,7 @@ if [ ${TYPE} == "full" ] \
     || [ ${TYPE} == "manual" ] \
     || [ ${TYPE} == "tmp" ]; then
 	BUPDIR=${BUPDIR}/${TYPE}
+    [ ${TYPE} == "tmp" ] && BUPDIR=/tmp || BUPDIR=${BUPDIR}/${TYPE}
 	[ ! -d $BUPDIR ] && mkdir $BUPDIR
     cd ${BUPDIR}
     rotate ${HOST}
@@ -105,9 +106,9 @@ fi
 scp ${HOST}:${WEBROOT}/../${TARGET}.gz .
 
 if [ ${TYPE} = "db" ]; then
-	echo "Hourly backup, skipping full sync."
+	echo "Database backup, skipping full sync."
 elif [ ${TYPE} = "tmp" ]; then
-	echo "Temporary backup, skipping full sync."
+	echo "Backup db to /tmp, skipping full sync. This backup will not be written to s3."
 else
 	FULLBUPDIR="${FULLBUPDIR}/${HOST}"
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
@@ -119,10 +120,12 @@ else
 	if [ -f $RESTIC ] && [ -f ~/.wp-admin ]; then
 		source $HOME/.wp-admin
 		$RESTIC backup ${FULLBUPDIR}/ --tag ${HOST}
+        [ ! $? -eq 0  ] && notify-critical "Restic error"
 		$RESTIC backup ${TARGET}.gz --tag ${HOST}
+        [ ! $? -eq 0  ] && notify-critical "Restic error"
 	else
 		notify-critical \
-		"Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOST} is not happening."
+            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOST} is not happening."
 	fi
 	notify-screenshot \
 	"$siteurl" "Backup (${TYPE}) completed for ${siteurl}. Post-backup screenshot:"
