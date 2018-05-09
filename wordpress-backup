@@ -69,13 +69,14 @@ fi
 
 if [ ${TYPE} == "full" ] \
     || [ ${TYPE} == "db" ] \
-    || [ ${TYPE} == "manual" ] \
-    || [ ${TYPE} == "tmp" ]; then
-    [ ${TYPE} == "tmp" ] && BUPDIR=/tmp
-	[ ! -d $BUPDIR ] && mkdir $BUPDIR
-    cd ${BUPDIR}
-    rotate ${HOST}
+    || [ ${TYPE} == "manual" ]; then
+    BUPDIR=${BUPDIR}/${TYPE}
+else     
+    BUPDIR=/tmp
 fi
+[ ! -d $BUPDIR ] && mkdir $BUPDIR
+cd ${BUPDIR}
+rotate ${HOST}
 
 # Look for the wp-cli binary, if found then run test to see if wp installed
 ssh -q ${HOST} "wp --quiet --path=\"${WEBROOT}\" core is-installed" < /dev/null
