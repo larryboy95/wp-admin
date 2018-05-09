@@ -1,8 +1,10 @@
-# Canonical name, no spaces, alphanum + dashes only
+# Name: Canonical, no spaces, alphanumeric and dashes only
+# This will be used as the droplet hostname and the ssh/Ansible Host 
 NAME=""
+# Repourl (Optional): if you supply a repo, it will be deployed instead of WP
 # Must have access to this repo. Optional, new WP if not supplied
 REPOURL=""
-# Get token from targeted DO account
+# Dotoken: Get an API access token for the targeted DO account
 DOTOKEN=""
-# Your public key for ssh access
+# Publickey: Your public key for ssh access
 PUBLICKEY=""

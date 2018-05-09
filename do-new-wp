@@ -53,6 +53,8 @@ DIP=$(doctl compute droplet get ${DID} -t ${DOTOKEN} -o json \
     | jq '.[0] .networks.v4[0].ip_address' | tr -d '\n')
 
 echo $DIP
+# Setup ssh config file
+
 # Run ansible playbook to set up servers
 
 # Run wordpress-install new / clone repo
