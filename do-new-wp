@@ -6,6 +6,8 @@ if [ $# -eq 0 ]; then
 Usage: do-new-wp CONFIGFILE
 
 Config file vars, required:
+NAME (alphanumeric and dashes only) 
+FQDN (fully qualified domain name)
 DOTOKEN
 PUBLICKEY
 
@@ -15,8 +17,6 @@ Optional vars and their default values:
 SIZE s-1vcpu-1gb
 IMAGE lemp-16-04
 REGION sfo2
-NAME unnamed
-
 "
     exit 1
 fi
@@ -24,12 +24,22 @@ fi
 . $1
 # auto retrieve admin ip
 ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+SCRIPTDIR=$(dirname ${0})
+SSHOSTS=~/.ssh/config-test
+
 SIZE=${SIZE:-s-1vcpu-1gb}
 IMAGE=${IMAGE:-lemp-16-04}
 REGION=${REGION:-sfo2}
-NAME=${NAME:-unnamed}
 # add ses creds
 # generate db/wp passwords
+MYSQLROOTPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
+
+# Check if the name is already taken
+if grep -w ${NAME} ${SSHOSTS}; then
+    echo "${NAME} found in current ssh config, exiting"
+    exit 1
+fi
+
 # generate doer config file in /tmp
 
 # Provision the droplet
@@ -44,18 +54,35 @@ DID=$(doctl compute droplet create \
     --enable-monitoring \
     | jq '.[0] .id' | tr -d '\n')
 
-
-echo "Wait for droplet creation..."
-sleep 1
+echo "Wait two secs for the droplet to be created..."
+sleep 2
 
 # Need ip back from do
 DIP=$(doctl compute droplet get ${DID} -t ${DOTOKEN} -o json \
     | jq '.[0] .networks.v4[0].ip_address' | tr -d '\n')
 
 echo $DIP
+
 # Setup ssh config file
 
+echo "Host ${NAME}
+    HostName ${DIP}
+    User root
+    Port 22
+    IdentityFile=~/.ssh/id_rsa
+    IdentitiesOnly yes
+" >> ${SSHOSTS}
+
+grep ${NAME} -A5 ${SSHOSTS}
+
+# Setup ansible hosts file
+
 # Run ansible playbook to set up servers
+cd ${SCRIPTDIR}/ansible
+ansible-playbook wordpress.yml --extra-vars "
+    host=${NAME} 
+    fqdn=${FQDN}
+    mysql_root_password=${MYSQLROOTPASSWORD}"
 
 # Run wordpress-install new / clone repo
 

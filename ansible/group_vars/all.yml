@@ -1,3 +1,10 @@
+# Variables required on command line
+# i.e. ansible-playbook --external-vars="foo=bar"
+# mysql_root_password
+# fqdn
+# host 
+
+
 # https://galaxy.ansible.com/willshersystems/sshd/
 sshd:
       Compression: true
@@ -12,7 +19,6 @@ ufw_whitelisted_ports:
 
 
 # https://galaxy.ansible.com/geerlingguy/mysql/
-mysql_root_password: iwantthistobevariable
 mysql_databases:
     - name: wordpress
 mysql_users:
@@ -24,7 +30,7 @@ mysql_users:
 # https://galaxy.ansible.com/geerlingguy/nginx/
 
 nginx_conf_template: "{{ playbook_dir }}/templates/nginx.conf.j2"
-
+nginx_client_max_body_size: "64m"
 nginx_vhosts:
     - listen: "443 ssl http2"
         server_name: "{{ fqdn }}"
@@ -53,6 +59,5 @@ nginx_vhosts:
     - listen: "80"
         server_name: "{{ fqdn }} www.{{ fqdn }}"
         return: "301 https://{{ fqdn }}/$request_uri"
-        filename: "example.com.80.conf"
+        filename: "{{ fqdn }}.80.conf"
 
-nginx_client_max_body_size: "64m"
