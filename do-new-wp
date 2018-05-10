@@ -59,8 +59,10 @@ echo "Wait five seconds for the droplet to be created..."
 sleep 5
 
 # Get IP from DO
+# and remove dbl quotes from string
 DIP=$(doctl compute droplet get ${DID} -t ${DOTOKEN} -o json \
     | jq '.[0] .networks.v4[0].ip_address' | tr -d '\n')
+DIP=$(echo "$DIP" | tr -d '"')
 
 # Setup ssh config file
 echo "Host ${NAME}
