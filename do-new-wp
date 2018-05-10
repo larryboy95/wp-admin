@@ -14,7 +14,7 @@ PUBLICKEY
 ADMINIP is automatically pulled from eth0
 
 Optional vars and their default values:
-SSHOSTS ~/.ssh/config
+SSHHOSTS ~/.ssh/config
 SIZE s-1vcpu-1gb
 IMAGE ubuntu-16-04-x64
 REGION sfo2
@@ -28,7 +28,8 @@ ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' 
 SCRIPTDIR=$(dirname ${0})
 
 # Set default values
-SSHOSTS=${SSHOSTS:-~/.ssh/config}
+SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
+ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
 SIZE=${SIZE:-s-1vcpu-1gb}
 IMAGE=${IMAGE:-ubuntu-16-04-x64}
 REGION=${REGION:-sfo2}
@@ -37,7 +38,7 @@ REGION=${REGION:-sfo2}
 MYSQLROOTPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
 
 # Check if the name is already taken
-if grep -w ${NAME} ${SSHOSTS}; then
+if grep -w ${NAME} ${SSHHOSTS}; then
     echo "${NAME} found in current ssh config, exiting"
     exit 1
 fi
@@ -54,8 +55,8 @@ DID=$(doctl compute droplet create \
     --enable-monitoring \
     | jq '.[0] .id' | tr -d '\n')
 
-echo "Wait two secs for the droplet to be created..."
-sleep 2
+echo "Wait five seconds for the droplet to be created..."
+sleep 5
 
 # Get IP from DO
 DIP=$(doctl compute droplet get ${DID} -t ${DOTOKEN} -o json \
@@ -67,17 +68,21 @@ echo "Host ${NAME}
     User root
     IdentityFile=~/.ssh/id_rsa
     IdentitiesOnly yes
-" >> ${SSHOSTS}
+" >> ${SSHHOSTS}
 
-grep ${NAME} -A5 ${SSHOSTS}
+grep ${NAME} -A5 ${SSHHOSTS}
 
 # Setup ansible hosts file
-cd ${SCRIPTDIR}/ansible
+echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> ${ANSHOSTS}
+if [ ! $? -eq 0 ]; then
+    echo "Error writing to ${ANSHOSTS}"
+    exit 1
+fi
 
 # Run ansible playbook to set up servers
+cd ${SCRIPTDIR}/ansible
 ansible-playbook wordpress.yml --extra-vars "
     host=${NAME} 
-    fqdn=${FQDN}
     mysql_root_password=${MYSQLROOTPASSWORD}"
 
 # Run wordpress-install new / clone repo
