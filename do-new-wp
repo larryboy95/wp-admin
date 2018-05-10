@@ -27,7 +27,7 @@ ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' 
 SCRIPTDIR=$(dirname ${0})
 
 # Set default values
-SSHOSTS=${SSHOSTS:-~/.ssh/config-test}
+SSHOSTS=${SSHOSTS:-~/.ssh/config}
 SIZE=${SIZE:-s-1vcpu-1gb}
 IMAGE=${IMAGE:-lemp-16-04}
 REGION=${REGION:-sfo2}
