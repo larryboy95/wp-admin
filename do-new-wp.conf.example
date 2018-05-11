@@ -1,6 +1,10 @@
 # Name: Canonical, no spaces, alphanumeric and dashes only
 # This will be used as the droplet hostname and the ssh/Ansible Host 
 NAME=""
+# Fully qualified domain name
+# Must resolve to the new droplet IP before letsencrypt certificates
+# can be issued.
+FQDN=""
 # Repourl (Optional): if you supply a repo, it will be deployed instead of WP
 # Must have access to this repo. Optional, new WP if not supplied
 REPOURL=""

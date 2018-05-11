@@ -2,10 +2,9 @@
 # i.e. ansible-playbook --external-vars="foo=bar"
 # mysql_root_password
 # fqdn
-# host 
-
 
 # https://galaxy.ansible.com/willshersystems/sshd/
+---
 sshd:
       Compression: true
       Port: 9999
@@ -23,9 +22,9 @@ mysql_databases:
     - name: wordpress
 mysql_users:
     - name: wordpress
-    host: "localhost"
-    password: similarly-secure-password
-    priv: "wordpress.*:ALL"
+      host: "localhost"
+      password: similarly-secure-password
+      priv: "wordpress.*:ALL"
 
 # https://galaxy.ansible.com/geerlingguy/nginx/
 
@@ -33,17 +32,17 @@ nginx_conf_template: "{{ playbook_dir }}/templates/nginx.conf.j2"
 nginx_client_max_body_size: "64m"
 nginx_vhosts:
     - listen: "443 ssl http2"
-        server_name: "{{ fqdn }}"
-        server_name_redirect: "www.{{ fqdn }}"
-        root: "/var/www/html"
-        index: "index.php index.html index.htm"
-        error_page: ""
-        access_log: ""
-        error_log: ""
-        state: "present"
-        template: "{{ nginx_vhost_template }}"
-        filename: "wordpress.conf"
-        extra_parameters: |
+      server_name: "{{ fqdn }}"
+      server_name_redirect: "www.{{ fqdn }}"
+      root: "/var/www/html"
+      index: "index.php index.html index.htm"
+      error_page: ""
+      access_log: ""
+      error_log: ""
+      state: "present"
+      template: "{{ nginx_vhost_template }}"
+      filename: "wordpress.conf"
+      extra_parameters: |
         location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/var/run/php5-fpm.sock;
@@ -57,7 +56,7 @@ nginx_vhosts:
         ssl_ciphers         HIGH:!aNULL:!MD5;
 
     - listen: "80"
-        server_name: "{{ fqdn }} www.{{ fqdn }}"
-        return: "301 https://{{ fqdn }}/$request_uri"
-        filename: "{{ fqdn }}.80.conf"
-
+      server_name: "{{ fqdn }} www.{{ fqdn }}"
+      return: "301 https://{{ fqdn }}/$request_uri"
+      filename: "{{ fqdn }}.80.conf"
+...
