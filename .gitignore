@@ -1,5 +1,7 @@
 terminus
+tmp.*
 *.swp
 *.gz
 *.sql
 *.conf
+*.retry
