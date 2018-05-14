@@ -4,15 +4,16 @@ if [ $# -eq 0 ]; then
     echo "
 
 Usage: do-new-wp CONFIGFILE
+Provisions a new droplet at Digitalocean and installs WordPress.
 
-Config file vars, required:
+Config file vars required, (see do-new-wp.conf.example):
     NAME (alphanumeric and dashes only) 
     FQDN (fully qualified domain name)
     EMAIL
     DOTOKEN
     PUBLICKEY
 
-ADMINIP is automatically pulled from eth0
+ADMINIP is automatically obtained from eth0
 
 Optional vars and their default values:
     SSHHOSTS ~/.ssh/config
@@ -48,6 +49,9 @@ MYSQLWPPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1
 if grep -w ${NAME} ${SSHHOSTS}; then
     echo "${NAME} was found in the current ${SSHHOSTS}, exiting."
     exit 1
+elif grep -w ${NAME} ${ANSHOSTS}; then
+    echo "${NAME} was found in the current ${ANSHOSTS}, exiting."
+    exit 1 
 fi
 
 # Provision the droplet
@@ -65,7 +69,7 @@ DID=$(doctl compute droplet create \
     | jq '.[0] .id' | tr -d '\n')
 
 if [ ! $? -eq 0 ]; then
-    echo "Error provisioning droplet"
+    echo "Error provisioning droplet."
     exit 1
 else
     echo "Wait five seconds for the droplet to be created..."
