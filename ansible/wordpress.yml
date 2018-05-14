@@ -5,5 +5,5 @@
   roles:
   - geerlingguy.mysql
   - geerlingguy.nginx
-  - nbz4live.php-fpm
+  - chusiang.php7
   - sbaerlocher.wp-cli

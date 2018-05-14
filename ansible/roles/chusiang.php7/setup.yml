@@ -1,0 +1,26 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: Setup the php7-fpm
+  hosts: all
+  become: true
+
+  vars_files:
+    - defaults/main.yml
+
+  roles:
+    - chusiang.vim-and-vi-mode
+
+  tasks:
+    - name: Include vars for debian
+      include_vars: "vars/debian.yml"
+      when: ansible_distribution|lower == "debian"
+
+    - name: Include main tasks
+      import_tasks: tasks/main.yml
+
+  handlers:
+    - name: Include handlers tasks
+      import_tasks: handlers/main.yml
+
+# vim: ft=ansible :

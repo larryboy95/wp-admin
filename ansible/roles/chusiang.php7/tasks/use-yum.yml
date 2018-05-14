@@ -1,0 +1,55 @@
+#!/usr/bin/env ansible-playbook
+# ============================================================
+#  Author: Chu-Siang Lai / chusiang (at) drx.tw
+#  Blog: http://note.drx.tw
+#  Filename: use-yum.yml
+#  Modified: 2018-04-15 01:18
+#  Description: Setup PHP7 on CentOS 6, 7.
+#  Reference:
+#
+#   * How To Upgrade to PHP 7 on CentOS 7 | DigitalOcean
+#    - https://www.digitalocean.com/community/tutorials/how-to-upgrade-to-php-7-on-centos-7
+#
+# ============================================================
+---
+
+- name: Install requires package with yum
+  become: true
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - libselinux-python
+    - epel-release
+
+- name: Install the remi and ius repo from remote repo
+  become: true
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - "http://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm"
+    -  "https://centos{{ ansible_distribution_major_version }}.iuscommunity.org/ius-release.rpm"
+
+- name: Upgrade all packages
+  become: true
+  yum:
+    name: "*"
+    state: latest
+  tags: skip_ansible_lint
+
+- name: Install PHP 7 Packages
+  become: true
+  yum:
+    name: "{{ item }}"
+    enablerepo: ius
+  with_nested: "{{ yum_php_packages }}"
+  when: yum_php_packages is defined
+  notify: restart php7-fpm on centos
+
+- name: Start php7-fpm on centos
+  become: true
+  service:
+    name: php-fpm
+    state: started
+    enabled: yes
+
+# vim: ft=ansible :
