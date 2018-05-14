@@ -50,11 +50,11 @@ inline()
 	fqdn=$2
 	user=$3
     email=$4
+	dbpass=$5
     password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
 	dbhost="localhost"
 	dbuser="wordpress"
 	dbname="wordpress"
-	dbpass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
 
 	ssh -t ${1} "\
 		cd /var/www/html; \
@@ -72,11 +72,11 @@ inline()
 			--admin_email=${email} \
 			--skip-email \
 		" 
-        echo "WP password:"
+        echo "Admin user password:"
         echo $password
 }
 if [ "$#" -eq 0 ]; then
-    echo "Usage: $0 HOST [DOMAIN WPUSER WPEMAIL]
+    echo "Usage: $0 HOST [DOMAIN WPUSER WPEMAIL DBPASS]
     Interactive if only HOST is supplied." >&2
     exit 1
 elif [ "$#" -eq 1 ]; then

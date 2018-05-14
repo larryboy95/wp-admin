@@ -6,19 +6,21 @@ if [ $# -eq 0 ]; then
 Usage: do-new-wp CONFIGFILE
 
 Config file vars, required:
-NAME (alphanumeric and dashes only) 
-FQDN (fully qualified domain name)
-EMAIL
-DOTOKEN
-PUBLICKEY
+    NAME (alphanumeric and dashes only) 
+    FQDN (fully qualified domain name)
+    EMAIL
+    DOTOKEN
+    PUBLICKEY
 
 ADMINIP is automatically pulled from eth0
 
 Optional vars and their default values:
-SSHHOSTS ~/.ssh/config
-SIZE s-1vcpu-1gb
-IMAGE ubuntu-16-04-x64
-REGION sfo2
+    SSHHOSTS ~/.ssh/config
+    ANSHOSTS /etc/ansible/hosts
+    SIZE s-1vcpu-1gb
+    IMAGE ubuntu-16-04-x64
+    REGION sfo2
+    WPUSER admin
 "
     exit 1
 fi
@@ -99,7 +101,7 @@ while true; do
     ssh -o ConnectTimeout=3 -q ${NAME} "[ -f /var/lib/cloud/instance/boot-finished ]"
     if [ $? -eq 0 ]; then
         sleep 1
-        echo "Boot finished."
+        echo "\rBoot finished."
         break
     else
         echo -ne "."
@@ -128,7 +130,7 @@ ansible-playbook wordpress.yml --extra-vars "
 
 # Run wordpress-install new / clone repo
 cd ${SCRIPTDIR}
-wordpress-install ${NAME} ${FQDN} ${WPUSER} ${EMAIL}
+wordpress-install ${NAME} ${FQDN} ${WPUSER} ${EMAIL} ${MYSQLWPPASSWORD}
 # Uploads dir??
 
 # Offer to delete the droplet
@@ -137,5 +139,9 @@ doctl compute droplet delete $DID
 #doctl compute droplet list \
 #    -o json \
 #    | jq '.[] | select(.name=="${NAME}") | .id' 
+
+echo "
+Root mysql password: ${MYSQLROOTPASSWORD}
+Wordpress mysql password: ${MYSQLWPPASSWORD}"
 
 exit 0
