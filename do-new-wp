@@ -8,6 +8,7 @@ Usage: do-new-wp CONFIGFILE
 Config file vars, required:
 NAME (alphanumeric and dashes only) 
 FQDN (fully qualified domain name)
+EMAIL
 DOTOKEN
 PUBLICKEY
 
@@ -33,9 +34,11 @@ ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
 SIZE=${SIZE:-s-1vcpu-1gb}
 IMAGE=${IMAGE:-ubuntu-16-04-x64}
 REGION=${REGION:-sfo2}
+WPUSER=${WPUSER:-admin}
 # add ses creds
 # generate db/wp passwords
 MYSQLROOTPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
+MYSQLWPPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
 
 # Check if the name is already taken
 if grep -w ${NAME} ${SSHHOSTS}; then
@@ -90,32 +93,42 @@ if [ ! $? -eq 0 ]; then
     exit 1
 fi
 
-echo "Wait for the droplet to boot..."
+echo -ne "Wait for the droplet initialisation to complete..."
 sleep 10
 while true; do
-    ssh -o ConnectTimeout=3 -q ${NAME} exit
+    ssh -o ConnectTimeout=3 -q ${NAME} "[ -f /var/lib/cloud/instance/boot-finished ]"
     if [ $? -eq 0 ]; then
-        sleep 3
+        sleep 1
+        echo "Boot finished."
         break
+    else
+        echo -ne "."
+        sleep 1
     fi
 done
 
-echo "Install python to support ansible, ssl-cert for snakeoil."
-ssh ${NAME} "apt-get -y install python ssl-cert"
-if [ ! $? -eq 0 ]; then
-    echo "Error installing python."
-    exit 1
-fi
+echo "Install prerequisite packages."
+while true; do
+    ssh -o ConnectTimeout=3 ${NAME} "apt-get -y -q install python ssl-cert"
+    if [ $? -eq 0 ]; then
+        sleep 3
+        break
+    else
+        echo "Error installing packages, trying again..."
+    fi
+done
 
 # Run ansible playbook to set up servers
 cd ${SCRIPTDIR}/ansible
 ansible-playbook wordpress.yml --extra-vars "
         mysql_root_password=${MYSQLROOTPASSWORD}
+        mysql_wp_password=${MYSQLWPPASSWORD}
         fqdn=${FQDN}
         --limit ${NAME}"
 
 # Run wordpress-install new / clone repo
-
+cd ${SCRIPTDIR}
+wordpress-install ${NAME} ${FQDN} ${WPUSER} ${EMAIL}
 # Uploads dir??
 
 # Offer to delete the droplet

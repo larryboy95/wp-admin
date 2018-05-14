@@ -18,12 +18,13 @@ ufw_whitelisted_ports:
 
 
 # https://galaxy.ansible.com/geerlingguy/mysql/
+mysql_root_password: "{{ mysql_root_password }}"
 mysql_databases:
     - name: wordpress
 mysql_users:
     - name: wordpress
       host: "localhost"
-      password: similarly-secure-password
+      password: "{{ mysql_wp_password }}"
       priv: "wordpress.*:ALL"
 
 # https://galaxy.ansible.com/geerlingguy/nginx/

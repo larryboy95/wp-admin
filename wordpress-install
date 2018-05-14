@@ -52,19 +52,19 @@ inline()
     email=$4
     password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
 	dbhost="localhost"
-	dbuser="wp"
-	dbname="wp"
+	dbuser="wordpress"
+	dbname="wordpress"
 	dbpass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
 
 	ssh -t ${1} "\
 		cd /var/www/html; \
-		wp core download; \
-		wp core config \
+		wp --allow-root core download; \
+		wp --allow-root core config \
 			--dbhost=${dbhost} \
 			--dbname=${dbname} \
 			--dbuser=${dbuser} \
 			--dbpass=${dbpass}; \
-		wp core install \
+		wp --allow-root core install \
 			--url=${fqdn} \
 			--title=${title} \
 			--admin_user=${user} \

@@ -2,8 +2,8 @@
 - name: Install MySQL, Nginx, and PHP-FPM
   hosts: all
   remote_user: root
-
   roles:
   - geerlingguy.mysql
   - geerlingguy.nginx
   - nbz4live.php-fpm
+  - sbaerlocher.wp-cli
