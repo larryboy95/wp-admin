@@ -8,7 +8,8 @@ Provisions a new droplet at Digitalocean and installs WordPress.
 
 Config file vars required, (see do-new-wp.conf.example):
     NAME (alphanumeric and dashes only) 
-    FQDN (fully qualified domain name)
+    DOMAIN
+    SUBDOMAIN
     EMAIL
     DOTOKEN
     PUBLICKEY
@@ -31,7 +32,12 @@ fi
 
 ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 SCRIPTDIR=$(dirname ${0})
-
+if [ ! -z $SUBDOMAIN ] && [ ! -z $DOMAIN ]; then
+    FQDN="${SUBDOMAIN}.${DOMAIN}"
+else
+    echo "Error, vars DOMAIN and/or SUBDOMAIN are not set."
+    exit 1
+fi
 # Set default values
 SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
 ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
@@ -121,14 +127,47 @@ echo "Host ${NAME}
     IdentityFile ${PATHTOPRIVKEY}
     IdentitiesOnly yes
 " >> ${SSHHOSTS}
-# Echo the entry you just wrote
-grep -w ${NAME} -A5 ${SSHHOSTS}
+if [ ! $? -eq 0 ]; then
+    echo "Error writing to ${SSHHOSTS}"
+    exit 1
+else
+    # Echo the entry you just wrote
+    grep -w ${NAME} -A5 ${SSHHOSTS}
+fi
 
+echo "Setup subdomain with Digitalocean DNS."
+DNSRAW=$(doctl compute domain records \
+    create ${DOMAIN} \
+    --record-type A \
+    --record-name ${SUBDOMAIN} \
+    --record-data ${DIP} \
+    -o json
+    )
+if [ ! $? -eq 0 ]; then
+    echo "Error creating dns record."
+    exit 1
+fi
+DNSRAW=$(echo "${DNSRAW}" | jq '.[0] .id')
+if [ ! $? -eq 0 ]; then
+    echo "Error parsing JSON."
+    echo "${DNSRAW}"
+    exit 1
+fi
+DNSID=$(echo "${DNSRAW}" | tr -d '\n')
+if [ -z "$DNSID" ]; then
+    echo "DNSID is empty."
+    exit 1
+else
+    echo "DNS A record for ${FQDN} to ${DIP} was created."
+fi
 # Setup ansible hosts file
 echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> ${ANSHOSTS}
 if [ ! $? -eq 0 ]; then
     echo "Error writing to ${ANSHOSTS}"
     exit 1
+else
+    # Echo the entry you just wrote
+    grep -w ${NAME} ${ANSHOSTS}
 fi
 
 echo -ne "Wait for the droplet initialisation to complete..."
@@ -137,6 +176,7 @@ while true; do
     ssh -o ConnectTimeout=3 -q ${NAME} "[ -f /var/lib/cloud/instance/boot-finished ]"
     if [ $? -eq 0 ]; then
         sleep 1
+        echo -ne "\r"
         break
     else
         echo -ne "."
