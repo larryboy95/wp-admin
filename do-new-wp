@@ -96,13 +96,13 @@ DIPRAW=$(doctl compute droplet \
     -o json) 
 if [ ! $? -eq 0 ]; then
     echo "Error retrieving droplet IP address."
-    echo "${DIDRAW}"
+    echo "${DIPRAW}"
     exit 1
 fi
 DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
 if [ ! $? -eq 0 ]; then
     echo "Error parsing JSON."
-    echo "${DIDRAW}"
+    echo "${DIPRAW}"
     exit 1
 fi
 DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
