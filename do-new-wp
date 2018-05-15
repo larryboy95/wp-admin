@@ -55,10 +55,10 @@ elif grep -w ${NAME} ${ANSHOSTS}; then
 fi
 
 # Provision the droplet
+# and remove dbl quotes from string
 echo "Provisioning new droplet for ${NAME}"
-DID=$(doctl compute droplet create \
+DIDRAW=$(doctl compute droplet create \
     ${NAME} \
-    -o json \
     -t ${DOTOKEN} \
     --ssh-keys ${PUBLICKEY} \
     --size ${SIZE} \
@@ -66,10 +66,22 @@ DID=$(doctl compute droplet create \
     --region ${REGION} \
     --enable-backups \
     --enable-monitoring \
-    | jq '.[0] .id' | tr -d '\n')
-
+    -o json
+    )
 if [ ! $? -eq 0 ]; then
     echo "Error provisioning droplet."
+    echo "${DIDRAW}"
+    exit 1
+fi
+DIDRAW=$(echo "${DIDRAW}" | jq '.[0] .id')
+if [ ! $? -eq 0 ]; then
+    echo "Error parsing JSON."
+    echo "${DIDRAW}"
+    exit 1
+fi
+DID=$(echo "${DIDRAW}" | tr -d '\n')
+if [ -z "$DID" ]; then
+    echo "Droplet ID is empty."
     exit 1
 else
     echo "Wait five seconds for the droplet to be created..."
@@ -77,14 +89,27 @@ else
 fi
 
 # Get IP from DO
-# and remove dbl quotes from string
 echo "Getting IP from droplet ${DID}."
-DIP=$(doctl compute droplet \
+DIPRAW=$(doctl compute droplet \
     get ${DID} \
     -t ${DOTOKEN} \
-    -o json \
-    | jq '.[0] .networks.v4[0].ip_address' | tr -d '\n')
-DIP=$(echo "$DIP" | tr -d '"')
+    -o json) 
+if [ ! $? -eq 0 ]; then
+    echo "Error retrieving droplet IP address."
+    echo "${DIDRAW}"
+    exit 1
+fi
+DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
+if [ ! $? -eq 0 ]; then
+    echo "Error parsing JSON."
+    echo "${DIDRAW}"
+    exit 1
+fi
+DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
+if [ -z "$DIP" ]; then
+    echo "IP address is empty?"
+    exit 1
+fi
 
 # Setup ssh config file for Ansible
 # Later we must modify this for a non-root user
