@@ -5,5 +5,6 @@
   roles:
   - geerlingguy.mysql
   - geerlingguy.nginx
+  - geerlingguy.certbot
   - chusiang.php7
   - sbaerlocher.wp-cli

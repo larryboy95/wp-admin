@@ -186,7 +186,7 @@ done
 
 echo "Install prerequisite packages."
 while true; do
-    ssh -o ConnectTimeout=3 ${NAME} "apt-get -y -q install python ssl-cert"
+    ssh -o ConnectTimeout=3 ${NAME} "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
     if [ $? -eq 0 ]; then
         sleep 3
         break
@@ -201,6 +201,7 @@ ansible-playbook wordpress.yml --extra-vars "
         mysql_root_password=${MYSQLROOTPASSWORD}
         mysql_wp_password=${MYSQLWPPASSWORD}
         fqdn=${FQDN}
+        email=${EMAIL}
         --limit ${NAME}"
 
 # Run wordpress-install new / clone repo
