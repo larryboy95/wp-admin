@@ -32,13 +32,18 @@ fi
 
 ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 SCRIPTDIR=$(dirname ${0})
-if [ ! -z $SUBDOMAIN ] && [ ! -z $DOMAIN ]; then
-    FQDN="${SUBDOMAIN}.${DOMAIN}"
-else
-    echo "Error, vars DOMAIN and/or SUBDOMAIN are not set."
+if [ -z $NAME ] \
+    && [ -z $DOMAIN ] \
+    && [ -z $SUBDOMAIN ] \
+    && [ -z $EMAIL ] \
+    && [ -z $DOTOKEN ] \
+    && [ -z $PUBLICKEY ]; then
+    echo "Error, required variables not set. Check your config file."
     exit 1
+else
+    FQDN="${SUBDOMAIN}.${DOMAIN}"
 fi
-# Set default values
+# Set default values for optional variables
 SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
 ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
 PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
