@@ -58,16 +58,16 @@ MYSQLWPPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1
 
 # Check if the name is already taken
 if grep -w ${NAME} ${SSHHOSTS}; then
-    echo "${NAME} was found in the current ${SSHHOSTS}, exiting."
+    echo "${NAME} was found in ${SSHHOSTS}, exiting."
     exit 1
 elif grep -w ${NAME} ${ANSHOSTS}; then
-    echo "${NAME} was found in the current ${ANSHOSTS}, exiting."
+    echo "${NAME} was found in ${ANSHOSTS}, exiting."
     exit 1 
 fi
 
 # Provision the droplet
 # and remove dbl quotes from string
-echo "Provisioning new droplet for ${NAME}"
+echo "Provisioning new droplet for ${NAME}."
 DIDRAW=$(doctl compute droplet create \
     ${NAME} \
     -t ${DOTOKEN} \
@@ -176,7 +176,6 @@ else
 fi
 
 echo -ne "Wait for the droplet initialisation to complete..."
-sleep 10
 while true; do
     ssh -o ConnectTimeout=3 -q ${NAME} "[ -f /var/lib/cloud/instance/boot-finished ]"
     if [ $? -eq 0 ]; then
