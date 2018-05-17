@@ -49,8 +49,10 @@ REGION=${REGION:-sfo2}
 WPUSER=${WPUSER:-admin}
 # TODO add ses creds
 # Generate db passwords
-MYSQLROOTPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
-MYSQLWPPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
+MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+echo "$MYSQLROOTPASSWORD"
+MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+echo "$MYSQLWPPASSWORD"
 
 # Check if the name is already taken
 if grep -w "${NAME}" "${SSHHOSTS}"; then
