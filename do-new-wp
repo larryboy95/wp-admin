@@ -30,6 +30,7 @@ fi
 # Include the config file
 . "$1"
 
+# TODO add ses creds
 # Check that required variables are set
 [ -z "$DOMAIN" ] && { echo "DOMAIN not set $DOMAIN"; exit 1; }
 [ -z "$SUBDOMAIN" ] && { echo "SUBDOMAIN not set $SUBDOMAIN"; exit 1; }
@@ -47,7 +48,6 @@ SIZE=${SIZE:-s-1vcpu-1gb}
 IMAGE=${IMAGE:-ubuntu-16-04-x64}
 REGION=${REGION:-sfo2}
 WPUSER=${WPUSER:-admin}
-# TODO add ses creds
 # Generate db passwords
 MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
 echo "$MYSQLROOTPASSWORD"
@@ -175,7 +175,8 @@ fi
 
 echo -ne "Wait for the droplet initialisation to complete..."
 while true; do
-    ssh -o ConnectTimeout=3 -q "${NAME}" "[ -f /var/lib/cloud/instance/boot-finished ]"
+    ssh -o ConnectTimeout=3 -q "${NAME}" \
+        "[ -f /var/lib/cloud/instance/boot-finished ]"
     if [ $? -eq 0 ]; then
         sleep 1
         echo -ne "\r"
@@ -188,7 +189,8 @@ done
 
 echo "Install prerequisite packages."
 while true; do
-    ssh -o ConnectTimeout=3 "${NAME}" "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
+    ssh -o ConnectTimeout=3 "${NAME}" \
+        "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
     if [ $? -eq 0 ]; then
         sleep 3
         break
@@ -224,8 +226,8 @@ doctl compute droplet delete "$DID"
 echo "
 Root mysql password: ${MYSQLROOTPASSWORD}
 Wordpress mysql password: ${MYSQLWPPASSWORD}
-Test your new site at https://${DIP}
-or https://${FQDN}
+Test your new site at:
+https://${FQDN}
 "
 
 exit 0
