@@ -1,8 +1,30 @@
 #!/bin/bash
 
+USAGE="
+wordpress-restore-db HOST FREQUENCY
+
+For HOSTs on DigitalOcean only.
+Restores the latest backup from FREQUENCY dir to HOST
+over ssh using wp-cli.
+
+FREQUENCY may be one of
+- full
+- db
+- manual
+- tmp
+"
+
+if [ $# -eq 0 ]; then
+    echo "${USAGE}"
+    exit 1
+fi
+
 # Check if there is a first argument
 if [  ${1+x} ]; then
-	if [ $1 == "daily" ] || [ $1 == "hourly" ] || [ $1 == "manual" ] || [ $1 == "tmp" ]; then
+	if [ $1 == "daily" ] \
+        || [ $1 == "hourly" ] \
+        || [ $1 == "manual" ] \
+        || [ $1 == "tmp" ]; then
 		echo "Error in first argument."
 		exit 1
 	fi
@@ -13,9 +35,10 @@ fi
 
 # Check if there is a second argument
 if [ ${2+x} ]; then
-	if [ $2 == "daily" ] || [ $2 == "hourly" ] || [ $2 == "manual" ] || [ $2 == "tmp" ]; then
-		echo "Salright"
-	else
+	if [! $2 == "daily" ] \
+        || [ ! $2 == "hourly" ] \
+        || [ ! $2 == "manual" ] \
+        || [ ! $2 == "tmp" ]; then
 		echo "Error in second argument."
 		exit 1
 	fi
