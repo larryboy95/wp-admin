@@ -229,18 +229,7 @@ ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
 # Change webroot permissions
 ssh "${NAME}" "chown -R www-data:www-data /var/www"
 
-
-# Offer to delete the droplet
-doctl compute droplet delete "$DID"
-
-echo "
-Root mysql password: ${MYSQLROOTPASSWORD}
-Wordpress mysql password: ${MYSQLWPPASSWORD}
-Test your new site at:
-https://${FQDN}
-"
 # Optionally restore a site from restic
-# If variable not set then exit without error
 [ -z "$RESTICCODEBASE" ] && exit 0
 if [ -f ~/.wp-admin ]; then
     # Check for required values and binaries
@@ -268,4 +257,10 @@ else
         "Restic variables, binary or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, restore to ${FQDN} is not happening (do-new-wp)."
 fi
 
+echo "
+Root mysql password: ${MYSQLROOTPASSWORD}
+Wordpress mysql password: ${MYSQLWPPASSWORD}
+Test your new site at:
+https://${FQDN}
+"
 exit 0
