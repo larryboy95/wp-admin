@@ -1,10 +1,21 @@
 #!/bin/bash
 
-# Check if there is no first argument
-if [ ! ${1+x} ]; then
-	echo "Missing host argument ${!}"
-	exit 1
-elif [ ! ${2+x} ]; then
+USAGE="
+Usage: $(basename $0) HOST [USER]
+
+Change primary owner of webroot to USER
+while preserving write permissions for
+web server to appropriate directories.
+Sets all files to 644 and all directories
+to 755.
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+# If USER not supplied, ask for it
+if [ ! ${2+x} ]; then
 	read -p "User: [dev]" webroot_owner
 	webroot_owner=${webroot_owner:-dev}
 else
