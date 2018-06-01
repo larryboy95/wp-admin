@@ -35,10 +35,10 @@ fi
 
 # Check if there is a second argument
 if [ ${2+x} ]; then
-	if [! $2 == "daily" ] \
-        || [ ! $2 == "hourly" ] \
-        || [ ! $2 == "manual" ] \
-        || [ ! $2 == "tmp" ]; then
+	if [ ! $2 == "daily" ] \
+        && [ ! $2 == "hourly" ] \
+        && [ ! $2 == "manual" ] \
+        && [ ! $2 == "tmp" ]; then
 		echo "Error in second argument."
 		exit 1
 	fi

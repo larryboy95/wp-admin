@@ -257,15 +257,12 @@ if [ -f ~/.wp-admin ]; then
     sshfs ${NAME}:/var/www/new "${MOUNTPOINT}" || exit 1
     # Restore the targeted snapshots to the mount point
     $RESTIC restore ${RESTICCODEBASE} -t ${MOUNTPOINT} || exit 1
-    $RESTIC restore ${RESTICDB} -t /tmp || exit 1
+    $RESTIC restore ${RESTICDB} -t ${MOUNTPOINT} || exit 1
     # Replace the webroot with the new files
-    ssh ${NAME} "mv /var/www/html /var/www/html-backup-${USER}" || exit 1
+    ssh ${NAME} "mv /var/www/html /var/www/html-vanilla" || exit 1
     ssh ${NAME} "mv /var/www/new /var/www/html" || exit 1
     ssh ${NAME} "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
     # Extract and import the db
-    cd /tmp
-    gunzip "${NAME}.sql.gz"
-    wordpress-restore-db "${HOST}" tmp
 else
     notify-critical \
         "Restic variables, binary or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, restore to ${FQDN} is not happening (do-new-wp)."
