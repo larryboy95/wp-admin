@@ -1,0 +1,19 @@
+#!/bin/bash
+
+usage="
+Usage:
+os-update HOST
+Will run apt-get update, autoremove, dist-upgrade and then reboot HOST.
+"
+
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+fi
+
+cmd="sudo apt-get update; \
+	sudo apt-get -y autoremove; \
+	sudo apt-get -y dist-upgrade; \
+	sudo reboot"
+ssh -t ${1} ${cmd}
+exit 0
