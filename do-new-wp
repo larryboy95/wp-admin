@@ -233,8 +233,8 @@ ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
 ssh "${NAME}" "chown -R www-data:www-data /var/www"
 
 # Optionally restore a site from restic
-[ -z "$RESTICCODEBASE" ] && exit 0
-if [ -f ~/.wp-admin ]; then
+if [ -f ~/.wp-admin ] 
+    && [ ! -z "$RESTICCODEBASE" ]; then
     source $HOME/.wp-admin
     # Check for required values and binaries
     [ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }
@@ -256,8 +256,7 @@ if [ -f ~/.wp-admin ]; then
     ssh ${NAME} "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
     # Extract and import the db
 else
-    notify-critical \
-        "Restic variables, binary or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, restore to ${FQDN} is not happening (do-new-wp)."
+    echo "Restic variables not found for ${USER}@${HOSTNAME}, restore aborted."
 fi
 
 echo "
