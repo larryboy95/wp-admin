@@ -1,0 +1,75 @@
+#!/bin/bash
+
+USAGE="
+Usage: do-restore-wp HOST RESTICCODEBASE RESTICDB CONFIGFILE WEBROOT
+For digitalocean only.
+Restores a WordPress site from restic.
+
+HOST must be configured in ~/.ssh/config
+CONFIGFILE defaults to ~/.wp-admin
+RESTICCODEBASE hash of target snapshot to restore
+RESTICDB hash of target db to restore
+WEBROOT is not yet implemented
+"
+
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
+
+NAME="$1"
+RESTICCODEBASE="$2"
+RESTICDB="$3"
+CONFIGFILE="${4:-${HOME}/.wp-admin}"
+echo "$CONFIGFILE"
+SCRIPTDIR=$(dirname "${0}")
+RESTIC=$(which restic)
+MOUNTPOINT="${HOME}/.tmp-mount-do"
+BIGTMP="${HOME}/.tmp-big"
+
+# Check for required values and binaries
+[ -f "$CONFIGFILE" ] && source $CONFIGFILE || { echo "Config not found"; exit 1; }
+[ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }
+[ -z "$RESTICDB" ] && { echo "RESTICDB key not set"; exit 1; }
+[ -z "$RESTICCODEBASE" ] && { echo "RESTICCODEBASE key not set"; exit 1; }
+[ -z "$RESTIC_REPOSITORY" ] && { echo "RESTIC_REPOSITORY key not set"; exit 1; }
+[ -z "$RESTIC_PASSWORD" ] && { echo "RESTIC_PASSWORD key not set"; exit 1; }
+[ -z "$AWS_ACCESS_KEY_ID" ] && { echo "AWS_ACCESS_KEY_ID key not set"; exit 1; }
+[ -z "$AWS_SECRET_ACCESS_KEY" ] && { echo "AWS_SECRET_ACCESS_KEY key not set"; exit 1; }
+
+echo "Test connection"
+while true; do
+    ssh -o ConnectTimeout=3 -q "$NAME" \
+        "[ -f /var/lib/cloud/instance/boot-finished ]"
+    if [ $? -eq 0 ]; then
+        sleep 1
+        echo -"Connected."
+        break
+    else
+        echo "No connection, trying again."
+        sleep 1
+    fi
+done
+
+# Mount the remote directory on the local server
+[ ! -d "$MOUNTPOINT" ] && mkdir "$MOUNTPOINT" || echo "Error making mountpoint"
+[ ! -d "$BIGTMP" ] && mkdir "$BIGTMP" || echo "Error making bigtmp"
+# Restore the targeted snapshots to the big temp dir
+$RESTIC restore --exclude=".git*" ${RESTICCODEBASE} -qt "$BIGTMP" || exit 1
+$RESTIC restore ${RESTICDB} -t "$BIGTMP" || exit 1
+# Find the wordpress webroot and copy to server
+WPCONTENT=$(find -name "wp-content" "$BIGTMP")
+WPDIR=$(dirname "$WPCONTENT")
+echo "$WPDIR"
+exit 0
+ssh "$NAME" "mkdir /var/www/new" || exit 1
+rsync -av --exclude=".git*" --progress "${WPDIR}/*" "${NAME}:/var/www/new"
+# Replace the webroot with the new files
+ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
+ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+# Extract and import the db
+notify "Site has been restored to ${NAME}."
+exit 0
