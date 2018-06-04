@@ -235,6 +235,7 @@ ssh "${NAME}" "chown -R www-data:www-data /var/www"
 # Optionally restore a site from restic
 [ -z "$RESTICCODEBASE" ] && exit 0
 if [ -f ~/.wp-admin ]; then
+    source $HOME/.wp-admin
     # Check for required values and binaries
     [ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }
     [ -z "$RESTICDB" ] && { echo "RESTICDB key not set"; exit 1; }
@@ -242,7 +243,6 @@ if [ -f ~/.wp-admin ]; then
     [ -z "$RESTIC_PASSWORD" ] && { echo "RESTIC_PASSWORD key not set"; exit 1; }
     [ -z "$AWS_ACCESS_KEY_ID" ] && { echo "AWS_ACCESS_KEY_ID key not set"; exit 1; }
     [ -z "$AWS_SECRET_ACCESS_KEY" ] && { echo "AWS_SECRET_ACCESS_KEY key not set"; exit 1; }
-    source $HOME/.wp-admin
     # Mount the remote directory on the local server
     mkdir "${MOUNTPOINT}" || exit 1
     ssh ${NAME} "mkdir /var/www/new" || exit 1
