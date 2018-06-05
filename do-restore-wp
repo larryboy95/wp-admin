@@ -18,7 +18,6 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-
 NAME="$1"
 RESTICCODEBASE="$2"
 RESTICDB="$3"
@@ -45,27 +44,35 @@ while true; do
         "[ -f /var/lib/cloud/instance/boot-finished ]"
     if [ $? -eq 0 ]; then
         sleep 1
-        echo -"Connected."
+        echo "Connected"
         break
     else
-        echo "No connection, trying again."
+        echo "No connection, trying again"
         sleep 1
     fi
 done
 
 # Mount the remote directory on the local server
-[ ! -d "$MOUNTPOINT" ] && mkdir "$MOUNTPOINT" || echo "Error making mountpoint"
-[ ! -d "$BIGTMP" ] && mkdir "$BIGTMP" || echo "Error making bigtmp"
+[ ! -d "$MOUNTPOINT" ] && echo "No mountpoint"
+[ ! -d "$BIGTMP" ] && echo "No bigtmp"
 # Restore the targeted snapshots to the big temp dir
-$RESTIC restore --exclude=".git*" ${RESTICCODEBASE} -qt "$BIGTMP" || exit 1
+$RESTIC restore \
+    --exclude=".git*" \
+    --exclude="mri-admin*" \
+    ${RESTICCODEBASE} \
+    -qt "$BIGTMP" \
+    || exit 1
 $RESTIC restore ${RESTICDB} -t "$BIGTMP" || exit 1
 # Find the wordpress webroot and copy to server
-WPCONTENT=$(find -name "wp-content" "$BIGTMP")
-WPDIR=$(dirname "$WPCONTENT")
-echo "$WPDIR"
-exit 0
-ssh "$NAME" "mkdir /var/www/new" || exit 1
-rsync -av --exclude=".git*" --progress "${WPDIR}/*" "${NAME}:/var/www/new"
+WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
+WPDIR=${WPDIR//$'\n'/}
+ssh "$NAME" "mkdir /var/www/new" 
+rsync \
+    -av \
+    --exclude=".git*" \
+    --progress \
+    "${WPDIR}"/* \
+    "${NAME}:/var/www/new"
 # Replace the webroot with the new files
 ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
 ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
