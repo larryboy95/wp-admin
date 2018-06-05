@@ -25,9 +25,10 @@ CONFIGFILE="${4:-${HOME}/.wp-admin}"
 echo "$CONFIGFILE"
 SCRIPTDIR=$(dirname "${0}")
 RESTIC=$(which restic)
-MOUNTPOINT="${HOME}/.tmp-mount-do"
 BIGTMP="${HOME}/.tmp-big"
 
+# Cleanup on exit
+trap "rm -rf ${BIGTMP}/*" EXIT	
 # Check for required values and binaries
 [ -f "$CONFIGFILE" ] && source $CONFIGFILE || { echo "Config not found"; exit 1; }
 [ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }

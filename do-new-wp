@@ -234,7 +234,7 @@ ssh "${NAME}" "chown -R www-data:www-data /var/www"
 
 # Optionally restore a site from restic
 if [ -f ~/.wp-admin ] && [ ! -z "$RESTICCODEBASE" ]; then
-    do-restore-wp "$NAME" "RESTICCODEBASE" "RESTICDB"
+    do-restore-wp "$NAME" "$RESTICCODEBASE" "$RESTICDB"
 fi
 
 echo "
