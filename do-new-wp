@@ -109,10 +109,10 @@ function main {
         sleep 5
     fi
 # Get IP, setup SSH and Ansible config, create DNS A record
-    DIP=$(droplet_get_ip $DID $DOTOKEN)
-    ssh_config_add_host $NAME $SSHHOSTS $DIP $PATHTOPRIVKEY
-    ansible_add_host $NAME $ANSHOSTS $DIP
-    do_add_record $SUBDOMAIN $DOMAIN $DIP 
+    DIP=$(droplet_get_ip "$DID" "$DOTOKEN")
+    ssh_config_add_host "$NAME" "$SSHHOSTS" "$DIP" "$PATHTOPRIVKEY"
+    ansible_add_host "$NAME" "$ANSHOSTS" "$DIP"
+    do_add_record "$SUBDOMAIN" "$DOMAIN" "$DIP"
 # Wait for the new droplet to become ready
     echo -ne "Wait for the droplet initialisation to complete..."
     while true; do
@@ -217,8 +217,9 @@ function ssh_config_add_host {
     PATHTOPRIVKEY="$4"
     if grep -w "${NAME}" "${SSHHOSTS}"; then
         grep -w "${NAME}" -A5 "${SSHHOSTS}"
-        read -p "${NAME} was found in ${SSHHOSTS}, replace it (y/n)? " -n 1 -r  
-        echo    
+        echo
+        read -p "${NAME} was found in ${SSHHOSTS}, update it with new IP? (y/n)" -n 1 -r
+        echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $SSHHOSTS"
             OLDIP=$(grep -A1 $NAME $SSHHOSTS | tail -n1 | cut -d' ' -f6)
@@ -226,15 +227,8 @@ function ssh_config_add_host {
             sed -i "s/${OLDIP}/${DIP}/g" "$SSHHOSTS"
             [ ! $? -eq 0 ] && exit 1
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
-            echo "Adding duplicate ${NAME} to ssh config file:"
-#TODO add a nonce to delineate these
-            echo "Host ${NAME}
-        HostName ${DIP}
-        User root
-        IdentityFile ${PATHTOPRIVKEY}
-        IdentitiesOnly yes
-            " >> "${SSHHOSTS}"
-            [ ! $? -eq 0 ] && exit 1
+            echo "Cancelled due to user request"
+            exit 0
         else
             exit 1
         fi
@@ -256,8 +250,9 @@ function ansible_add_host {
     DIP="$3"
     if grep -w "${NAME}" "${ANSHOSTS}"; then
         grep -w "${NAME}" -A5 "${ANSHOSTS}"
-        read -p "${NAME} was found in ${ANSHOSTS}, replace it (y/n)? " -n 1 -r  
-        echo    
+        echo
+        read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
+        echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $ANSHOSTS"
             OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
@@ -266,10 +261,8 @@ function ansible_add_host {
             cat "${TMP}/anshosts" > "$ANSHOSTS"
             [ ! $? -eq 0 ] && exit 1
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
-            echo "Adding duplicate ${NAME} to ansible config file:"
-#TODO add a nonce to delineate these
-            echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
-            [ ! $? -eq 0 ] && exit 1
+            echo "Cancelled due to user request"
+            exit 0
         else
             exit 1
         fi
