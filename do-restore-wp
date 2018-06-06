@@ -11,89 +11,95 @@ RESTICCODEBASE hash of target snapshot to restore
 RESTICDB hash of target db to restore
 WEBROOT is not yet implemented
 "
-
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
     echo "$USAGE"
     exit 1
 fi
 
-NAME="$1"
-RESTICCODEBASE="$2"
-RESTICDB="$3"
-CONFIGFILE="${4:-${HOME}/.wp-admin}"
-echo "$CONFIGFILE"
-SCRIPTDIR=$(dirname "${0}")
-RESTIC=$(which restic)
-BIGTMP="${HOME}/.tmp-big"
+function main {
+    local NAME RESTICCODEBASE RESTICDB CONFIGFILE SCRIPTDIR
+    local RESTIC BIGTMP WPDIR SQLGZ
+    NAME="$1"
+    RESTICCODEBASE="$2"
+    RESTICDB="$3"
+    CONFIGFILE="${4:-${HOME}/.wp-admin}"
+    echo "$CONFIGFILE"
+    SCRIPTDIR=$(dirname "${0}")
+    RESTIC=$(which restic)
+    BIGTMP="${BIGTMP:-${HOME}/.tmp.big}"
+# TODO implement WEBROOT
 
 # Cleanup on exit
-trap "rm -rf ${BIGTMP}/*" EXIT	
+    trap "rm -rf ${BIGTMP}/*" EXIT	
 # Check for required values and binaries
-[ -f "$CONFIGFILE" ] && source $CONFIGFILE || { echo "Config not found"; exit 1; }
-[ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }
-[ -z "$RESTICDB" ] && { echo "RESTICDB key not set"; exit 1; }
-[ -z "$RESTICCODEBASE" ] && { echo "RESTICCODEBASE key not set"; exit 1; }
-[ -z "$RESTIC_REPOSITORY" ] && { echo "RESTIC_REPOSITORY key not set"; exit 1; }
-[ -z "$RESTIC_PASSWORD" ] && { echo "RESTIC_PASSWORD key not set"; exit 1; }
-[ -z "$AWS_ACCESS_KEY_ID" ] && { echo "AWS_ACCESS_KEY_ID key not set"; exit 1; }
-[ -z "$AWS_SECRET_ACCESS_KEY" ] && { echo "AWS_SECRET_ACCESS_KEY key not set"; exit 1; }
+    [ -f "$CONFIGFILE" ] && source $CONFIGFILE || { echo "Config not found"; exit 1; }
+    [ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }
+    [ -z "$RESTICDB" ] && { echo "RESTICDB key not set"; exit 1; }
+    [ -z "$RESTICCODEBASE" ] && { echo "RESTICCODEBASE key not set"; exit 1; }
+    [ -z "$RESTIC_REPOSITORY" ] && { echo "RESTIC_REPOSITORY key not set"; exit 1; }
+    [ -z "$RESTIC_PASSWORD" ] && { echo "RESTIC_PASSWORD key not set"; exit 1; }
+    [ -z "$AWS_ACCESS_KEY_ID" ] && { echo "AWS_ACCESS_KEY_ID key not set"; exit 1; }
+    [ -z "$AWS_SECRET_ACCESS_KEY" ] && { echo "AWS_SECRET_ACCESS_KEY key not set"; exit 1; }
 
-echo "Test connection"
-while true; do
-    ssh -o ConnectTimeout=3 -q "$NAME" \
-        "[ -f /var/lib/cloud/instance/boot-finished ]"
-    if [ $? -eq 0 ]; then
-        sleep 1
-        echo "Connected"
-        break
-    else
-        echo "No connection, trying again"
-        sleep 1
-    fi
-done
+    echo "Test connection"
+    while true; do
+        ssh -o ConnectTimeout=3 -q "$NAME" \
+            "[ -f /var/lib/cloud/instance/boot-finished ]"
+        if [ $? -eq 0 ]; then
+            sleep 1
+            echo "Connected"
+            break
+        else
+            echo "No connection, trying again"
+            sleep 1
+        fi
+    done
 
 # Make big tmp dir if not exist
-[ ! -d "$BIGTMP" ] && mkdir "$BIGTMP"
+    [ ! -d "$BIGTMP" ] && mkdir "$BIGTMP"
 # Get the targeted snapshots to the big temp dir
-$RESTIC restore \
-    --exclude=".git*" \
-    --exclude="mri-admin*" \
-    ${RESTICCODEBASE} \
-    -qt "$BIGTMP" \
-    || exit 1
+    $RESTIC restore \
+        --exclude=".git*" \
+        --exclude="mri-admin*" \
+        ${RESTICCODEBASE} \
+        -qt "$BIGTMP" \
+        || exit 1
 # Get the db backup
-$RESTIC restore \
-    ${RESTICDB} \
-    -qt \
-    "$BIGTMP" \
-    || exit 1
+    $RESTIC restore \
+        ${RESTICDB} \
+        -qt \
+        "$BIGTMP" \
+        || exit 1
 # Find the wordpress webroot and copy to server
-WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
-WPDIR=${WPDIR//$'\n'/}
-ssh "$NAME" "mkdir /var/www/new" 
-rsync \
-    -av \
-    --exclude=".git*" \
-    --progress \
-    "${WPDIR}"/* \
-    "${NAME}:/var/www/new"
+    WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
+    WPDIR=${WPDIR//$'\n'/}
+    ssh "$NAME" "mkdir /var/www/new" 
+    rsync \
+        -av \
+        --exclude=".git*" \
+        --progress \
+        "${WPDIR}"/* \
+        "${NAME}:/var/www/new"
 # Replace the webroot with the new files
-ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
-ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
-ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+    ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
+    ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+    ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
 # Extract and import the db
-SQLGZ=$(find ${BIGTMP}/ -name *.gz)
-echo $SQLGZ
-SQLGZ=${SQLGZ//$'\n'/}
-echo $SQLGZ
-exit 0
-rsync \
-    -av \
-    --progress \
-    "${SQLGZ}" \
-    "${NAME}:"
+    SQLGZ=$(find ${BIGTMP}/ -name *.gz)
+    echo $SQLGZ
+    SQLGZ=${SQLGZ//$'\n'/}
+    echo $SQLGZ
+    exit 0
+    rsync \
+        -av \
+        --progress \
+        "${SQLGZ}" \
+        "${NAME}:"
 # Gunzip db to stdout and import from stdin
-ssh "$NAME" "gunzip -c $SQLGZ | wp --allow-root --path='/var/www/html' db import -"
+    ssh "$NAME" "gunzip -c $SQLGZ | wp --allow-root --path='/var/www/html' db import -"
 #notify "Site has been restored to ${NAME}."
+}
+
+main "$@"
 exit 0
