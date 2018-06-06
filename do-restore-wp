@@ -53,17 +53,21 @@ while true; do
     fi
 done
 
-# Mount the remote directory on the local server
-[ ! -d "$MOUNTPOINT" ] && echo "No mountpoint"
-[ ! -d "$BIGTMP" ] && echo "No bigtmp"
-# Restore the targeted snapshots to the big temp dir
+# Make big tmp dir if not exist
+[ ! -d "$BIGTMP" ] && mkdir "$BIGTMP"
+# Get the targeted snapshots to the big temp dir
 $RESTIC restore \
     --exclude=".git*" \
     --exclude="mri-admin*" \
     ${RESTICCODEBASE} \
     -qt "$BIGTMP" \
     || exit 1
-$RESTIC restore ${RESTICDB} -t "$BIGTMP" || exit 1
+# Get the db backup
+$RESTIC restore \
+    ${RESTICDB} \
+    -qt \
+    "$BIGTMP" \
+    || exit 1
 # Find the wordpress webroot and copy to server
 WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
 WPDIR=${WPDIR//$'\n'/}
@@ -79,5 +83,17 @@ ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
 ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
 ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
 # Extract and import the db
-notify "Site has been restored to ${NAME}."
+SQLGZ=$(find ${BIGTMP}/ -name *.gz)
+echo $SQLGZ
+SQLGZ=${SQLGZ//$'\n'/}
+echo $SQLGZ
+exit 0
+rsync \
+    -av \
+    --progress \
+    "${SQLGZ}" \
+    "${NAME}:"
+# Gunzip db to stdout and import from stdin
+ssh "$NAME" "gunzip -c $SQLGZ | wp --allow-root --path='/var/www/html' db import -"
+#notify "Site has been restored to ${NAME}."
 exit 0

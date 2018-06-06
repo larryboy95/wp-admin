@@ -63,15 +63,10 @@ MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
 echo "$MYSQLROOTPASSWORD"
 MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
 echo "$MYSQLWPPASSWORD"
-
-# Check if the name is already taken
-if grep -w "${NAME}" "${SSHHOSTS}"; then
-    echo "${NAME} was found in ${SSHHOSTS}, exiting."
-    exit 1
-elif grep -w "${NAME}" "${ANSHOSTS}"; then
-    echo "${NAME} was found in ${ANSHOSTS}, exiting."
-    exit 1 
-fi
+TMPDIR="/tmp/do-new-wp/"
+[ ! -d "$TMPDIR" ] && mkdir "$TMPDIR"
+# Cleanup on exit
+trap "rm -rf ${TMPDIR}" EXIT	
 
 # Provision the droplet
 # and remove dbl quotes from string
@@ -131,23 +126,64 @@ if [ -z "$DIP" ]; then
 fi
 
 # Setup ssh config file for Ansible
-# Later we must modify this for a non-root user
-# and non-standard port
-echo "Adding ${NAME} to ssh config file:"
-echo "Host ${NAME}
+# Check if the name is already taken
+if grep -w "${NAME}" "${SSHHOSTS}"; then
+    grep -w "${NAME}" -A5 "${SSHHOSTS}"
+    read -p "${NAME} was found in ${SSHHOSTS}, replace it (y/n)? " -n 1 -r  
+    echo    
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Changing IP for $NAME in $SSHHOSTS"
+        OLDIP=$(grep -A1 $NAME $SSHHOSTS | tail -n1 | cut -d' ' -f6)
+        [ ! $? -eq 0 ] && exit 1
+        sed -i "s/${OLDIP}/${DIP}/g" "$SSHHOSTS"
+        [ ! $? -eq 0 ] && exit 1
+    elif [[ $REPLY =~ ^[Nn]$ ]]; then
+        echo "Adding duplicate ${NAME} to ssh config file:"
+#TODO add a nonce to delineate these
+        echo "Host ${NAME}
     HostName ${DIP}
     User root
     IdentityFile ${PATHTOPRIVKEY}
     IdentitiesOnly yes
-" >> "${SSHHOSTS}"
-if [ ! $? -eq 0 ]; then
-    echo "Error writing to ${SSHHOSTS}"
-    exit 1
+        " >> "${SSHHOSTS}"
+        [ ! $? -eq 0 ] && exit 1
+    else
+        exit 1
+    fi
 else
-    # Echo the entry you just wrote
-    grep -w "${NAME}" -A5 "${SSHHOSTS}"
+    echo "Host ${NAME}
+    HostName ${DIP}
+    User root
+    IdentityFile ${PATHTOPRIVKEY}
+    IdentitiesOnly yes
+    " >> "${SSHHOSTS}"
+    [ ! $? -eq 0 ] && exit 1
+fi
+if grep -w "${NAME}" "${ANSHOSTS}"; then
+    grep -w "${NAME}" -A5 "${ANSHOSTS}"
+    read -p "${NAME} was found in ${ANSHOSTS}, replace it (y/n)? " -n 1 -r  
+    echo    
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Changing IP for $NAME in $ANSHOSTS"
+        OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
+        [ ! $? -eq 0 ] && exit 1
+        sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMPDIR}/anshosts"
+        cat "${TMPDIR}/anshosts" > "$ANSHOSTS"
+        [ ! $? -eq 0 ] && exit 1
+    elif [[ $REPLY =~ ^[Nn]$ ]]; then
+        echo "Adding duplicate ${NAME} to ansible config file:"
+#TODO add a nonce to delineate these
+        echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
+        [ ! $? -eq 0 ] && exit 1
+    else
+        exit 1
+    fi
+else
+    echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
+    [ ! $? -eq 0 ] && exit 1
 fi
 
+# TODO find and update matching DNS records
 echo "Setup subdomain with Digitalocean DNS."
 DNSRAW=$(doctl compute domain records \
     create "${DOMAIN}" \
@@ -172,15 +208,6 @@ if [ -z "$DNSID" ]; then
     exit 1
 else
     echo "DNS A record for ${FQDN} to ${DIP} was created."
-fi
-# Setup ansible hosts file
-echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
-if [ ! $? -eq 0 ]; then
-    echo "Error writing to ${ANSHOSTS}"
-    exit 1
-else
-    # Echo the entry you just wrote
-    grep -w "${NAME}" "${ANSHOSTS}"
 fi
 
 echo -ne "Wait for the droplet initialisation to complete..."
@@ -208,6 +235,8 @@ while true; do
         echo "Error installing packages, trying again..."
     fi
 done
+# Install wp-cli on remote host
+ssh "$NAME" "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x wp-cli.phar; mv wp-cli.phar /usr/local/bin/wp"
 
 # Run ansible playbook to set up servers
 cd "${SCRIPTDIR}/ansible"
@@ -240,6 +269,7 @@ fi
 echo "
 Root mysql password: ${MYSQLROOTPASSWORD}
 Wordpress mysql password: ${MYSQLWPPASSWORD}
+Droplet ID: ${DID}
 Test your new site at:
 https://${FQDN}
 "
