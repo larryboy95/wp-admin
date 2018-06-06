@@ -28,7 +28,6 @@ Set these to trigger related feature.
     RESTICCODEBASE hash of target snapshot to restore
     RESTICDB hash of target db to restore
 "
-
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
     echo "$USAGE"
@@ -36,9 +35,9 @@ if [ $# -eq 0 ]; then
 fi
 
 function main {
+### VARIABLES ###
 # Include the config file
     . "$1"
-
 # TODO add ses creds
 # Check that required variables are set
     [ -z "$DOMAIN" ] && { echo "DOMAIN not set $DOMAIN"; exit 1; }
@@ -46,6 +45,9 @@ function main {
     [ -z "$EMAIL" ] && { echo "EMAIL not set $EMAIL"; exit 1; }
     [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set $DOTOKEN"; exit 1; }
     [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set $PUBLICKEY"; exit 1; }
+    local FQDN ADMINIP SCRIPTDIR RESTIC WPUSER MOUNTPOINT MYSQLROOTPASSWORD
+    local SSHHOSTS ANSHOSTS PATHTOPRIVKEY SIZE IMAGE REGION MYSQLWPPASSWORD
+    local DIDRAW DID DIP TMP
     FQDN="${SUBDOMAIN}.${DOMAIN}"
     ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
     SCRIPTDIR=$(dirname "${0}")
@@ -64,13 +66,13 @@ function main {
     echo "$MYSQLROOTPASSWORD"
     MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
     echo "$MYSQLWPPASSWORD"
-    TMPDIR="/tmp/do-new-wp"
-    [ ! -d "$TMPDIR" ] && mkdir "$TMPDIR"
+# Setup a tmp dir
+    TMP="/tmp/do-new-wp"
+    [ ! -d "$TMP" ] && mkdir "$TMP"
 # Cleanup on exit
-    trap "rm -rf ${TMPDIR}" EXIT	
+    trap "rm -rf ${TMP}" EXIT	
 
-# Provision the droplet
-# and remove dbl quotes from string
+### PROVISION ###
     echo "Provisioning new droplet for ${NAME}."
     DIDRAW=$(doctl compute droplet create \
         "${NAME}" \
@@ -102,13 +104,12 @@ function main {
         echo "Wait five seconds for the droplet to be created..."
         sleep 5
     fi
-
-# See below for these functions
+# Get IP, setup SSH and Ansible config, create DNS A record
     DIP=$(droplet_get_ip $DID $DOTOKEN)
     ssh_config_add_host $NAME $SSHHOSTS $DIP $PATHTOPRIVKEY
     ansible_add_host $NAME $ANSHOSTS $DIP
     do_add_record $SUBDOMAIN $DOMAIN $DIP 
-
+# Wait for the new droplet to become ready
     echo -ne "Wait for the droplet initialisation to complete..."
     while true; do
         ssh -o ConnectTimeout=3 -q "${NAME}" \
@@ -123,6 +124,7 @@ function main {
         fi
     done
 
+### INSTALL SOFTWARE ###
     echo "Install prerequisite packages."
     while true; do
         ssh -o ConnectTimeout=3 "${NAME}" \
@@ -134,9 +136,7 @@ function main {
             echo "Error installing packages, trying again..."
         fi
     done
-# Install wp-cli on remote host
     ssh "$NAME" "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x wp-cli.phar; mv wp-cli.phar /usr/local/bin/wp"
-
 # Run ansible playbook to set up servers
     cd "${SCRIPTDIR}/ansible"
     ansible-playbook wordpress.yml --extra-vars "
@@ -145,7 +145,6 @@ function main {
         fqdn=${FQDN}
         email=${EMAIL}
         --limit ${NAME}"
-
 # Run wordpress-install new / clone repo
     cd "${SCRIPTDIR}"
     wordpress-install \
@@ -154,7 +153,6 @@ function main {
         "${WPUSER}" \
         "${EMAIL}" \
         "${MYSQLWPPASSWORD}"
-
 # Preserve the fresh config file
     ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
 # Change webroot permissions
@@ -165,6 +163,7 @@ function main {
         do-restore-wp "$NAME" "$RESTICCODEBASE" "$RESTICDB"
     fi
 
+### END OF MAIN ###
     echo "
     Root mysql password: ${MYSQLROOTPASSWORD}
     Wordpress mysql password: ${MYSQLWPPASSWORD}
@@ -175,10 +174,11 @@ function main {
 }
 
 function droplet_get_ip {
-    local DID="$1"
-    local DOTOKEN="$2"
+    local DID DOTOKEN DIPRAW DIP
+    DID="$1"
+    DOTOKEN="$2"
     echo "Getting IP from droplet ${DID}."
-    local DIPRAW=$(doctl compute droplet \
+    DIPRAW=$(doctl compute droplet \
         get "${DID}" \
         -t "${DOTOKEN}" \
         -o json) 
@@ -187,13 +187,13 @@ function droplet_get_ip {
         echo "${DIPRAW}"
         exit 1
     fi
-    local DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
+    DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
     if [ ! $? -eq 0 ]; then
         echo "Error parsing JSON."
         echo "${DIPRAW}"
         exit 1
     fi
-    local DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
+    DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
     if [ -z "$DIP" ]; then
         echo "IP address is empty?"
         exit 1
@@ -201,20 +201,19 @@ function droplet_get_ip {
     echo "$DIP"
 }
 
-# Setup ssh config file
-# Check if the name is already taken
 function ssh_config_add_host {
-    local NAME="$1"
-    local SSHHOSTS="$2"
-    local DIP="$3"
-    local PATHTOPRIVKEY="$4"
+    local NAME SSHHOSTS DIP PATHTOPRIVKEY OLDIP
+    NAME="$1"
+    SSHHOSTS="$2"
+    DIP="$3"
+    PATHTOPRIVKEY="$4"
     if grep -w "${NAME}" "${SSHHOSTS}"; then
         grep -w "${NAME}" -A5 "${SSHHOSTS}"
         read -p "${NAME} was found in ${SSHHOSTS}, replace it (y/n)? " -n 1 -r  
         echo    
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $SSHHOSTS"
-            local OLDIP=$(grep -A1 $NAME $SSHHOSTS | tail -n1 | cut -d' ' -f6)
+            OLDIP=$(grep -A1 $NAME $SSHHOSTS | tail -n1 | cut -d' ' -f6)
             [ ! $? -eq 0 ] && exit 1
             sed -i "s/${OLDIP}/${DIP}/g" "$SSHHOSTS"
             [ ! $? -eq 0 ] && exit 1
@@ -243,19 +242,20 @@ function ssh_config_add_host {
 }
 
 function ansible_add_host {
-    local NAME="$1"
-    local ANSHOSTS="$2"
-    local DIP="$3"
+    local NAME ANSHOSTS DIP PATHTOPRIVKEY OLDIP
+    NAME="$1"
+    ANSHOSTS="$2"
+    DIP="$3"
     if grep -w "${NAME}" "${ANSHOSTS}"; then
         grep -w "${NAME}" -A5 "${ANSHOSTS}"
         read -p "${NAME} was found in ${ANSHOSTS}, replace it (y/n)? " -n 1 -r  
         echo    
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $ANSHOSTS"
-            local OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
+            OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
             [ ! $? -eq 0 ] && exit 1
-            sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMPDIR}/anshosts"
-            cat "${TMPDIR}/anshosts" > "$ANSHOSTS"
+            sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMP}/anshosts"
+            cat "${TMP}/anshosts" > "$ANSHOSTS"
             [ ! $? -eq 0 ] && exit 1
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
             echo "Adding duplicate ${NAME} to ansible config file:"
@@ -272,13 +272,14 @@ function ansible_add_host {
 }
 
 function do_add_record {
-    local SUBDOMAIN="$1"
-    local DOMAIN="$2"
-    local DIP="$3"
-    local FQDN="${SUBDOMAIN}.${DOMAIN}"
+    local SUBDOMAIN DOMAIN DIP FQDN DNSRAW DNSID
+    SUBDOMAIN="$1"
+    DOMAIN="$2"
+    DIP="$3"
+    FQDN="${SUBDOMAIN}.${DOMAIN}"
 # TODO find and update matching DNS records
     echo "Setup subdomain with Digitalocean DNS."
-    local DNSRAW=$(doctl compute domain records \
+    DNSRAW=$(doctl compute domain records \
         create "${DOMAIN}" \
         --record-type A \
         --record-name "${SUBDOMAIN}" \
@@ -289,14 +290,14 @@ function do_add_record {
         echo "Error creating dns record."
         exit 1
     fi
-    local DNSID=$(echo "${DNSRAW}" | jq '.[0] .id')
+    DNSID=$(echo "${DNSRAW}" | jq '.[0] .id')
     if [ ! $? -eq 0 ] || [ -z "$DNSID" ]; then
         echo "Error parsing JSON."
         echo "${DNSRAW}"
         echo "${DNSID}"
         exit 1
     fi
-    local DNSID=$(echo "${DNSID}" | tr -d '\n')
+    DNSID=$(echo "${DNSID}" | tr -d '\n')
     if [ -z "$DNSID" ]; then
         echo "DNSID is empty."
         exit 1
