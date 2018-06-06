@@ -35,7 +35,9 @@ if [ $# -eq 0 ]; then
 fi
 
 function main {
+###
 ### VARIABLES ###
+###
 # Include the config file
     . "$1"
 # TODO add ses creds
@@ -72,7 +74,9 @@ function main {
 # Cleanup on exit
     trap "rm -rf ${TMP}" EXIT	
 
+###
 ### PROVISION ###
+###
     echo "Provisioning new droplet for ${NAME}."
     DIDRAW=$(doctl compute droplet create \
         "${NAME}" \
@@ -124,7 +128,9 @@ function main {
         fi
     done
 
+###
 ### INSTALL SOFTWARE ###
+###
     echo "Install prerequisite packages."
     while true; do
         ssh -o ConnectTimeout=3 "${NAME}" \
@@ -163,7 +169,9 @@ function main {
         do-restore-wp "$NAME" "$RESTICCODEBASE" "$RESTICDB"
     fi
 
+###
 ### END OF MAIN ###
+###
     echo "
     Root mysql password: ${MYSQLROOTPASSWORD}
     Wordpress mysql password: ${MYSQLWPPASSWORD}
