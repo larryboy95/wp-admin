@@ -130,9 +130,12 @@ function main {
         exit 1
     fi
 # Get IP, setup SSH and Ansible config, create DNS A record
-    ssh_config_add_host "$NAME" "$SSHHOSTS" "$DIP" "$PATHTOPRIVKEY" || exit 2
-    ansible_add_host "$NAME" "$ANSHOSTS" "$DIP" || exit 2
-    do_add_record "$SUBDOMAIN" "$DOMAIN" "$DIP" || exit 2
+    ssh_config_add_host "$NAME" "$SSHHOSTS" "$DIP" "$PATHTOPRIVKEY" \
+        || { echo "ssh config error $?"; exit 2; }
+    ansible_add_host "$NAME" "$ANSHOSTS" "$DIP" \
+        || { echo "ansible config error $?"; exit 2; }
+    do_add_record "$SUBDOMAIN" "$DOMAIN" "$DIP" \
+        || { echo "dns config error $?"; exit 2; }
 # Wait for the new droplet to become ready
     echo -ne "Wait for the droplet initialisation to complete..."
     while true; do
@@ -214,25 +217,26 @@ function ssh_config_add_host {
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $SSHHOSTS"
-            OLDIP=$(grep -A1 $NAME $SSHHOSTS | tail -n1 | cut -d' ' -f6)
-            [ ! $? -eq 0 ] && exit 1
+            OLDIP=$(grep -A1 "$NAME" "$SSHHOSTS" | tail -n1 | cut -d' ' -f6)
+            [ ! $? -eq 0 ] && { echo "grep error $?" ; return 1; }
             sed -i "s/${OLDIP}/${DIP}/g" "$SSHHOSTS"
-            [ ! $? -eq 0 ] && exit 1
+            [ ! $? -eq 0 ] && { echo "sed error $?" ; return 1; }
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
             echo "Cancelled due to user request"
-            exit 0
+            return 0
         else
-            exit 1
+            return 1
         fi
     else
         echo "Host ${NAME}
-        HostName ${DIP}
-        User root
-        IdentityFile ${PATHTOPRIVKEY}
-        IdentitiesOnly yes
+    HostName ${DIP}
+    User root
+    IdentityFile ${PATHTOPRIVKEY}
+    IdentitiesOnly yes
         " >> "${SSHHOSTS}"
-        [ ! $? -eq 0 ] && exit 1
+        [ ! $? -eq 0 ] && return 1
     fi
+    return 0
 }
 
 function ansible_add_host {
@@ -248,20 +252,21 @@ function ansible_add_host {
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $ANSHOSTS"
             OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
-            [ ! $? -eq 0 ] && exit 1
+            [ ! $? -eq 0 ] && return 1
             sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMP}/anshosts"
             cat "${TMP}/anshosts" > "$ANSHOSTS"
-            [ ! $? -eq 0 ] && exit 1
+            [ ! $? -eq 0 ] && return 1
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
             echo "Cancelled due to user request"
-            exit 0
+            return 0
         else
-            exit 1
+            return 1
         fi
     else
         echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
-        [ ! $? -eq 0 ] && exit 1
+        [ ! $? -eq 0 ] && return 1
     fi
+    return 0
 }
 
 function do_add_record {
@@ -281,22 +286,23 @@ function do_add_record {
         )
     if [ ! $? -eq 0 ]; then
         echo "Error creating dns record."
-        exit 1
+        return 1
     fi
     DNSID=$(echo "${DNSRAW}" | jq '.[0] .id')
     if [ ! $? -eq 0 ] || [ -z "$DNSID" ]; then
         echo "Error parsing JSON."
         echo "${DNSRAW}"
         echo "${DNSID}"
-        exit 1
+        return 1
     fi
     DNSID=$(echo "${DNSID}" | tr -d '\n')
     if [ -z "$DNSID" ]; then
         echo "DNSID is empty."
-        exit 1
+        return 1
     else
         echo "DNS A record for ${FQDN} to ${DIP} was created."
     fi
+    return 0
 }
 
 main "$@"
