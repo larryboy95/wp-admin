@@ -13,13 +13,21 @@ if [ $# -lt 2 ]; then
 fi
 
 function main {
-    local SUBDOMAINPATTERN DOMAIN
+    local SUBDOMAINPATTERN DOMAIN RECORDS IDS
     SUBDOMAINPATTERN="$1"
     DOMAIN="$2"
-    doctl compute domain records list "$DOMAIN" \
-        --format "id,name" -o json \
+    RECORDS=$(
+        doctl compute domain records list "$DOMAIN" \
+        --format "id,name" -o json
+    )
+    echo "$RECORDS"
+    IDS=$(
+        echo "$RECORDS" \
         | jq '.[] | select(.name | contains("$SUBDOMAINPATTERN")) | .id'
-        | xargs doctl compute domain records delete "$DOMAIN" -f
+    )
+    [ -z "$IDS" ] && { echo "No matching records."; exit 0; }
+    echo "$IDS"
+    echo "$IDS" | xargs doctl compute domain records delete "$DOMAIN" -f
 }
 main "$@"
 exit 0
