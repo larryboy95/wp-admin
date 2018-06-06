@@ -13,8 +13,9 @@ if [ $# -lt 2 ]; then
 fi
 
 function main {
-    local SUBDOMAINPATTERN="$1"
-    local DOMAIN="$2"
+    local SUBDOMAINPATTERN DOMAIN
+    SUBDOMAINPATTERN="$1"
+    DOMAIN="$2"
     doctl compute domain records list "$DOMAIN" \
         --format "id,name" -o json \
         | jq '.[] | select(.name | contains("$SUBDOMAINPATTERN")) | .id'
