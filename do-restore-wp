@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-Usage: do-restore-wp HOST RESTICCODEBASE RESTICDB CONFIGFILE WEBROOT
+Usage: do-restore-wp HOST RESTICDB RESTICCODEBASE CONFIGFILE WEBROOT
 For digitalocean only.
 Restores a WordPress site from restic.
 
@@ -21,22 +21,22 @@ function main {
     local NAME RESTICCODEBASE RESTICDB CONFIGFILE SCRIPTDIR
     local RESTIC BIGTMP WPDIR SQLGZ
     NAME="$1"
-    RESTICCODEBASE="$2"
-    RESTICDB="$3"
+    RESTICDB="$2"
+    [ -z "$2" ] && RESTICCODEBASE="$2"
     CONFIGFILE="${4:-${HOME}/.wp-admin}"
     echo "$CONFIGFILE"
     SCRIPTDIR=$(dirname "${0}")
+    WPARGS="--path=/var/www/html --ssh=${NAME} --allow-root"
     RESTIC=$(which restic)
     BIGTMP="${BIGTMP:-${HOME}/.tmp.big}"
 # TODO implement WEBROOT
 
 # Cleanup on exit
-    trap "rm -rf ${BIGTMP}/*" EXIT	
+    #trap "rm -rf ${BIGTMP}/*" EXIT
 # Check for required values and binaries
     [ -f "$CONFIGFILE" ] && source $CONFIGFILE || { echo "Config not found"; exit 1; }
     [ ! -f "$RESTIC" ] && { echo "RESTIC binary not found"; exit 1; }
     [ -z "$RESTICDB" ] && { echo "RESTICDB key not set"; exit 1; }
-    [ -z "$RESTICCODEBASE" ] && { echo "RESTICCODEBASE key not set"; exit 1; }
     [ -z "$RESTIC_REPOSITORY" ] && { echo "RESTIC_REPOSITORY key not set"; exit 1; }
     [ -z "$RESTIC_PASSWORD" ] && { echo "RESTIC_PASSWORD key not set"; exit 1; }
     [ -z "$AWS_ACCESS_KEY_ID" ] && { echo "AWS_ACCESS_KEY_ID key not set"; exit 1; }
@@ -58,46 +58,47 @@ function main {
 
 # Make big tmp dir if not exist
     [ ! -d "$BIGTMP" ] && mkdir "$BIGTMP"
-# Get the targeted snapshots to the big temp dir
-    $RESTIC restore \
-        --exclude=".git*" \
-        --exclude="mri-admin*" \
-        ${RESTICCODEBASE} \
-        -qt "$BIGTMP" \
-        || exit 1
+
+    if [ ! -z "$RESTICCODEBASE" ]; then 
+# Restore the targeted snapshots to the big temp dir
+        $RESTIC restore \
+            --exclude=".git*" \
+            --exclude="mri-admin*" \
+            ${RESTICCODEBASE} \
+            -qt "$BIGTMP" \
+            || exit 1
+# Find the wordpress webroot and copy to server
+        WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
+        WPDIR=${WPDIR//$'\n'/}
+        ssh "$NAME" "mkdir /var/www/new" 
+        rsync \
+            -av \
+            --exclude=".git*" \
+            --progress \
+            "${WPDIR}"/* \
+            "${NAME}:/var/www/new"
+# Replace the webroot with the new files
+        ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
+        ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+        ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+        wordpress-permissions "$NAME" www-data
+    else
+        echo "RESTICCODEBASE not supplied, restoring database only."
+    fi
 # Get the db backup
     $RESTIC restore \
         ${RESTICDB} \
         -qt \
         "$BIGTMP" \
         || exit 1
-# Find the wordpress webroot and copy to server
-    WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
-    WPDIR=${WPDIR//$'\n'/}
-    ssh "$NAME" "mkdir /var/www/new" 
-    rsync \
-        -av \
-        --exclude=".git*" \
-        --progress \
-        "${WPDIR}"/* \
-        "${NAME}:/var/www/new"
-# Replace the webroot with the new files
-    ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
-    ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
-    ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
-# Extract and import the db
-    SQLGZ=$(find ${BIGTMP}/ -name *.gz)
-    echo $SQLGZ
+# Find, extract and import the db
+    SQLGZ=$(find ${BIGTMP}/ -name "*.gz")
     SQLGZ=${SQLGZ//$'\n'/}
-    echo $SQLGZ
-    exit 0
-    rsync \
-        -av \
-        --progress \
-        "${SQLGZ}" \
-        "${NAME}:"
-# Gunzip db to stdout and import from stdin
-    ssh "$NAME" "gunzip -c $SQLGZ | wp --allow-root --path='/var/www/html' db import -"
+    gunzip "$SQLGZ"
+    SQL=$(find ${BIGTMP}/ -name "*.sql")
+    scp "$SQL" "${NAME}:/var/www/restore.sql"
+    wp $WPARGS db import /var/www/restore.sql
+# TODO search-replace, need that FQDN in here
 #notify "Site has been restored to ${NAME}."
 }
 
