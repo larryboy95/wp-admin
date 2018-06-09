@@ -1,11 +1,12 @@
 #!/bin/bash
 
 USAGE="
-Usage: do-restore-wp HOST RESTICDB [RESTICCODEBASE CONFIGFILE WEBROOT]
+Usage: do-restore-wp HOST FQDN RESTICDB [RESTICCODEBASE CONFIGFILE WEBROOT]
 For digitalocean only.
 Restores a WordPress site from restic.
 
 HOST must be configured in ~/.ssh/config
+FQDN the fully qualified domain name for the site
 CONFIGFILE defaults to ~/.wp-admin
 RESTICCODEBASE hash of target snapshot to restore
 RESTICDB hash of target db to restore
@@ -19,11 +20,12 @@ fi
 
 function main {
     local NAME RESTICCODEBASE RESTICDB CONFIGFILE SCRIPTDIR
-    local RESTIC BIGTMP WPDIR SQLGZ
+    local RESTIC BIGTMP WPDIR SQLGZ SITEURL
     NAME="$1"
-    RESTICDB="$2"
-    [ -z "$2" ] && RESTICCODEBASE="$2"
-    CONFIGFILE="${4:-${HOME}/.wp-admin}"
+    FQDN="$2"
+    RESTICDB="$3"
+    [ ! -z "$4" ] && RESTICCODEBASE="$4"
+    CONFIGFILE="${5:-${HOME}/.wp-admin}"
     echo "$CONFIGFILE"
     SCRIPTDIR=$(dirname "${0}")
     WPARGS="--path=/var/www/html --ssh=${NAME} --allow-root"
@@ -68,7 +70,7 @@ function main {
             -qt "$BIGTMP" \
             || exit 1
 # Find the wordpress webroot and copy to server
-        WPDIR=$(find ${BIGTMP}/ -name wp-content | xargs dirname)
+        WPDIR=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
         WPDIR=${WPDIR//$'\n'/}
         ssh "$NAME" "mkdir /var/www/new" 
         rsync \
@@ -81,6 +83,7 @@ function main {
         ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
         ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
         ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+        ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         wordpress-permissions "$NAME" www-data
     else
         echo "RESTICCODEBASE not supplied, restoring database only."
@@ -92,13 +95,16 @@ function main {
         "$BIGTMP" \
         || exit 1
 # Find, extract and import the db
+# Replace the siteurl
     SQLGZ=$(find ${BIGTMP}/ -name "*.gz")
     SQLGZ=${SQLGZ//$'\n'/}
     gunzip "$SQLGZ"
     SQL=$(find ${BIGTMP}/ -name "*.sql")
     scp "$SQL" "${NAME}:/var/www/restore.sql"
     wp $WPARGS db import /var/www/restore.sql
-# TODO search-replace, need that FQDN in here
+    SITEURL=$(wp $WPARGS option get siteurl)
+    wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
+    wp $WPARGS cache flush
 #notify "Site has been restored to ${NAME}."
 }
 
