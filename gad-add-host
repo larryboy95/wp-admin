@@ -1,5 +1,19 @@
 #!/bin/bash
 
+USAGE="
+Usage: gad-add-host HOST
+Adds HOST to /etc/git-auto-deploy.conf.json for automatic
+deployment on pushes to the specified branch.
+Interactive: will ask for repo url, branch and remote deploy path
+
+HOST must be configured in ~/.ssh/config
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
 main()
 {
 	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -45,11 +59,6 @@ abort()
 }
 trap 'abort' 0
 set -e
-# Check if there is no first argument
-if [ ! ${1+x} ]; then
-	echo "Missing host argument"
-	exit 1
-fi
 
 main ${1}
 
