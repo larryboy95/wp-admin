@@ -2,8 +2,8 @@
 
 USAGE="
 Usage: do-restore-wp HOST FQDN RESTICDB [RESTICCODEBASE CONFIGFILE WEBROOT]
-For digitalocean only.
-Restores a WordPress site from restic.
+For DigitalOcean only.
+Restores a WordPress site from Restic.
 
 HOST must be configured in ~/.ssh/config
 FQDN the fully qualified domain name for the site
@@ -20,7 +20,7 @@ fi
 
 function main {
     local NAME RESTICCODEBASE RESTICDB CONFIGFILE SCRIPTDIR
-    local RESTIC BIGTMP WPDIR SQLGZ SITEURL
+    local RESTIC BIGTMP WPDIR SQLGZ SITEURL PREFIX WPCONFIG
     NAME="$1"
     FQDN="$2"
     RESTICDB="$3"
@@ -70,8 +70,8 @@ function main {
             -qt "$BIGTMP" \
             || exit 1
 # Find the wordpress webroot and copy to server
-        WPDIR=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
-        WPDIR=${WPDIR//$'\n'/}
+        WPCONFIG=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
+        WPDIR=${WPCONFIG//$'\n'/}
         ssh "$NAME" "mkdir /var/www/new" 
         rsync \
             -av \
@@ -82,7 +82,15 @@ function main {
 # Replace the webroot with the new files
         ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
         ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+        ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
         ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+# Extract the db table prefix from old config
+# Find the old line, remove the trailing newline, escape special characters
+        PREFIX=$(grep "table_prefix" "$WPCONFIG")
+        PREFIX=$(echo -n "$PREFIX")
+        PREFIX=$(printf '%q' "$PREFIX")
+        ssh "$NAME" "sed -i /table_prefix/c\${PREFIX} /var/www/html/wp-config.php"
+        echo "$PREFIX" >> "/var/www/html/wp-config.php"
         ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         wordpress-permissions "$NAME" www-data
     else
