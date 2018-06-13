@@ -70,8 +70,9 @@ function main {
             -qt "$BIGTMP" \
             || exit 1
 # Find the wordpress webroot and copy to server
-        WPCONFIG=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
-        WPDIR=${WPCONFIG//$'\n'/}
+        WPCONFIG=$(find ${BIGTMP}/ -name "wp-config.php")
+        WPDIR=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
+        WPDIR=${WPDIR//$'\n'/}
         ssh "$NAME" "mkdir /var/www/new" 
         rsync \
             -av \
@@ -88,11 +89,10 @@ function main {
 # Find the old line, remove the trailing newline, escape special characters
         PREFIX=$(grep "table_prefix" "$WPCONFIG")
         PREFIX=$(echo -n "$PREFIX")
-        PREFIX=$(printf '%q' "$PREFIX")
-        ssh "$NAME" "sed -i /table_prefix/c\${PREFIX} /var/www/html/wp-config.php"
-        echo "$PREFIX" >> "/var/www/html/wp-config.php"
+        echo "$PREFIX"
+        ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
         ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
-        wordpress-permissions "$NAME" www-data
+        wordpress-permissions "$NAME" www-data || exit 1
     else
         echo "RESTICCODEBASE not supplied, restoring database only."
     fi
@@ -104,11 +104,11 @@ function main {
         || exit 1
 # Find, extract and import the db
 # Replace the siteurl
-    SQLGZ=$(find ${BIGTMP}/ -name "*.gz")
+    SQLGZ=$(find ${BIGTMP}/ -name "*.sql.gz")
     SQLGZ=${SQLGZ//$'\n'/}
     gunzip "$SQLGZ"
     SQL=$(find ${BIGTMP}/ -name "*.sql")
-    scp "$SQL" "${NAME}:/var/www/restore.sql"
+    scp "$SQL" "${NAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     wp $WPARGS db import /var/www/restore.sql
     SITEURL=$(wp $WPARGS option get siteurl)
     wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid

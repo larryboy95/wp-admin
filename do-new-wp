@@ -247,9 +247,9 @@ function ansible_add_host {
     DIP="$3"
     if grep -w "${NAME}" "${ANSHOSTS}"; then
         grep -w "${NAME}" -A5 "${ANSHOSTS}"
-        echo
+        echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
-        echo
+        echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $ANSHOSTS"
             OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
