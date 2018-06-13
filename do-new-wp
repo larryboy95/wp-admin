@@ -105,8 +105,8 @@ function main {
         echo "Droplet ID is empty."
         exit 1
     else
-        echo "Wait five seconds for the IP to become available....."
-        sleep 5
+        echo "Wait thirty seconds for the IP to become available....."
+        sleep 30
     fi
 # This was such a good idea
     trap "doctl compute droplet delete ${DID}; sleep 3; doctl compute droplet list" EXIT
@@ -211,14 +211,14 @@ function ssh_config_add_host {
     SSHHOSTS="$2"
     DIP="$3"
     PATHTOPRIVKEY="$4"
-    if grep -w "${NAME}" "${SSHHOSTS}"; then
-        grep -w "${NAME}" -A5 "${SSHHOSTS}"
+    if grep -w "Host ${NAME}" "${SSHHOSTS}"; then
+        grep -w "Host ${NAME} " -A5 "${SSHHOSTS}"
         echo
         read -p "${NAME} was found in ${SSHHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $SSHHOSTS"
-            OLDIP=$(grep -A1 "$NAME" "$SSHHOSTS" | tail -n1 | cut -d' ' -f6)
+            OLDIP=$(grep -A1 "Host $NAME " "$SSHHOSTS" | tail -n1 | cut -d' ' -f6)
             [ ! $? -eq 0 ] && { echo "grep error $?" ; return 1; }
             sed -i "s/${OLDIP}/${DIP}/g" "$SSHHOSTS"
             [ ! $? -eq 0 ] && { echo "sed error $?" ; return 1; }
@@ -245,14 +245,14 @@ function ansible_add_host {
     NAME="$1"
     ANSHOSTS="$2"
     DIP="$3"
-    if grep -w "${NAME}" "${ANSHOSTS}"; then
-        grep -w "${NAME}" -A5 "${ANSHOSTS}"
+    if grep -w "^${NAME} " "${ANSHOSTS}"; then
+        grep -w "^${NAME} " -A5 "${ANSHOSTS}"
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $ANSHOSTS"
-            OLDIP=$(grep $NAME $ANSHOSTS | cut -d'=' -f3)
+            OLDIP=$(grep "^$NAME " $ANSHOSTS | cut -d'=' -f3)
             [ ! $? -eq 0 ] && return 1
             sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMP}/anshosts"
             cat "${TMP}/anshosts" > "$ANSHOSTS"

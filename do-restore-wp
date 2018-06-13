@@ -71,8 +71,11 @@ function main {
             || exit 1
 # Find the wordpress webroot and copy to server
         WPCONFIG=$(find ${BIGTMP}/ -name "wp-config.php")
+        WPCONFIG=${WPCONFIG//$'\n'/}
+        [ -z "$WPCONFIG" ] && { echo "wp-config.php not found"; exit 1; }
         WPDIR=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
         WPDIR=${WPDIR//$'\n'/}
+        [ -z "$WPDIR" ] && { echo "wp dir not found"; exit 1; }
         ssh "$NAME" "mkdir /var/www/new" 
         rsync \
             -av \
