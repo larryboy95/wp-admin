@@ -105,31 +105,35 @@ function main {
         echo "Droplet ID is empty."
         exit 1
     else
-        echo "Wait thirty seconds for the IP to become available....."
-        sleep 30
+        echo "Wait three seconds for the IP to become available....."
+        sleep 3
     fi
 # This was such a good idea
     trap "doctl compute droplet delete ${DID}; sleep 3; doctl compute droplet list" EXIT
 # Get IP
-    DIPRAW=$(doctl compute droplet \
-        get "${DID}" \
-        -t "${DOTOKEN}" \
-        -o json) 
-    if [ ! $? -eq 0 ]; then
-        echo "Error retrieving droplet IP address."
-        echo "$DIPRAW"
-        exit 1
-    fi
-    DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
-    if [ ! $? -eq 0 ]; then
-        echo "Error parsing JSON."
-        exit 1
-    fi
-    DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
-    if [ -z "$DIP" ]; then
-        echo "IP address is empty?"
-        exit 1
-    fi
+    while true; do
+        DIPRAW=$(doctl compute droplet \
+            get "${DID}" \
+            -t "${DOTOKEN}" \
+            -o json) 
+        if [ ! $? -eq 0 ]; then
+            echo "Error retrieving droplet IP address."
+            echo "$DIPRAW"
+            exit 1
+        fi
+        DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
+        if [ ! $? -eq 0 ]; then
+            echo "Error parsing JSON."
+            exit 1
+        fi
+        DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
+        if [ -z "$DIP" ]; then
+            echo "IP address is empty?"
+            exit 1
+        else
+            break
+        fi
+    done
 # Get IP, setup SSH and Ansible config, create DNS A record
     ssh_config_add_host "$NAME" "$SSHHOSTS" "$DIP" "$PATHTOPRIVKEY" \
         || { echo "ssh config error $?"; exit 2; }
@@ -206,20 +210,21 @@ function main {
 }
 
 function ssh_config_add_host {
-    local NAME SSHHOSTS DIP PATHTOPRIVKEY OLDIP
+    local NAME SSHHOSTS DIP PATHTOPRIVKEY OLDIP HOSTPATTERN
     NAME="$1"
     SSHHOSTS="$2"
     DIP="$3"
     PATHTOPRIVKEY="$4"
-    if grep -w "Host ${NAME}" "${SSHHOSTS}"; then
-        grep -w "Host ${NAME} " -A5 "${SSHHOSTS}"
-        echo
+    HOSTPATTERN="^Host ${NAME}"
+    if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
+        grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         read -p "${NAME} was found in ${SSHHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $SSHHOSTS"
-            OLDIP=$(grep -A1 "Host $NAME " "$SSHHOSTS" | tail -n1 | cut -d' ' -f6)
-            [ ! $? -eq 0 ] && { echo "grep error $?" ; return 1; }
+            OLDIP=$(grep -A1 "$HOSTPATTERN" "$SSHHOSTS" | tail -n1 | cut -d' ' -f6)
+            [ ! $? -eq 0 ] && { echo "grep error $?"; return 1; }
+            [ -z "$OLDIP" ] && { echo "oldip is empty"; return 1; }
             sed -i "s/${OLDIP}/${DIP}/g" "$SSHHOSTS"
             [ ! $? -eq 0 ] && { echo "sed error $?" ; return 1; }
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
