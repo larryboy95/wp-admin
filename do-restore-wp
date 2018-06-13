@@ -30,7 +30,7 @@ function main {
     SCRIPTDIR=$(dirname "${0}")
     WPARGS="--path=/var/www/html --ssh=${NAME} --allow-root"
     RESTIC=$(which restic)
-    BIGTMP="${BIGTMP:-${HOME}/.tmp.big}"
+    BIGTMP="${BIGTMP:-${HOME}/.tmp-big}"
 # TODO implement WEBROOT
 
 # Cleanup on exit
