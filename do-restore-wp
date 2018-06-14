@@ -89,10 +89,9 @@ function main {
         ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
         ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
 # Extract the db table prefix from old config
-# Find the old line, remove the trailing newline, escape special characters
+# Find the old line, remove the trailing newline, escape single quotes
         PREFIX=$(grep "table_prefix" "$WPCONFIG")
-        PREFIX=$(echo -n "$PREFIX")
-        echo "$PREFIX"
+        PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\\'/g")
         ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
         ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         wordpress-permissions "$NAME" www-data || exit 1
