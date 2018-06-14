@@ -1,10 +1,13 @@
 # Name: Canonical, no spaces, alphanumeric and dashes only
 # This will be used as the droplet hostname and the ssh/Ansible Host 
 NAME=""
-# Fully qualified domain name
+# A Fully qualified domain name will be assembled from subdomain.domain
 # Must resolve to the new droplet IP before letsencrypt certificates
 # can be issued.
-FQDN=""
+DOMAIN=""
+SUBDOMAIN=""
+# Email address for letsencrypt and wordpress admin
+EMAIL=""
 # Dotoken: Get an API access token for the targeted DO account
 DOTOKEN=""
 # Publickey: Your public key for ssh access

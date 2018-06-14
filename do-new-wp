@@ -25,8 +25,8 @@ Optional vars and their default values:
 
 Optional vars with no defaults.
 Set these to trigger related feature.
-    RESTICCODEBASE hash of target snapshot to restore
-    RESTICDB hash of target db to restore
+    RESTICCODEBASE id of target snapshot to restore
+    RESTICDB id of target db to restore
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
