@@ -17,13 +17,9 @@ Dependencies:
 
 ## Goals
 * Highly opinionated, our goal is to have a definitive answer for every question
-
 * Scripts should be single purpose and built to work as part of a higher order script
-
 * Readability for educational purposes
-
 * Output should be concise and consistent for logging
-
 * Each script should be portable enough for cron
 
 ## Status
