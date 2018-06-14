@@ -4,14 +4,16 @@ Part of a Digitalocean-based platform detailed in the wiki of this project.
 Intended to be kept as simple as possible for maximum legibility.
 These tools provide maintenance and workflow functions.
 
-Packages and prerequisites:
+Dependencies:
 
-* wp-cli
-* apt-get
-* bash
-* ssh
-* ubuntu
+* Ubuntu Linux
+* Php / MySql / Nginx
+* LetsEncrypt
 * WordPress
+* wp-cli
+* git-auto-deploy
+* Restic
+* Ansible
 
 ## Goals
 * Highly opinionated, our goal is to have a definitive answer for every question
@@ -37,6 +39,7 @@ Clone this repo to your home dir, rename the directory to `bin`.
 The directory `~/bin` is in your PATH which means you can now run the scripts from anywhere, like `wordpress-backup personal`
 
 ## SSH Configuration
+[ Note on new version: the do-new-wp script will add hosts to your ssh config for you. ]
 To run these scripts remotely and avoid entering a password every time you must export your public key to the server you're targeting. 
 [Digitalocean's ssh key tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2.)
 
@@ -52,49 +55,4 @@ Host clientsite
 Enter the same info for every site you intend to maintain, with a nifty shortname (Host) for convenience and legibility. Then you can access your servers over ssh, even with custom ports, like this: `ssh clientsite` 😍
 
 ## Usage
-
-- wordpress-list
-	- Checks every host in ~/.ssh/config for a compatible WP install, outputs clean list of hosts that pass the test
-- wordpress-backup HOST FREQUENCY
-	- Where FREQUENCY is one of hourly, daily, manual, tmp or dreamhost. Defaults to manual
-	- If 2nd arg is 'dreamhost', a 3rd (wwwroot dir) and 4th (siteurl) are required
-- wordpress-backup-all FREQUENCY
-	- Script in alpha status, use with caution
-	- Reads a file ~/wp.sitelist with one Host alias per line
-	- Frequency argument is not optional
-	- Use `wordpress-list > ~/wp.sitelist` to update site list
-	- Executes the wordpress-backup script once per host in parallel
-- wordpress-restore HOST FREQUENCY
-	- Script in alpha status, use with caution
-	- Restores the latest backup for HOST in the FREQUENCY dir
-- wordpress-update HOST
-	- Updates core only
-- wordpress-update-plugins HOST
-	- Updates all plugins (use with caution)
-- wordpress-permissions HOST USER
-	- Will prompt for user name if not supplied
-	- Used in the update script to switch ownership back and forth between dev and git-auto-deploy
-- wordpress-commit HOST
-	- Commits and pushes changes (for post-update)
-- wordpress-install HOST
-	- Configures web and db servers, LetsEncrypt SSL, installs WP. 
-	- For use with new LEMP droplets at Digitalocean created with the cloud-config script in `assets/`
-- wordpress-remote HOST "CMD CMD CMD CMD"
-	- Run arbitrary wp-cli commands on HOST
-- wordpress-deleteAll HOST
-	- Delete all posts
-- os-update HOST
-	- Update and upgrade system software
-- os-setup-gad HOST
-	- Install and configure git-auto-deploy with the same ssh keys as the dev user
-- os-setup-certbot HOST
-	- Install and configure automatic SSL certificate updates
-	- Requires fully configured server with LetsEncrypt certs already installed
-- notify "Tweet body"
-	- sends a tweet with the included text
-- notify-screenshot URL "Tweet body"
-	- Sends a tweet with a screenshot of the page at URL and screenshots of three other links
-filtered out of the page body, if found. Resolution is 1600x2100. 
-Example: notify-screenshot "https://about.gitlab.com" "Test"
-
-
+Each script will print usage instructions if run without arguments.
