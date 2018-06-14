@@ -1,6 +1,7 @@
+30
 terminus
 tmp.*
-*.swp
+*.sw*
 *.gz
 *.sql
 *.conf
