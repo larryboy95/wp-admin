@@ -1,4 +1,8 @@
+30
 terminus
-*.swp
+tmp.*
+*.sw*
 *.gz
 *.sql
+*.conf
+*.retry

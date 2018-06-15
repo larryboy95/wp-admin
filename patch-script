@@ -1,5 +1,0 @@
-#!/bin/bash
-
-scp fix.sh ${1}:
-ssh -t ${1} "sudo -i bash /home/dev/fix.sh; rm -f fix.sh"
-exit 0

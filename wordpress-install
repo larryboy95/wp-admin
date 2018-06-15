@@ -1,16 +1,35 @@
 #!/bin/bash
 
+USAGE="
+Usage: $(basename $0) HOST [DOMAIN WPUSER WPEMAIL DBPASS]
+
+Downloads and configures a new WordPress instance
+using wp-cli.
+
+HOST: Target server, (configure in ~/.ssh/config)
+DOMAIN: Fully qualified domain name for the server.
+WPUSER: choose a name for the admin user.
+WPEMAIL: Admin user\'s email address.
+DBPASS: Password for wordpress@localhost in mysql.
+
+Modes:
+Interactive if only HOST is supplied.
+Inline mode requires all args to be set.
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
 error_exit() {
 	local lc="$BASH_COMMAND" rc=$?
 	echo "Command [$lc] exited with code [$rc]"
-	rm -f /tmp/stupid
-	rm -rf /tmp/nginx-*
-	rm -f /tmp/${fqdn}*
 }
 trap error_exit EXIT
 set -e
 
-main() 
+interactive() 
 {
 	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 	read -p "Database host: [localhost] " dbhost
@@ -23,51 +42,11 @@ main()
 	read -p "Domain (no http://, no www): " fqdn
 	read -p "Site title: [Title] " title
 	title=${title:-Title}
-	read -p "User: [admin] " user
+	read -p "WP Admin User: [admin] " user
 	user=${user:-admin}
-	read -p "Password: " password
-	read -p "Email: " email
+	read -p "WP Admin Password: " password
+	read -p "WP Email: " email
 
-	cd ${scriptdir}
-	cp -vr assets/nginx-* /tmp
-
-	# if dbname or fqdn empty abort	
-	[[ -z $dbname ]] && exit "db Name must not be empty"
-	[[ -z $fqdn ]] && exit "domain name must not be empty"
-	sed -i -e "s/BRANCH/${dbname}/g" /tmp/nginx-wordpress
-	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-wordpress
-	sed -i -e "s/FQDN/${fqdn}/g" /tmp/nginx-snippets/ssl-certs.conf
-	scp -r /tmp/nginx-* ${1}:
-
-	ssh -t ${1} "sudo mv -v nginx-letsencrypt /etc/nginx/sites-available/"
-	ssh -t ${1} "sudo mv -v nginx-wordpress /etc/nginx/sites-available/"
-	ssh -t ${1} "sudo mv -v nginx-snippets/* /etc/nginx/snippets/"
-	ssh -t ${1} "sudo rm -v /etc/nginx/sites-enabled/*"
-	ssh -t ${1} "sudo ln -sv /etc/nginx/sites-available/nginx-letsencrypt /etc/nginx/sites-enabled/"
-	ssh -t ${1} "[ ! -f /etc/ssl/certs/dhparam.pem ] && sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 || exit 0"
-	ssh -t ${1} "sudo service nginx restart"
-	ssh -t ${1} "ifconfig | grep 'inet addr:'| grep -v '127.0.0.1' | grep -v 'addr:10\.' | cut -d: -f2 | cut -d ' ' -f 1" > /tmp/${fqdn}-ip
-	targetIP=$(cat /tmp/${fqdn}-ip)
-	ssh -t ${1} "host -4 -t A ${fqdn} | cut -d ' ' -f 4" > /tmp/${fqdn}-dns
-	dnsIP=$(cat /tmp/${fqdn}-dns)
-	if [ "$dnsIP" != "$targetIP" ]; then 
-		exit "The domain name ${fqdn} does not resolve to the specified droplet (${1})."
-	elif [ "$dnsIP" == "found:" ]; then
-		exit "The domain could not be resolved to any ip address. Check DNS records."
-	fi
-	ssh -t ${1} "sudo certbot certonly -n -m ${email} --agree-tos -a webroot --webroot-path=/var/www/html -d ${fqdn},www.${fqdn}"
-	ssh -t ${1} "(sudo crontab -l ; echo '1 1 * * * /usr/bin/certbot renew --quiet --renew-hook \"/bin/systemctl reload nginx\"') | sort - | uniq - | sudo crontab -"
-	ssh -t ${1} "sudo rm /etc/nginx/sites-enabled/nginx-letsencrypt"
-	ssh -t ${1} "sudo ln -s /etc/nginx/sites-available/nginx-wordpress /etc/nginx/sites-enabled/"
-	ssh -t ${1} "sudo service nginx restart"
-
-	myargs="-e"
-	ssh ${1} "sudo mysql ${myargs} \"drop database if exists ${dbname};\" || exit 0" 
-	ssh ${1} "sudo mysql ${myargs} \"create database ${dbname};\"" 
-	ssh ${1} "sudo mysql ${myargs} \"drop user if exists '${dbuser}'@'${dbhost}';\"" 
-	ssh ${1} "sudo mysql ${myargs} \"create user '${dbuser}'@'${dbhost}' identified by '${dbpass}';\"" 
-	ssh ${1} "sudo mysql ${myargs} \"grant all privileges on ${dbname}.* to '${dbuser}'@'${dbhost}';\"" 
-	ssh ${1} "sudo mysql ${myargs} \"flush privileges;\"" 
 	ssh -t ${1} "\
 		cd /var/www/html; \
 		wp core download; \
@@ -86,5 +65,41 @@ main()
 		" 
 }
 
-main ${1}
+inline() 
+{
+	scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+	title="$1"
+	fqdn="$2"
+	user="$3"
+    email="$4"
+	dbpass="$5"
+    password="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)"
+	dbhost="localhost"
+	dbuser="wordpress"
+	dbname="wordpress"
+
+	ssh -t ${1} "\
+		cd /var/www/html; \
+		wp --allow-root core download; \
+		wp --allow-root core config \
+			--dbhost=${dbhost} \
+			--dbname=${dbname} \
+			--dbuser=${dbuser} \
+			--dbpass=${dbpass}; \
+		wp --allow-root core install \
+			--url=${fqdn} \
+			--title=${title} \
+			--admin_user=${user} \
+			--admin_password=${password} \
+			--admin_email=${email} \
+			--skip-email \
+		" 
+        echo "Admin user password:"
+        echo "$password"
+}
+if [ "$#" -eq 1 ]; then
+    interactive $1
+elif [ "$#" -gt 1 ]; then
+    inline $@
+fi
 exit 0		

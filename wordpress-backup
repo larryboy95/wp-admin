@@ -1,37 +1,33 @@
 #!/bin/bash
-
-if ! mkdir -p ~/tmp/wordpress-backup.lock; then
-	printf "Failed to aquire lock. (Script already running?)\n" >&2
-	exit 1
-fi
-trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT	# remove the lockdir on exit
-
-
-# Is there a first argument
-if [  ${1+x} ]; then
-	HOST=${1}
-else
-	notify-critical "Missing first argument ${HOST} ${TYPE} backup."
-    echo "
-
+USAGE="
 Usage: wordpress-backup HOST TYPE [WEBROOT]
 Where:
 - HOST must be available in ssh config
 - TYPE can be one of:
-    - full, backup webroot and db to s3
-    - db, backup db to admin server
-    - tmp, backup db to /tmp on admin server
-    - manual, full backup to s3, not rotated
+    - full: backup webroot and db to s3, rotated
+    - manual: full backup to s3, not rotated
+    - db: backup db to admin server
+    - tmp: backup db to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
+"
 
-    "
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+# Check if already running
+if ! mkdir -p ~/tmp/wordpress-backup.lock; then
+	printf "Failed to aquire lock. (Script already running?)\n" >&2
 	exit 1
 fi
+# Remove the lockdir on exit
+trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT	
 
 # Set defaults if arguments absent
 TYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
-TARGET=${HOST}.sql
+DBFNAME=${HOST}.sql
 EXCLUDE="sites/default/files/legacy"
 # Below can be set as environment variables
 BUPDIR="${BUPDIR:-/var/backups/wp-db-backups}"
@@ -90,20 +86,20 @@ else
 fi
 
 # Save a new db dump one level up from the webroot
-ssh ${HOST} "wp --path=\"${WEBROOT}\" db export ${WEBROOT}/../${TARGET}"
+ssh ${HOST} "wp --path=\"${WEBROOT}\" db export ${WEBROOT}/../${DBFNAME}"
 if [ ! $? -eq 0  ]; then
 	notify-critical "Database export failed for ${HOST} (${TYPE}) at ${siteurl}" 
 	exit 1
 fi
 
-ssh ${HOST} "gzip -vf ${WEBROOT}/../${TARGET}"
+ssh ${HOST} "gzip -vf ${WEBROOT}/../${DBFNAME}"
 if [ ! $? -eq 0  ]; then
 	notify-critical "Backup gzip failed for ${HOST} (${TYPE}) at ${siteurl}" 
 	exit 1
 fi
 
 # Copy gzipped db backup to admin server
-scp ${HOST}:${WEBROOT}/../${TARGET}.gz .
+scp ${HOST}:${WEBROOT}/../${DBFNAME}.gz .
 
 if [ ${TYPE} = "db" ]; then
 	echo "Database backup, skipping full sync."
@@ -121,7 +117,7 @@ else
 		source $HOME/.wp-admin
 		$RESTIC backup ${FULLBUPDIR}/ --tag ${HOST}
         [ ! $? -eq 0  ] && notify-critical "Restic error"
-		$RESTIC backup ${TARGET}.gz --tag ${HOST}
+		$RESTIC backup ${DBFNAME}.gz --tag ${HOST}
         [ ! $? -eq 0  ] && notify-critical "Restic error"
 	else
 		notify-critical \

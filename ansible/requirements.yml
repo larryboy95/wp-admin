@@ -1,0 +1,6 @@
+- src: geerlingguy.mysql
+- src: chusiang.php7
+- src: geerlingguy.nginx
+- src: geerlingguy.certbot
+- src: sbaerlocher.wp-cli
+- src: willshersystems.sshd

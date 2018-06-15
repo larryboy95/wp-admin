@@ -1,0 +1,28 @@
+---
+- name: Add the user dev with a bash shell, appending new groups for the user
+  user:
+    name: dev
+    shell: /bin/bash
+    groups: admin,www-data
+    append: yes
+
+# Delete default nginx conf
+
+- name: Replace ssl_certificate line in nginx
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    regexp: '^(.*)ssl_certificate\ (.*)$' 
+    line: '        ssl_certificate     /etc/letsencrypt/live/{{ fqdn }}/fullchain.pem;'
+    backrefs: yes
+
+- name: Replace ssl_certificate_key line in nginx
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    regexp: '^(.*)ssl_certificate_key(.*)$' 
+    line: '        ssl_certificate_key /etc/letsencrypt/live/{{ fqdn }}/privkey.pem;'
+    backrefs: yes
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted

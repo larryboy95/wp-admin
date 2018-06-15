@@ -1,0 +1,18 @@
+#!/usr/bin/env ansible-playbook
+---
+
+# Install.
+- name: delegate to APT system for installation
+  include_tasks: use-apt.yml
+  when: ansible_pkg_mgr == "apt"
+
+- name: delegate to YUM system for installation
+  include_tasks: use-yum.yml
+  when: ansible_pkg_mgr == "yum"
+
+# Configure.
+- name: "=> Enter configure stage"
+  import_tasks: configure.yml
+  tags: config
+
+## vim: ft=ansible :

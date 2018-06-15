@@ -1,0 +1,16 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: "=> Enter setup stage"
+  import_tasks: setup.yml
+  tags: setup
+
+- name: "=> Trigger handlers"
+  meta: flush_handlers
+  tags: setup
+
+- name: "=> Enter verify stage"
+  import_tasks: verify.yml
+  tags: verify
+
+# vim: ft=ansible :

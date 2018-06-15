@@ -1,0 +1,33 @@
+#!/bin/bash
+
+USAGE="
+Usage: do-dns-delete SUBDOMAINPATTERN DOMAIN
+For digitalocean only.
+Deletes DNS A records with subdomain matching pattern.
+"
+
+# Print USAGE if no args
+if [ $# -lt 2 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
+function main {
+    local SUBDOMAINPATTERN DOMAIN RECORDS IDS
+    SUBDOMAINPATTERN="$1"
+    DOMAIN="$2"
+    RECORDS=$(
+        doctl compute domain records list "$DOMAIN" \
+        --format "id,name" -o json
+    )
+    echo "$RECORDS"
+    IDS=$(
+        echo "$RECORDS" \
+        | jq '.[] | select(.name | contains("$SUBDOMAINPATTERN")) | .id'
+    )
+    [ -z "$IDS" ] && { echo "No matching records."; exit 0; }
+    echo "$IDS"
+    echo "$IDS" | xargs doctl compute domain records delete "$DOMAIN" -f
+}
+main "$@"
+exit 0
