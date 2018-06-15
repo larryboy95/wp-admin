@@ -24,6 +24,7 @@ fi
 # Remove the lockdir on exit
 trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT	
 
+HOST="$1"
 # Set defaults if arguments absent
 TYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
@@ -55,10 +56,10 @@ function rotate()
 	done
 }
 
-if [ ${HOST} == "full" ] \
-    || [ ${HOST} == "db" ] \
-    || [ ${HOST} == "manual" ] \
-    || [ ${HOST} == "tmp" ]; then
+if [ "$HOST" == "full" ] \
+    || [ "$HOST" == "db" ] \
+    || [ "$HOST" == "manual" ] \
+    || [ "$HOST" == "tmp" ]; then
 	notify-critical "Error in first argument, ${HOST} ${TYPE} backup."
 	exit 1
 fi
