@@ -94,7 +94,7 @@ function main {
         PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\\'/g")
         ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
         ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
-        wordpress-permissions "$NAME" www-data || exit 1
+        wordpress-permissions "$NAME" dev || exit 1
     else
         echo "RESTICCODEBASE not supplied, restoring database only."
     fi

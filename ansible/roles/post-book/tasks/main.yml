@@ -1,4 +1,11 @@
 ---
+- name: Add the user dev with a bash shell, appending new groups for the user
+  user:
+    name: dev
+    shell: /bin/bash
+    groups: admin,www-data
+    append: yes
+
 # Delete default nginx conf
 
 - name: Replace ssl_certificate line in nginx

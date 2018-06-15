@@ -190,7 +190,7 @@ function main {
 # Preserve the fresh config file
     ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
 # Change webroot permissions
-    ssh "${NAME}" "chown -R www-data:www-data /var/www"
+    wordpress-permissions "$NAME" dev || exit 1
 
 # Optionally restore a site from restic
     if [ -f ~/.wp-admin ] && [ ! -z "$RESTICCODEBASE" ]; then
