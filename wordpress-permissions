@@ -21,11 +21,14 @@ if [ ! ${2+x} ]; then
 else
 	webroot_owner=${2}
 fi
-ssh ${1} "sudo chown -R ${webroot_owner}:${webroot_owner}  /var/www/html; \
-	sudo chown -R www-data /var/www/html/wp-content/uploads; \
-	sudo chown -R www-data /var/www/html/wp-content/banners; \
-	sudo chown -R www-data /var/www/html/wp-content/plugins/wpspx-master/cache; \
-	sudo find /var/www/html -type f -exec chmod 644 {} +; \
-	sudo find /var/www/html -type d -exec chmod 755 {} +; \
-"
+while true; do
+    ssh ${1} "sudo chown -R ${webroot_owner}:${webroot_owner}  /var/www/html; \
+        sudo chown -R www-data /var/www/html/wp-content/uploads; \
+        sudo chown -R www-data /var/www/html/wp-content/banners; \
+        sudo chown -R www-data /var/www/html/wp-content/plugins/wpspx-master/cache; \
+        sudo find /var/www/html -type f -exec chmod 644 {} +; \
+        sudo find /var/www/html -type d -exec chmod 755 {} +; \
+    "
+    [ $? -eq 0 ] && break || sleep 1
+done
 exit 0
