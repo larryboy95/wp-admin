@@ -107,7 +107,7 @@ function main {
         sleep 3
     fi
 # This was such a good idea
-    trap "doctl compute droplet delete ${DID}; sleep 3; doctl compute droplet list" EXIT
+    trap "doctl compute droplet delete -t ${DOTOKEN} ${DID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
 # Get IP
     while true; do
         DIPRAW=$(doctl compute droplet \
@@ -290,6 +290,7 @@ function do_add_record {
 # TODO find and update matching DNS records
     echo "Setup subdomain with Digitalocean DNS."
     DNSRAW=$(doctl compute domain records \
+        -t "${DOTOKEN}" \
         create "${DOMAIN}" \
         --record-type A \
         --record-name "${SUBDOMAIN}" \
