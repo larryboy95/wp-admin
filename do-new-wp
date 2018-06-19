@@ -290,8 +290,8 @@ function do_add_record {
 # TODO find and update matching DNS records
     echo "Setup subdomain with Digitalocean DNS."
     DNSRAW=$(doctl compute domain records \
-        -t "${DOTOKEN}" \
         create "${DOMAIN}" \
+        -t "${DOTOKEN}" \
         --record-type A \
         --record-name "${SUBDOMAIN}" \
         --record-data "${DIP}" \
