@@ -199,11 +199,19 @@ function main {
 ### END OF MAIN ###
 ###
     echo "
+    ***
+
+    https://${FQDN}
+
+    $ANSHOSTS has been modified.
+    $SSHHOSTS has been modified.
+
     Root mysql password: ${MYSQLROOTPASSWORD}
     Wordpress mysql password: ${MYSQLWPPASSWORD}
     Droplet ID: ${DID}
-    Test your new site at:
-    https://${FQDN}
+    Droplet IP Address: ${DIP}
+
+    ***
     "
 }
 
