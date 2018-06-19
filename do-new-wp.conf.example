@@ -18,3 +18,5 @@ PUBLICKEY=""
 # from restic. Restic credentials must be present in ~/.wp-admin
 RESTICCODEBASE=""
 RESTICDB=""
+# Optional: choose size from `doctl compute size list`
+SIZE=""
