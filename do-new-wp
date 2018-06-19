@@ -65,9 +65,7 @@ function main {
     MOUNTPOINT="${HOME}/.tmp-mount-do"
 # Generate db passwords
     MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    echo "$MYSQLROOTPASSWORD"
     MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    echo "$MYSQLWPPASSWORD"
 # Setup a tmp dir
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
