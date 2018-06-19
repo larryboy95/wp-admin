@@ -169,6 +169,10 @@ function main {
         fi
     done
     ssh "$NAME" "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x wp-cli.phar; mv wp-cli.phar /usr/local/bin/wp"
+    if [ ! $? -eq 0 ]; then
+        echo "Error installing wp-cli."
+        exit 1
+    fi
 # Run ansible playbook to set up servers
     cd "${SCRIPTDIR}/ansible"
     ansible-playbook wordpress.yml --extra-vars "
@@ -177,6 +181,10 @@ function main {
         fqdn=${FQDN}
         email=${EMAIL}
         --limit ${NAME}"
+    if [ ! $? -eq 0 ]; then
+        echo "Error running ansible."
+        exit 1
+    fi
 # Run wordpress-install new / clone repo
     cd "${SCRIPTDIR}"
     wordpress-install \
@@ -185,8 +193,12 @@ function main {
         "${WPUSER}" \
         "${EMAIL}" \
         "${MYSQLWPPASSWORD}"
+    if [ ! $? -eq 0 ]; then
+        echo "Error running wordpress-install."
+        exit 1
+    fi
 # Preserve the fresh config file
-    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
+    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh" || exit 1
 # Change webroot permissions
     wordpress-permissions "$NAME" dev || exit 1
 
