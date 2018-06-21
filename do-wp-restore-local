@@ -1,0 +1,89 @@
+#!/bin/bash
+
+USAGE="
+Usage: do-wp-restore-local HOST FQDN DB [CODEBASE]
+For DigitalOcean only.
+Restores a WordPress site from local files.
+
+HOST must be configured in ~/.ssh/config
+FQDN the fully qualified domain name for the site
+DB is the path to a .sql.gz file
+
+# Optional arguments and their defaults
+CODEBASE is the path to the codebase
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
+function main {
+    local NAME CODEBASE DB SCRIPTDIR
+    local SITEURL PREFIX WPCONFIG
+    NAME="$1"
+    FQDN="$2"
+    DB="$3"
+    [ ! -z "$4" ] && CODEBASE="$4"
+    SCRIPTDIR=$(dirname "${0}")
+    WPARGS="--path=/var/www/html --ssh=${NAME} --allow-root"
+# Check for required values and binaries
+    [ ! -f "$DB" ] && { echo "${DB} is not a file"; exit 1; }
+
+    echo "Test connection"
+    while true; do
+        ssh -o ConnectTimeout=3 -q "$NAME" \
+            "[ -f /var/lib/cloud/instance/boot-finished ]"
+        if [ $? -eq 0 ]; then
+            sleep 1
+            echo "Connected"
+            break
+        else
+            echo "No connection, trying again"
+            sleep 1
+        fi
+    done
+
+# Make big tmp dir if not exist
+
+    if [ -d "$CODEBASE" ]; then 
+# Find the wordpress webroot and copy to server
+        WPCONFIG="${CODEBASE}/wp-config.php"
+        [ ! -f "$WPCONFIG" ] && { echo "wp-config.php not found"; exit 1; }
+        ssh "$NAME" "mkdir /var/www/new" || exit 1
+        rsync \
+            -av \
+            --exclude=".git*" \
+            --progress \
+            "${CODEBASE}"/* \
+            "${NAME}:/var/www/new"
+# Replace the webroot with the new files
+        ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
+        ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+        ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
+        ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+# Extract the db table prefix from old config
+# Find the old line, remove the trailing newline, escape single quotes
+        PREFIX=$(grep "table_prefix" "$WPCONFIG")
+        PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\\'/g")
+        ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
+        ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
+        wordpress-permissions "$NAME" dev || exit 1
+    else
+        echo "CODEBASE not supplied, restoring database only."
+    fi
+# Find, extract and import the db
+# Replace the siteurl
+    gunzip -k "$DB" || { echo "gunzip failed"; exit 1; }
+    DB="${DB%.*}"
+    scp "$DB" "${NAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
+    trap "rm ${DB}" EXIT
+    wp $WPARGS db import /var/www/restore.sql
+    SITEURL=$(wp $WPARGS option get siteurl)
+    wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
+    wp $WPARGS cache flush
+#notify "Site has been restored to ${NAME}."
+}
+
+main "$@"
+exit 0
