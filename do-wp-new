@@ -18,7 +18,7 @@ Optional vars and their default values:
     SSHHOSTS ~/.ssh/config
     ANSHOSTS /etc/ansible/hosts
     PATHTOPRIVKEY ~/.ssh/id_rsa
-    SIZE s-1vcpu-1gb
+    DROPLETSIZE s-1vcpu-1gb
     IMAGE ubuntu-16-04-x64
     REGION sfo2
     WPUSER admin
@@ -38,6 +38,9 @@ function main {
 ###
 ### VARIABLES ###
 ###
+    local FQDN ADMINIP SCRIPTDIR RESTIC WPUSER MOUNTPOINT MYSQLROOTPASSWORD
+    local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION MYSQLWPPASSWORD
+    local DIDRAW DID DIP TMP
 # Include the config file
     . "$1"
 # TODO add ses creds
@@ -47,9 +50,6 @@ function main {
     [ -z "$EMAIL" ] && { echo "EMAIL not set $EMAIL"; exit 1; }
     [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set $DOTOKEN"; exit 1; }
     [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set $PUBLICKEY"; exit 1; }
-    local FQDN ADMINIP SCRIPTDIR RESTIC WPUSER MOUNTPOINT MYSQLROOTPASSWORD
-    local SSHHOSTS ANSHOSTS PATHTOPRIVKEY SIZE IMAGE REGION MYSQLWPPASSWORD
-    local DIDRAW DID DIP TMP
     FQDN="${SUBDOMAIN}.${DOMAIN}"
     ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
     SCRIPTDIR=$(dirname "${0}")
@@ -58,7 +58,7 @@ function main {
     SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
     ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
     PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
-    SIZE=${SIZE:-s-1vcpu-1gb}
+    DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
     IMAGE=${IMAGE:-ubuntu-16-04-x64}
     REGION=${REGION:-sfo2}
     WPUSER=${WPUSER:-admin}
@@ -77,12 +77,12 @@ function main {
 ###
     echo "Provisioning new droplet for ${NAME}."
     DIDRAW=$(doctl compute droplet create \
-        "${NAME}" \
-        -t "${DOTOKEN}" \
-        --ssh-keys "${PUBLICKEY}" \
-        --size "${SIZE}" \
-        --image "${IMAGE}" \
-        --region "${REGION}" \
+        "$NAME" \
+        -t "$DOTOKEN" \
+        --ssh-keys "$PUBLICKEY" \
+        --size "$DROPLETSIZE" \
+        --image "$IMAGE" \
+        --region "$REGION" \
         --enable-backups \
         --enable-monitoring \
         -o json
@@ -204,7 +204,7 @@ function main {
 
 # Optionally restore a site from restic
     if [ -f ~/.wp-admin ] && [ ! -z "$RESTICCODEBASE" ]; then
-        do-restore-wp "$NAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
+        do-wp-restore-restic "$NAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
     fi
 
 ###
