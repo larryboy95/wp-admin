@@ -1,6 +1,6 @@
 ---
 - name: Install MySQL, Nginx, and PHP-FPM
-  hosts: all
+  hosts: "{{ host }}"
   remote_user: root
   roles:
   - geerlingguy.mysql

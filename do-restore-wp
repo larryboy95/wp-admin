@@ -7,10 +7,15 @@ Restores a WordPress site from Restic.
 
 HOST must be configured in ~/.ssh/config
 FQDN the fully qualified domain name for the site
-CONFIGFILE defaults to ~/.wp-admin
-RESTICCODEBASE hash of target snapshot to restore
 RESTICDB hash of target db to restore
+
+# Optional arguments and their defaults
+RESTICCODEBASE hash of target snapshot to restore
+CONFIGFILE defaults to ~/.wp-admin
 WEBROOT is not yet implemented
+
+# Optional environmental variables
+BIGTMP must have enough space free, ~/.tmp-big
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then

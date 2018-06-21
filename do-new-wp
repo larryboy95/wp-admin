@@ -176,11 +176,11 @@ function main {
 # Run ansible playbook to set up servers
     cd "${SCRIPTDIR}/ansible"
     ansible-playbook wordpress.yml --extra-vars "
+        host=${NAME}
         mysql_root_password=${MYSQLROOTPASSWORD}
         mysql_wp_password=${MYSQLWPPASSWORD}
         fqdn=${FQDN}
-        email=${EMAIL}
-        --limit ${NAME}"
+        email=${EMAIL}"
     if [ ! $? -eq 0 ]; then
         echo "Error running ansible."
         exit 1
@@ -233,7 +233,7 @@ function ssh_config_add_host {
     SSHHOSTS="$2"
     DIP="$3"
     PATHTOPRIVKEY="$4"
-    HOSTPATTERN="^Host ${NAME}"
+    HOSTPATTERN="^Host ${NAME}\n"
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         read -p "${NAME} was found in ${SSHHOSTS}, update it with new IP? (y/n)" -n 1 -r
