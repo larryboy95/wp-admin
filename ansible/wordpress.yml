@@ -4,8 +4,8 @@
   remote_user: root
   roles:
   - geerlingguy.mysql
+  - chusiang.php7
   - geerlingguy.nginx
   - geerlingguy.certbot
-  - chusiang.php7
   - sbaerlocher.wp-cli
   - post-book

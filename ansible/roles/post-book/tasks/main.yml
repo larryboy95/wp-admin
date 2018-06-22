@@ -6,6 +6,11 @@
     groups: admin,www-data
     append: yes
 
+- name: Install the package "foo"
+  apt:
+    name: php7.0-tidy
+    state: present
+
 # Delete default nginx conf
 
 - name: Replace ssl_certificate line in nginx
