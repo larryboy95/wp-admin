@@ -264,18 +264,19 @@ function ssh_config_add_host {
 }
 
 function ansible_add_host {
-    local NAME ANSHOSTS DIP PATHTOPRIVKEY OLDIP
+    local NAME ANSHOSTS DIP PATHTOPRIVKEY OLDIP HOSTPATTERN
     NAME="$1"
     ANSHOSTS="$2"
     DIP="$3"
-    if grep -w "^${NAME} " "${ANSHOSTS}"; then
-        grep -w "^${NAME} " -A5 "${ANSHOSTS}"
+    HOSTPATTERN="^${NAME} "
+    if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
+        grep "$HOSTPATTERN" -A5 "${ANSHOSTS}"
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "Changing IP for $NAME in $ANSHOSTS"
-            OLDIP=$(grep "^$NAME " $ANSHOSTS | cut -d'=' -f3)
+            OLDIP=$(grep "$HOSTPATTERN" $ANSHOSTS | cut -d'=' -f3)
             [ ! $? -eq 0 ] && return 1
             sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMP}/anshosts"
             cat "${TMP}/anshosts" > "$ANSHOSTS"
