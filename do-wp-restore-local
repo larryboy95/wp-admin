@@ -68,7 +68,6 @@ function main {
         PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\\'/g")
         ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
         ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
-        wordpress-permissions "$NAME" dev || exit 1
     else
         echo "CODEBASE not supplied, restoring database only."
     fi
@@ -82,7 +81,8 @@ function main {
     SITEURL=$(wp $WPARGS option get siteurl)
     wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
     wp $WPARGS cache flush
-#notify "Site has been restored to ${NAME}."
+    wordpress-permissions "$NAME" dev || echo "Permissions error"
+    notify "Site has been restored to https://${FQDN}."
 }
 
 main "$@"
