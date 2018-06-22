@@ -233,7 +233,7 @@ function ssh_config_add_host {
     SSHHOSTS="$2"
     DIP="$3"
     PATHTOPRIVKEY="$4"
-    HOSTPATTERN="^Host ${NAME}\n"
+    HOSTPATTERN="^Host ${NAME}$"
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         read -p "${NAME} was found in ${SSHHOSTS}, update it with new IP? (y/n)" -n 1 -r
