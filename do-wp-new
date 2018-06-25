@@ -25,6 +25,8 @@ Optional vars and their default values:
 
 Optional vars with no defaults.
 Set these to trigger related feature.
+    CODEBASE path of webroot to restore
+    DB path to (.sql.gz) db to restore
     RESTICCODEBASE id of target snapshot to restore
     RESTICDB id of target db to restore
 "
@@ -202,6 +204,10 @@ function main {
 # Change webroot permissions
     wordpress-permissions "$NAME" dev || exit 1
 
+# Optionally restore a site from local
+    if [ ! -z "$CODEBASE" ]; then
+        do-wp-restore-local "$NAME" "$FQDN" "$DB" "$CODEBASE"
+    fi
 # Optionally restore a site from restic
     if [ -f ~/.wp-admin ] && [ ! -z "$RESTICCODEBASE" ]; then
         do-wp-restore-restic "$NAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
@@ -270,7 +276,6 @@ function ansible_add_host {
     DIP="$3"
     HOSTPATTERN="^${NAME} "
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
-        grep "$HOSTPATTERN" -A5 "${ANSHOSTS}"
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo "/n"
