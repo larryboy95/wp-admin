@@ -3,6 +3,7 @@
   hosts: "{{ host }}"
   remote_user: root
   roles:
+  - willshersystems.sshd
   - geerlingguy.mysql
   - chusiang.php7
   - geerlingguy.nginx
