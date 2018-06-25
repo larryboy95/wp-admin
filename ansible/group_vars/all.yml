@@ -8,7 +8,6 @@
 ---
 sshd:
     - Compression: true
-    - Port: 9999
     - PasswordAuthentication: no
 
 # https://galaxy.ansible.com/joshualund/ufw/    
@@ -17,7 +16,7 @@ ufw_whitelisted_ports:
     - { port: 443, protocol: tcp }
 
 ufw_whitelisted_ipv4_addresses:
-    - { address: "{{ adminip }}", port: 9999,   protocol: tcp }
+    - { address: "{{ adminip }}", port: 22,   protocol: tcp }
 
 # https://galaxy.ansible.com/geerlingguy/mysql/
 mysql_root_password: "{{ mysql_root_password }}"
