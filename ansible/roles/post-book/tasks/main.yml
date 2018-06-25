@@ -6,9 +6,14 @@
     groups: admin,www-data
     append: yes
 
-- name: Install the package "foo"
+- name: Install the package "php7.0-tidy"
   apt:
     name: php7.0-tidy
+    state: present
+
+- name: Install the package "php7.0-xml"
+  apt:
+    name: php7.0-xml
     state: present
 
 # Delete default nginx conf
