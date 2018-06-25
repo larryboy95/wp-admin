@@ -179,6 +179,7 @@ function main {
     cd "${SCRIPTDIR}/ansible"
     ansible-playbook wordpress.yml --extra-vars "
         host=${NAME}
+        adminip=${ADMINIP}
         mysql_root_password=${MYSQLROOTPASSWORD}
         mysql_wp_password=${MYSQLWPPASSWORD}
         fqdn=${FQDN}

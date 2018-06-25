@@ -13,9 +13,11 @@ sshd:
 
 # https://galaxy.ansible.com/joshualund/ufw/    
 ufw_whitelisted_ports:
-    - { port: 9999,  protocol: tcp }
     - { port: 80,  protocol: tcp }
     - { port: 443, protocol: tcp }
+
+ufw_whitelisted_ipv4_addresses:
+    - { address: "{{ adminip }}", port: 9999,   protocol: tcp }
 
 # https://galaxy.ansible.com/geerlingguy/mysql/
 mysql_root_password: "{{ mysql_root_password }}"

@@ -8,4 +8,5 @@
   - geerlingguy.nginx
   - geerlingguy.certbot
   - sbaerlocher.wp-cli
+  - joshualund.ufw
   - post-book
