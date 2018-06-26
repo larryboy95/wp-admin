@@ -5,9 +5,10 @@
   roles:
   - willshersystems.sshd
   - geerlingguy.mysql
+  - tersmitten.ufw
   - chusiang.php7
   - geerlingguy.nginx
   - geerlingguy.certbot
   - sbaerlocher.wp-cli
-  - joshualund.ufw
+  - elastic.elasticsearch
   - post-book

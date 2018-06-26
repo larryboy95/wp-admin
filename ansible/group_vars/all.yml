@@ -10,13 +10,17 @@ sshd:
     - Compression: true
     - PasswordAuthentication: no
 
-# https://galaxy.ansible.com/joshualund/ufw/    
-ufw_whitelisted_ports:
-    - { port: 80,  protocol: tcp }
-    - { port: 443, protocol: tcp }
-
-ufw_whitelisted_ipv4_addresses:
-    - { address: "{{ adminip }}", port: 22,   protocol: tcp }
+ufw_rules:
+    - rule: allow
+      from_ip: "{{ adminip }}"
+      to_port: 22
+      protocol: tcp
+    - rule: allow
+      to_port: 80
+      protocol: tcp
+    - rule: allow
+      to_port: 443
+      protocol: tcp
 
 # https://galaxy.ansible.com/geerlingguy/mysql/
 mysql_root_password: "{{ mysql_root_password }}"
@@ -115,4 +119,8 @@ nginx_vhosts:
 
 php_owner: 'www-data'
 php_group: 'www-data'
+
+es_instance_name: "eslocal"
+es_api_basic_auth_username: "elastic"
+es_api_basic_auth_password: "changeme"
 ...
