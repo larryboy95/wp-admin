@@ -29,6 +29,7 @@ Set these to trigger related feature.
     DB path to (.sql.gz) db to restore
     RESTICCODEBASE id of target snapshot to restore
     RESTICDB id of target db to restore
+    WILDCARD boolean
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
@@ -42,7 +43,7 @@ function main {
 ###
     local FQDN ADMINIP SCRIPTDIR RESTIC WPUSER MOUNTPOINT MYSQLROOTPASSWORD
     local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION MYSQLWPPASSWORD
-    local DIDRAW DID DIP TMP
+    local DIDRAW DID DIP TMP WILDCARDCHAIN
 # Include the config file
     . "$1"
 # TODO add ses creds
@@ -53,6 +54,8 @@ function main {
     [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set $DOTOKEN"; exit 1; }
     [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set $PUBLICKEY"; exit 1; }
     FQDN="${SUBDOMAIN}.${DOMAIN}"
+## DEBUG 
+    [ $WILDCARD ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}" || exit 1
     ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
     SCRIPTDIR=$(dirname "${0}")
     RESTIC="/usr/local/bin/restic"
@@ -177,13 +180,31 @@ function main {
     fi
 # Run ansible playbook to set up servers
     cd "${SCRIPTDIR}/ansible"
-    ansible-playbook wordpress.yml --extra-vars "
-        host=${NAME}
-        adminip=${ADMINIP}
-        mysql_root_password=${MYSQLROOTPASSWORD}
-        mysql_wp_password=${MYSQLWPPASSWORD}
-        fqdn=${FQDN}
-        email=${EMAIL}"
+    if [ $WILDCARD ]; then
+        [ -d "$WILDCARDCHAIN" ] || { echo "Wildcard chain not found"; exit 1; }
+        ansible-playbook wordpress.yml --extra-vars "
+            host=${NAME}
+            adminip=${ADMINIP}
+            mysql_root_password=${MYSQLROOTPASSWORD}
+            mysql_wp_password=${MYSQLWPPASSWORD}
+            fqdn=${FQDN}
+            email=${EMAIL}
+            domain=${DOMAIN}
+            newcert=no
+            wildcard=true
+            wildcardchain=${WILDCARDCHAIN}"
+    else
+        ansible-playbook wordpress.yml --extra-vars "
+            host=${NAME}
+            adminip=${ADMINIP}
+            mysql_root_password=${MYSQLROOTPASSWORD}
+            mysql_wp_password=${MYSQLWPPASSWORD}
+            fqdn=${FQDN}
+            email=${EMAIL}
+            newcert=no
+            wildcard=false"
+    fi
+
     if [ ! $? -eq 0 ]; then
         echo "Error running ansible."
         exit 1

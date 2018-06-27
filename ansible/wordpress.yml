@@ -10,5 +10,5 @@
   - geerlingguy.nginx
   - geerlingguy.certbot
   - sbaerlocher.wp-cli
-  - elastic.elasticsearch
+#  - elastic.elasticsearch
   - post-book
