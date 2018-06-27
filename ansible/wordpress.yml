@@ -10,5 +10,5 @@
   - geerlingguy.nginx
   - geerlingguy.certbot
   - sbaerlocher.wp-cli
-#  - elastic.elasticsearch
+  - { role: elastic.elasticsearch, when: elasticsearch }
   - post-book
