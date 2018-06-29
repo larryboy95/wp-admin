@@ -60,8 +60,8 @@ function main {
             "${CODEBASE}"/* \
             "${NAME}:/var/www/new"
 # Replace the webroot with the new files
-        ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
-        ssh "$NAME" "mv /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
+        ssh "$NAME" "mv -f /var/www/html /var/www/html-vanilla" || exit 1
+        ssh "$NAME" "mv -f /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
         ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
         ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
 # Extract the db table prefix from old config
