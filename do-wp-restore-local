@@ -61,7 +61,7 @@ function main {
             "${NAME}:/var/www/new"
 # Replace the webroot with the new files
         ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
-        ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+        ssh "$NAME" "mv /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
         ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
         ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
 # Extract the db table prefix from old config
@@ -79,10 +79,10 @@ function main {
     DB="${DB%.*}"
     scp "$DB" "${NAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     trap "rm ${DB}" EXIT
-    wp $WPARGS db import /var/www/restore.sql
-    SITEURL=$(wp $WPARGS option get siteurl)
-    wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
-    wp $WPARGS cache flush
+    wp "$WPARGS" db import /var/www/restore.sql
+    SITEURL=$(wp "$WPARGS" option get siteurl)
+    wp "$WPARGS" search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
+    wp "$WPARGS" cache flush
     wordpress-permissions "$NAME" dev || echo "Permissions error"
     notify "Site has been restored to https://${FQDN}."
 }
