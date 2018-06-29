@@ -7,7 +7,6 @@ Provisions a new droplet at Digitalocean and installs WordPress.
 Config file vars required, (see do-new-wp.conf.example):
     NAME (alphanumeric and dashes only) 
     DOMAIN
-    SUBDOMAIN
     EMAIL
     DOTOKEN
     PUBLICKEY
@@ -15,6 +14,7 @@ Config file vars required, (see do-new-wp.conf.example):
 ADMINIP is automatically obtained from eth0
 
 Optional vars and their default values:
+    SUBDOMAIN defaults to NAME
     SSHHOSTS ~/.ssh/config
     ANSHOSTS /etc/ansible/hosts
     PATHTOPRIVKEY ~/.ssh/id_rsa
@@ -22,9 +22,13 @@ Optional vars and their default values:
     IMAGE ubuntu-16-04-x64
     REGION sfo2
     WPUSER admin
+    WILDCARD boolean defaults true
+    ELASTICSEARCH boolean defaults false
 
 Optional vars with no defaults.
 Set these to trigger related feature.
+    CODEBASE path of webroot to restore
+    DB path to (.sql.gz) db to restore
     RESTICCODEBASE id of target snapshot to restore
     RESTICDB id of target db to restore
 "
@@ -40,17 +44,22 @@ function main {
 ###
     local FQDN ADMINIP SCRIPTDIR RESTIC WPUSER MOUNTPOINT MYSQLROOTPASSWORD
     local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION MYSQLWPPASSWORD
-    local DIDRAW DID DIP TMP
+    local DIDRAW DID DIP TMP WILDCARDCHAIN NEWCERT
 # Include the config file
     . "$1"
 # TODO add ses creds
 # Check that required variables are set
-    [ -z "$DOMAIN" ] && { echo "DOMAIN not set $DOMAIN"; exit 1; }
-    [ -z "$SUBDOMAIN" ] && { echo "SUBDOMAIN not set $SUBDOMAIN"; exit 1; }
-    [ -z "$EMAIL" ] && { echo "EMAIL not set $EMAIL"; exit 1; }
-    [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set $DOTOKEN"; exit 1; }
-    [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set $PUBLICKEY"; exit 1; }
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
+    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
+    [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
+    [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
+    [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set"; exit 1; }
     FQDN="${SUBDOMAIN}.${DOMAIN}"
+    [ -z "$ELASTICSEARCH" ] && ELASTICSEARCH=false
+    [ -z "$WILDCARD" ] && WILDCARD=true
+    [ "$WILDCARD" ] && NEWCERT=false || NEWCERT=true
+    [ "$WILDCARD" ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}" || echo "Wildcard not set"
     ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
     SCRIPTDIR=$(dirname "${0}")
     RESTIC="/usr/local/bin/restic"
@@ -177,10 +186,17 @@ function main {
     cd "${SCRIPTDIR}/ansible"
     ansible-playbook wordpress.yml --extra-vars "
         host=${NAME}
+        adminip=${ADMINIP}
         mysql_root_password=${MYSQLROOTPASSWORD}
         mysql_wp_password=${MYSQLWPPASSWORD}
         fqdn=${FQDN}
-        email=${EMAIL}"
+        email=${EMAIL}
+        domain=${DOMAIN}
+        newcert=${NEWCERT}
+        wildcard=${WILDCARD}
+        wildcardchain=${WILDCARDCHAIN}
+        elasticsearch=${ELASTICSEARCH}"
+
     if [ ! $? -eq 0 ]; then
         echo "Error running ansible."
         exit 1
@@ -198,10 +214,22 @@ function main {
         exit 1
     fi
 # Preserve the fresh config file
-    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh" || exit 1
+    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
+    if [ ! $? -eq 0 ]; then
+        echo "Error copying config file."
+        exit 1
+    fi
 # Change webroot permissions
-    wordpress-permissions "$NAME" dev || exit 1
+    wordpress-permissions "$NAME" dev
+    if [ ! $? -eq 0 ]; then
+        echo "Error setting permissions."
+        exit 1
+    fi
 
+# Optionally restore a site from local
+    if [ ! -z "$CODEBASE" ]; then
+        do-wp-restore-local "$NAME" "$FQDN" "$DB" "$CODEBASE"
+    fi
 # Optionally restore a site from restic
     if [ -f ~/.wp-admin ] && [ ! -z "$RESTICCODEBASE" ]; then
         do-wp-restore-restic "$NAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
@@ -270,7 +298,6 @@ function ansible_add_host {
     DIP="$3"
     HOSTPATTERN="^${NAME} "
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
-        grep "$HOSTPATTERN" -A5 "${ANSHOSTS}"
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo "/n"

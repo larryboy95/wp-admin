@@ -6,14 +6,77 @@
     groups: admin,www-data
     append: yes
 
-- name: Install the package "foo"
+- name: Install the package "php7.0-tidy"
   apt:
     name: php7.0-tidy
     state: present
 
+- name: Install the package "php7.0-xml"
+  apt:
+    name: php7.0-xml
+    state: present
+
+- name: Install the package "glances"
+  apt:
+    name: glances
+    state: present
+
 # Delete default nginx conf
 
+# If wildcard:
+- name: Copying wildcard certs
+  when: wildcard
+  copy:
+    src: "{{ wildcardchain }}"
+    dest: "/etc/letsencrypt/archive/"
+    owner: root
+    group: ssl-cert
+    mode: 0640
+
+- name: Creates directory for live cert links
+  when: wildcard
+  file: 
+    path: "/etc/letsencrypt/live/{{ domain }}"
+    state: directory
+    owner: root
+    group: ssl-cert
+    mode: 0640
+
+- name: Link certs into live directory 
+  when: wildcard
+  file:
+    src: "../../archive/{{ domain }}/fullchain1.pem"
+    dest: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
+    force: true
+    state: link
+
+- name: Link certs into live directory 
+  when: wildcard
+  file:
+    src: "../../archive/{{ domain }}/privkey1.pem"
+    dest: "/etc/letsencrypt/live/{{ domain }}/privkey.pem"
+    force: true
+    state: link
+
 - name: Replace ssl_certificate line in nginx
+  when: wildcard
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    regexp: '^(.*)ssl_certificate\ (.*)$' 
+    line: '        ssl_certificate     /etc/letsencrypt/live/{{ domain }}/fullchain.pem;'
+    backrefs: yes
+
+- name: Replace ssl_certificate_key line in nginx
+  when: wildcard
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    regexp: '^(.*)ssl_certificate_key(.*)$' 
+    line: '        ssl_certificate_key /etc/letsencrypt/live/{{ domain }}/privkey.pem;'
+    backrefs: yes
+
+# Else
+- name: Replace ssl_certificate line in nginx
+  when: not wildcard
   lineinfile: 
     dest: /etc/nginx/sites-enabled/wordpress.conf 
     regexp: '^(.*)ssl_certificate\ (.*)$' 
@@ -21,6 +84,7 @@
     backrefs: yes
 
 - name: Replace ssl_certificate_key line in nginx
+  when: not wildcard
   lineinfile: 
     dest: /etc/nginx/sites-enabled/wordpress.conf 
     regexp: '^(.*)ssl_certificate_key(.*)$' 

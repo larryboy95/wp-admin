@@ -3,9 +3,12 @@
   hosts: "{{ host }}"
   remote_user: root
   roles:
+  - willshersystems.sshd
   - geerlingguy.mysql
+  - tersmitten.ufw
   - chusiang.php7
   - geerlingguy.nginx
   - geerlingguy.certbot
   - sbaerlocher.wp-cli
+  - { role: elastic.elasticsearch, when: elasticsearch }
   - post-book

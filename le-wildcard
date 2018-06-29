@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Run the latest version of certbot in docker
+# Supports wildcard certs
+# Usage: le-docker DOMAIN
+# Requires https://hub.docker.com/r/certbot/dns-digitalocean/
+# Install docker with apt-get install docker.io
+# Docs:
+# https://certbot-dns-digitalocean.readthedocs.io/en/latest/
+# https://certbot.eff.org/docs/install.html#running-with-docker
+
+sudo docker run -it --rm --name certbot \
+    -v "/etc/letsencrypt:/etc/letsencrypt" \
+    -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+    certbot/dns-digitalocean \
+    --server https://acme-v02.api.letsencrypt.org/directory \
+    certonly \
+    --dns-digitalocean-credentials /etc/letsencrypt/.do-pen-org.ini \
+    -d "$1"
+
+exit 0

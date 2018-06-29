@@ -8,14 +8,19 @@
 ---
 sshd:
     - Compression: true
-    - Port: 9999
     - PasswordAuthentication: no
 
-# https://galaxy.ansible.com/joshualund/ufw/    
-ufw_whitelisted_ports:
-    - { port: 9999,  protocol: tcp }
-    - { port: 80,  protocol: tcp }
-    - { port: 443, protocol: tcp }
+ufw_rules:
+    - rule: allow
+      from_ip: "{{ adminip }}"
+      to_port: 22
+      protocol: tcp
+    - rule: allow
+      to_port: 80
+      protocol: tcp
+    - rule: allow
+      to_port: 443
+      protocol: tcp
 
 # https://galaxy.ansible.com/geerlingguy/mysql/
 mysql_root_password: "{{ mysql_root_password }}"
@@ -36,7 +41,7 @@ certbot_auto_renew_minute: 30
 certbot_auto_renew_options: "--quiet --no-self-upgrade"
 
 # Parameters used when creating new Certbot certs.
-certbot_create_if_missing: yes
+certbot_create_if_missing: false
 certbot_create_method: standalone
 certbot_admin_email: "{{ email }}"
 certbot_certs: 
@@ -114,4 +119,8 @@ nginx_vhosts:
 
 php_owner: 'www-data'
 php_group: 'www-data'
+
+es_instance_name: "eslocal"
+es_api_basic_auth_username: "elastic"
+es_api_basic_auth_password: "changeme"
 ...
