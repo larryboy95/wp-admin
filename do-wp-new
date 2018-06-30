@@ -236,6 +236,7 @@ function do_provision {
 function install_prerequisite {
     local NAME
     NAME="$1"
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     echo "Install prerequisite packages."
     while true; do
         ssh -o ConnectTimeout=3 "${NAME}" \
@@ -260,6 +261,7 @@ function wp_restore {
     CONFIG="$1"
     FQDN="$2"
     . "$CONFIG"
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     if [ ! -z "$CODEBASE" ]; then
         read -p "Restore ${CODEBASE} to ${NAME}? (y/n)" -n 1 -r
         echo "/n"
@@ -283,6 +285,7 @@ function wp_restore {
 function connection_test {
     local NAME
     NAME="$1"
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     echo -ne "Wait for the droplet to become available..."
     while true; do
         ssh -o ConnectTimeout=3 -q "${NAME}" \
@@ -303,6 +306,7 @@ function ssh_config_check {
     NAME="$1"
     SSHHOSTS="$2"
     HOSTPATTERN="^Host ${NAME}$"
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         echo "${NAME} was found in ${SSHHOSTS}"
@@ -318,6 +322,7 @@ function ssh_config_add_host {
     SSHHOSTS="$2"
     DIP="$3"
     PATHTOPRIVKEY="$4"
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     echo "Host ${NAME}
     HostName ${DIP}
     User root
@@ -332,6 +337,7 @@ function ansible_add_host {
     ANSHOSTS="$2"
     DIP="$3"
     HOSTPATTERN="^${NAME} "
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
