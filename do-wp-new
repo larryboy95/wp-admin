@@ -187,23 +187,7 @@ function do_provision {
     connection_test "$NAME"
 
 ### INSTALL SOFTWARE ###
-    echo "Install prerequisite packages."
-    while true; do
-        ssh -o ConnectTimeout=3 "${NAME}" \
-            "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
-        if [ $? -eq 0 ]; then
-            sleep 3
-            break
-        else
-            echo "Error installing packages, trying again..."
-        fi
-    done
-    ssh "$NAME" "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x wp-cli.phar; mv wp-cli.phar /usr/local/bin/wp"
-    if [ ! $? -eq 0 ]; then
-        echo "Error installing wp-cli."
-        exit 1
-    fi
-
+    install_prerequisite "$NAME"
 # Run ansible playbook to set up servers
     ansible-playbook "${SCRIPTDIR}/ansible" --extra-vars "
         host=${NAME}
@@ -245,6 +229,27 @@ function do_provision {
     wordpress-permissions "$NAME" dev
     if [ ! $? -eq 0 ]; then
         echo "Error setting permissions."
+        exit 1
+    fi
+}
+
+function install_prerequisite {
+    local NAME
+    NAME="$1"
+    echo "Install prerequisite packages."
+    while true; do
+        ssh -o ConnectTimeout=3 "${NAME}" \
+            "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
+        if [ $? -eq 0 ]; then
+            sleep 3
+            break
+        else
+            echo "Error installing packages, trying again..."
+        fi
+    done
+    ssh "$NAME" "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x wp-cli.phar; mv wp-cli.phar /usr/local/bin/wp"
+    if [ ! $? -eq 0 ]; then
+        echo "Error installing wp-cli."
         exit 1
     fi
 }
