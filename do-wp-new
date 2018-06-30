@@ -72,12 +72,6 @@ function main {
 # Provision a new droplet
 function provision_wordpress {
     . "$CONFIGPARSE"
-    # Setup a tmp dir
-    TMP="/tmp/do-new-wp"
-    [ ! -d "$TMP" ] && mkdir "$TMP"
-    # Cleanup on exit
-    trap "rm -rf ${TMP}" EXIT	
-
     # add nonce
     # repeat until no conflicts
     provision_do "$1"
@@ -292,6 +286,12 @@ function ansible_add_host {
     . "$CONFIGPARSE"
     DIP="$2"
     HOSTPATTERN="^${NAME} "
+    # Setup a tmp dir
+    TMP="/tmp/do-new-wp"
+    [ ! -d "$TMP" ] && mkdir "$TMP"
+    # Cleanup on exit
+    trap "rm -rf ${TMP}" EXIT	
+
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
