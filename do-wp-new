@@ -89,6 +89,9 @@ function provision_wordpress {
     [ "$WILDCARD" ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}" || echo "Wildcard not set"
     ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
     SCRIPTDIR=$(dirname "${0}")
+    # Generate db passwords
+    MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+    MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
     # Setup a tmp dir
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
@@ -118,15 +121,18 @@ function provision_wordpress {
         exit 1
     fi
     # Run wordpress-install new / clone repo
-    install_wordpress "$1"
+    install_wordpress "$1" "$MYSQLWPPASSWORD"
+    echo "MYSQLROOTPASSWORD=$MYSQLROOTPASSWORD" >> "$1"
+    echo "MYSQLWPPASSWORD=$MYSQLWPPASSWORD" >> "$1"
 }
 
 function install_wordpress {
-    local FQDN WPUSER MYSQLROOTPASSWORD
+    local FQDN WPUSER 
     local MYSQLWPPASSWORD
     local DOMAIN SUBDOMAIN
     # Include the config file
     . "$1"
+    MYSQLWPPASSWORD="$2"
     # TODO add ses creds
     # Check that required variables are set
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
@@ -136,9 +142,6 @@ function install_wordpress {
     FQDN="${SUBDOMAIN}.${DOMAIN}"
     # Set default values for optional variables
     WPUSER=${WPUSER:-admin}
-    # Generate db passwords
-    MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
 
     wordpress-install \
         "${NAME}" \
