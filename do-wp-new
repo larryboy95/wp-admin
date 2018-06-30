@@ -284,16 +284,16 @@ function wp_restore {
     FQDN="$2"
     . "$CONFIG"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
-    if [ ! -z "$CODEBASE" ]; then
-        read -p "Restore ${CODEBASE} to ${NAME}? (y/n)" -n 1 -r
+    if [ ! -z "$DB" ]; then
+        read -p "Restore ${DB} to ${NAME}? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             do-wp-restore-local "$NAME" "$FQDN" "$DB" "$CODEBASE"
         else
             return 1
         fi
-    elif [ -f ~/.wp-admin ] && [ ! -z "$RESTICCODEBASE" ]; then
-        read -p "Restore restic snapshot ${RESTICCODEBASE} to ${NAME}? (y/n)" -n 1 -r
+    elif [ -f ~/.wp-admin ] && [ ! -z "$RESTICDB" ]; then
+        read -p "Restore restic snapshot ${RESTICDB} to ${NAME}? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             do-wp-restore-restic "$NAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
