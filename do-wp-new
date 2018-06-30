@@ -57,7 +57,7 @@ function main {
         exit $?
     fi
 
-    do_provision "$1"
+    provision_wordpress "$1"
 
     # Optionally restore a site to new droplet
     if [ ! -z "$DB" ] \
@@ -76,7 +76,7 @@ function main {
 
 
 # Provision a new droplet and install wordpress
-function do_provision {
+function provision_wordpress {
     local FQDN ADMINIP SCRIPTDIR WPUSER MYSQLROOTPASSWORD
     local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION MYSQLWPPASSWORD
     local DIDRAW DID DIP TMP WILDCARDCHAIN NEWCERT
@@ -89,7 +89,6 @@ function do_provision {
     [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
     [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
     [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
-    [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set"; exit 1; }
     [ -z "$ELASTICSEARCH" ] && ELASTICSEARCH=false
     [ -z "$WILDCARD" ] && WILDCARD=true
     [ "$WILDCARD" ] && NEWCERT=false || NEWCERT=true
@@ -98,12 +97,6 @@ function do_provision {
     FQDN="${SUBDOMAIN}.${DOMAIN}"
     SCRIPTDIR=$(dirname "${0}")
     # Set default values for optional variables
-    SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
-    ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
-    PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
-    DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
-    IMAGE=${IMAGE:-ubuntu-16-04-x64}
-    REGION=${REGION:-sfo2}
     WPUSER=${WPUSER:-admin}
     # Generate db passwords
     MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
@@ -114,10 +107,74 @@ function do_provision {
     # Cleanup on exit
     trap "rm -rf ${TMP}" EXIT	
 
-    #if [ $(ssh_config_check "$NAME" "$SSHHOSTS") ]; then
-        # add nonce
-        # repeat until no conflicts
-    #fi
+    # add nonce
+    # repeat until no conflicts
+    provision_do "$1"
+    connection_test "$NAME"
+
+    ### INSTALL SOFTWARE ###
+    install_prerequisite "$NAME"
+    # Run ansible playbook to set up servers
+    ansible-playbook "${SCRIPTDIR}/ansible" --extra-vars "
+        host=${NAME}
+        adminip=${ADMINIP}
+        mysql_root_password=${MYSQLROOTPASSWORD}
+        mysql_wp_password=${MYSQLWPPASSWORD}
+        fqdn=${FQDN}
+        email=${EMAIL}
+        domain=${DOMAIN}
+        newcert=${NEWCERT}
+        wildcard=${WILDCARD}
+        wildcardchain=${WILDCARDCHAIN}
+        elasticsearch=${ELASTICSEARCH}"
+    if [ ! $? -eq 0 ]; then
+        echo "Error running ansible."
+        exit 1
+    fi
+
+    # Run wordpress-install new / clone repo
+    wordpress-install \
+        "${NAME}" \
+        "${FQDN}" \
+        "${WPUSER}" \
+        "${EMAIL}" \
+        "${MYSQLWPPASSWORD}"
+    if [ ! $? -eq 0 ]; then
+        echo "Error running wordpress-install."
+        exit 1
+    fi
+    # Preserve the fresh config file
+    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
+    if [ ! $? -eq 0 ]; then
+        echo "Error copying config file."
+        exit 1
+    fi
+    # Change webroot permissions
+    wordpress-permissions "$NAME" dev
+    if [ ! $? -eq 0 ]; then
+        echo "Error setting permissions."
+        exit 1
+    fi
+}
+
+function provision_do {
+    local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION 
+    local DIDRAW DID DIP
+    # Include the config file
+    . "$1"
+    # Check that required variables are set
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
+    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
+    [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
+    [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set"; exit 1; }
+    # Set default values for optional variables
+    SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
+    ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
+    PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
+    DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
+    IMAGE=${IMAGE:-ubuntu-16-04-x64}
+    REGION=${REGION:-sfo2}
 
     # Provision the droplet and store its ID
     echo "Provisioning new droplet for ${NAME}."
@@ -186,51 +243,6 @@ function do_provision {
         || { echo "ansible config error $?"; exit 2; }
     do_add_record "$SUBDOMAIN" "$DOMAIN" "$DIP" \
         || { echo "dns config error $?"; exit 2; }
-    connection_test "$NAME"
-
-    ### INSTALL SOFTWARE ###
-    install_prerequisite "$NAME"
-    # Run ansible playbook to set up servers
-    ansible-playbook "${SCRIPTDIR}/ansible" --extra-vars "
-        host=${NAME}
-        adminip=${ADMINIP}
-        mysql_root_password=${MYSQLROOTPASSWORD}
-        mysql_wp_password=${MYSQLWPPASSWORD}
-        fqdn=${FQDN}
-        email=${EMAIL}
-        domain=${DOMAIN}
-        newcert=${NEWCERT}
-        wildcard=${WILDCARD}
-        wildcardchain=${WILDCARDCHAIN}
-        elasticsearch=${ELASTICSEARCH}"
-    if [ ! $? -eq 0 ]; then
-        echo "Error running ansible."
-        exit 1
-    fi
-
-    # Run wordpress-install new / clone repo
-    wordpress-install \
-        "${NAME}" \
-        "${FQDN}" \
-        "${WPUSER}" \
-        "${EMAIL}" \
-        "${MYSQLWPPASSWORD}"
-    if [ ! $? -eq 0 ]; then
-        echo "Error running wordpress-install."
-        exit 1
-    fi
-    # Preserve the fresh config file
-    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
-    if [ ! $? -eq 0 ]; then
-        echo "Error copying config file."
-        exit 1
-    fi
-    # Change webroot permissions
-    wordpress-permissions "$NAME" dev
-    if [ ! $? -eq 0 ]; then
-        echo "Error setting permissions."
-        exit 1
-    fi
 }
 
 function install_prerequisite {
