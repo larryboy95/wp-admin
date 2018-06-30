@@ -39,8 +39,7 @@ if [ $# -eq 0 ]; then
 fi
 
 function main {
-    local NAME CODEBASE DB RESTICCODEBASE RESTICDB
-    local DOMAIN SUBDOMAIN FQDN SSHHOSTS
+    local FQDN 
     # Include the config file
     . "$1"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
@@ -50,7 +49,7 @@ function main {
     SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
 
     # If host exists then offer to overwrite
-    ssh_config_check "$NAME" "$SSHHOSTS"
+    ssh_config_check "$1"
     if [ $? -eq 1 ]; then
         wp_restore "$1" "$FQDN"
         exit $?
@@ -74,9 +73,7 @@ function main {
 
 # Provision a new droplet
 function provision_wordpress {
-    local FQDN ADMINIP SCRIPTDIR 
-    local PATHTOPRIVKEY DROPLETSIZE IMAGE REGION
-    local TMP WILDCARDCHAIN NEWCERT
+    local FQDN ADMINIP SCRIPTDIR TMP
     # Include the config file
     . "$1"
     # Check that required variables are set
@@ -101,8 +98,8 @@ function provision_wordpress {
     # add nonce
     # repeat until no conflicts
     provision_do "$1"
-    connection_test "$NAME"
-    install_prerequisite "$NAME"
+    connection_test "$1"
+    install_prerequisite "$1"
     # Run ansible playbook to set up servers
     ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
         host=${NAME}
@@ -127,9 +124,7 @@ function provision_wordpress {
 }
 
 function install_wordpress {
-    local FQDN WPUSER 
-    local MYSQLWPPASSWORD
-    local DOMAIN SUBDOMAIN
+    local FQDN
     # Include the config file
     . "$1"
     MYSQLWPPASSWORD="$2"
@@ -168,7 +163,6 @@ function install_wordpress {
 }
 
 function provision_do {
-    local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION 
     local DIDRAW DID DIP
     # Include the config file
     . "$1"
@@ -247,17 +241,17 @@ function provision_do {
     done
 
     # Get IP, setup SSH and Ansible config, create DNS A record
-    ssh_config_add_host "$NAME" "$SSHHOSTS" "$DIP" "$PATHTOPRIVKEY" \
+    ssh_config_add_host "$1" "$DIP" \
         || { echo "ssh config error $?"; exit 2; }
-    ansible_add_host "$NAME" "$ANSHOSTS" "$DIP" \
+    ansible_add_host "$1" "$DIP" \
         || { echo "ansible config error $?"; exit 2; }
-    do_add_record "$SUBDOMAIN" "$DOMAIN" "$DIP" \
+    do_add_record "$1" "$DIP" \
         || { echo "dns config error $?"; exit 2; }
 }
 
 function install_prerequisite {
-    local NAME
-    NAME="$1"
+    # Include the config file
+    . "$1"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     echo "Install prerequisite packages."
     while true; do
@@ -279,10 +273,9 @@ function install_prerequisite {
 
 # Optionally run a restoration
 function wp_restore {
-    local NAME FQDN DB CODEBASE RESTICDB RESTICCODEBASE
-    CONFIG="$1"
+    # Include the config file
+    . "$1"
     FQDN="$2"
-    . "$CONFIG"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     if [ ! -z "$DB" ]; then
         read -p "Restore ${DB} to ${NAME}? (y/n)" -n 1 -r
@@ -305,8 +298,8 @@ function wp_restore {
 
 # Wait for the new droplet to become ready
 function connection_test {
-    local NAME
-    NAME="$1"
+    # Include the config file
+    . "$1"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     echo -ne "Wait for the droplet to become available..."
     while true; do
@@ -324,27 +317,24 @@ function connection_test {
 }
 
 function ssh_config_check {
-    local NAME SSHHOSTS HOSTPATTERN
-    NAME="$1"
-    SSHHOSTS="$2"
-    HOSTPATTERN="^Host ${NAME}$"
+    # Include the config file
+    . "$1"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    HOSTPATTERN="^Host ${NAME}$"
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         echo "${NAME} was found in ${SSHHOSTS}"
-        connection_test "$NAME"
+        connection_test "$1"
         return 1
     else
         return 0
     fi
 }
 function ssh_config_add_host {
-    local NAME SSHHOSTS DIP PATHTOPRIVKEY
-    NAME="$1"
-    SSHHOSTS="$2"
-    DIP="$3"
-    PATHTOPRIVKEY="$4"
+    # Include the config file
+    . "$1"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    DIP="$2"
     echo "Host ${NAME}
     HostName ${DIP}
     User root
@@ -354,12 +344,12 @@ function ssh_config_add_host {
 }
 
 function ansible_add_host {
-    local NAME ANSHOSTS DIP PATHTOPRIVKEY OLDIP HOSTPATTERN
-    NAME="$1"
-    ANSHOSTS="$2"
-    DIP="$3"
-    HOSTPATTERN="^${NAME} "
+    local DIP OLDIP HOSTPATTERN
+    # Include the config file
+    . "$1"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    DIP="$2"
+    HOSTPATTERN="^${NAME} "
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
         echo "/n"
         read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
@@ -385,10 +375,11 @@ function ansible_add_host {
 }
 
 function do_add_record {
-    local SUBDOMAIN DOMAIN DIP FQDN DNSRAW DNSID
-    SUBDOMAIN="$1"
-    DOMAIN="$2"
-    DIP="$3"
+    local DIP FQDN DNSRAW DNSID
+    # Include the config file
+    . "$1"
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    DIP="$2"
     FQDN="${SUBDOMAIN}.${DOMAIN}"
 # TODO find and update matching DNS records
     echo "Setup subdomain with Digitalocean DNS."

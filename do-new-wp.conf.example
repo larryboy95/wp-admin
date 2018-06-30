@@ -1,3 +1,11 @@
+# Declare all variables locally per function for privacy
+# This file should be chmod 600 to protect credentials
+local NAME DOMAIN SUBDOMAIN EMAIL 
+local SSHHOSTS ANSHOSTS PUBLICKEY PATHTOPRIVKEY
+local DOTOKEN DROPLETSIZE IMAGE REGION 
+local WILDCARD ELASTICSEARCH
+local WPUSER MYSQLROOTPASSWORD MYSQLWPPASSWORD
+local DB CODEBASE RESTICDB RESTICCODEBASE
 # Name: Canonical, no spaces, alphanumeric and dashes only
 # This will be used as the droplet hostname and the ssh/Ansible Host 
 NAME=""
