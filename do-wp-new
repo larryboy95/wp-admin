@@ -101,7 +101,7 @@ function provision_wordpress {
     connection_test "$NAME"
     install_prerequisite "$NAME"
     # Run ansible playbook to set up servers
-    ansible-playbook "${SCRIPTDIR}/ansible" --extra-vars "
+    ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
         host=${NAME}
         adminip=${ADMINIP}
         mysql_root_password=${MYSQLROOTPASSWORD}
