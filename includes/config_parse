@@ -1,0 +1,34 @@
+# Declare all variables locally per function for privacy
+local NAME DOMAIN SUBDOMAIN EMAIL 
+local SSHHOSTS ANSHOSTS PUBLICKEY PATHTOPRIVKEY
+local DOTOKEN DROPLETSIZE IMAGE REGION 
+local WILDCARD ELASTICSEARCH
+local WPUSER MYSQLROOTPASSWORD MYSQLWPPASSWORD
+local DB CODEBASE RESTICDB RESTICCODEBASE
+local TMP FQDN
+
+. "$1"
+    # Check that required variables are set
+[ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+[ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
+[ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
+[ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
+[ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
+[ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set"; exit 1; }
+# For ansible:
+[ -z "$ELASTICSEARCH" ] && ELASTICSEARCH=false
+[ -z "$WILDCARD" ] && WILDCARD=true
+[ "$WILDCARD" ] && NEWCERT=false || NEWCERT=true
+[ "$WILDCARD" ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}"
+# Set automatic values
+ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+FQDN="${SUBDOMAIN}.${DOMAIN}"
+# Set default values for optional variables
+SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
+ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
+PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
+DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
+IMAGE=${IMAGE:-ubuntu-16-04-x64}
+REGION=${REGION:-sfo2}
+WPUSER=${WPUSER:-admin}
+# TODO add ses creds

@@ -37,21 +37,19 @@ if [ $# -eq 0 ]; then
     echo "$USAGE"
     exit 1
 fi
+SCRIPTDIR=$(dirname "${0}")
+CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
+[ -f "$1" ] || { echo "Config file not found"; exit 1; }
+[ -f "$CONFIGPARSE" ] || { echo "Includes error"; exit 1; }
 
 function main {
     local FQDN 
-    # Include the config file
-    . "$1"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
-    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
-    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
-    FQDN="${SUBDOMAIN}.${DOMAIN}"
-    SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
+    . "$CONFIGPARSE"
 
     # If host exists then offer to overwrite
     ssh_config_check "$1"
     if [ $? -eq 1 ]; then
-        wp_restore "$1" "$FQDN"
+        wp_restore "$1"
         exit $?
     fi
 
@@ -60,7 +58,7 @@ function main {
     # Optionally restore a site to new droplet
     if [ ! -z "$DB" ] \
         || [ ! -z "$RESTICDB" ]; then
-        wp_restore "$1" "$FQDN"
+        wp_restore "$1"
     fi
     echo "
     ***
@@ -73,19 +71,7 @@ function main {
 
 # Provision a new droplet
 function provision_wordpress {
-    local FQDN ADMINIP SCRIPTDIR TMP
-    # Include the config file
-    . "$1"
-    # Check that required variables are set
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
-    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
-    [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
-    [ -z "$ELASTICSEARCH" ] && ELASTICSEARCH=false
-    [ -z "$WILDCARD" ] && WILDCARD=true
-    [ "$WILDCARD" ] && NEWCERT=false || NEWCERT=true
-    [ "$WILDCARD" ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}" || echo "Wildcard not set"
-    ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
-    SCRIPTDIR=$(dirname "${0}")
+    . "$CONFIGPARSE"
     # Generate db passwords
     MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
     MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
@@ -124,19 +110,8 @@ function provision_wordpress {
 }
 
 function install_wordpress {
-    local FQDN
-    # Include the config file
-    . "$1"
+    . "$CONFIGPARSE"
     MYSQLWPPASSWORD="$2"
-    # TODO add ses creds
-    # Check that required variables are set
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
-    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
-    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
-    [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
-    FQDN="${SUBDOMAIN}.${DOMAIN}"
-    # Set default values for optional variables
-    WPUSER=${WPUSER:-admin}
 
     wordpress-install \
         "${NAME}" \
@@ -163,23 +138,8 @@ function install_wordpress {
 }
 
 function provision_do {
-    local DIDRAW DID DIP
-    # Include the config file
-    . "$1"
-    # Check that required variables are set
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
-    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
-    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
-    [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
-    [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set"; exit 1; }
-    # Set default values for optional variables
-    SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
-    ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
-    PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
-    DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
-    IMAGE=${IMAGE:-ubuntu-16-04-x64}
-    REGION=${REGION:-sfo2}
-
+    local DIDRAW DID DIPRAW DIP
+    . "$CONFIGPARSE"
     # Provision the droplet and store its ID
     echo "Provisioning new droplet for ${NAME}."
     DIDRAW=$(doctl compute droplet create \
@@ -250,8 +210,7 @@ function provision_do {
 }
 
 function install_prerequisite {
-    # Include the config file
-    . "$1"
+    . "$CONFIGPARSE"
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     echo "Install prerequisite packages."
     while true; do
@@ -273,10 +232,7 @@ function install_prerequisite {
 
 # Optionally run a restoration
 function wp_restore {
-    # Include the config file
-    . "$1"
-    FQDN="$2"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    . "$CONFIGPARSE"
     if [ ! -z "$DB" ]; then
         read -p "Restore ${DB} to ${NAME}? (y/n)" -n 1 -r
         echo "/n"
@@ -298,9 +254,7 @@ function wp_restore {
 
 # Wait for the new droplet to become ready
 function connection_test {
-    # Include the config file
-    . "$1"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    . "$CONFIGPARSE"
     echo -ne "Wait for the droplet to become available..."
     while true; do
         ssh -o ConnectTimeout=3 -q "${NAME}" \
@@ -317,9 +271,8 @@ function connection_test {
 }
 
 function ssh_config_check {
-    # Include the config file
-    . "$1"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    local HOSTPATTERN
+    . "$CONFIGPARSE"
     HOSTPATTERN="^Host ${NAME}$"
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
@@ -331,9 +284,7 @@ function ssh_config_check {
     fi
 }
 function ssh_config_add_host {
-    # Include the config file
-    . "$1"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    . "$CONFIGPARSE"
     DIP="$2"
     echo "Host ${NAME}
     HostName ${DIP}
@@ -345,9 +296,7 @@ function ssh_config_add_host {
 
 function ansible_add_host {
     local DIP OLDIP HOSTPATTERN
-    # Include the config file
-    . "$1"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    . "$CONFIGPARSE"
     DIP="$2"
     HOSTPATTERN="^${NAME} "
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
@@ -375,12 +324,9 @@ function ansible_add_host {
 }
 
 function do_add_record {
-    local DIP FQDN DNSRAW DNSID
-    # Include the config file
-    . "$1"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    local DIP DNSRAW DNSID
+    . "$CONFIGPARSE"
     DIP="$2"
-    FQDN="${SUBDOMAIN}.${DOMAIN}"
 # TODO find and update matching DNS records
     echo "Setup subdomain with Digitalocean DNS."
     DNSRAW=$(doctl compute domain records \
