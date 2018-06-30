@@ -43,7 +43,6 @@ function main {
     local DOMAIN SUBDOMAIN FQDN SSHHOSTS
     # Include the config file
     . "$1"
-
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
     [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
@@ -64,7 +63,6 @@ function main {
         || [ ! -z "$RESTICDB" ]; then
         wp_restore "$1" "$FQDN"
     fi
-
     echo "
     ***
 
@@ -73,7 +71,6 @@ function main {
     ***
     "
 }
-
 
 # Provision a new droplet and install wordpress
 function provision_wordpress {
@@ -111,8 +108,6 @@ function provision_wordpress {
     # repeat until no conflicts
     provision_do "$1"
     connection_test "$NAME"
-
-    ### INSTALL SOFTWARE ###
     install_prerequisite "$NAME"
     # Run ansible playbook to set up servers
     ansible-playbook "${SCRIPTDIR}/ansible" --extra-vars "
