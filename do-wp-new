@@ -72,9 +72,6 @@ function main {
 # Provision a new droplet
 function provision_wordpress {
     . "$CONFIGPARSE"
-    # Generate db passwords
-    MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
     # Setup a tmp dir
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
@@ -104,15 +101,11 @@ function provision_wordpress {
         exit 1
     fi
     # Run wordpress-install new / clone repo
-    install_wordpress "$1" "$MYSQLWPPASSWORD"
-    echo "MYSQLROOTPASSWORD=$MYSQLROOTPASSWORD" >> "$1"
-    echo "MYSQLWPPASSWORD=$MYSQLWPPASSWORD" >> "$1"
+    install_wordpress "$1"
 }
 
 function install_wordpress {
     . "$CONFIGPARSE"
-    MYSQLWPPASSWORD="$2"
-
     wordpress-install \
         "${NAME}" \
         "${FQDN}" \
