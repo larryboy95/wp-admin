@@ -153,6 +153,7 @@ function do_provision {
     fi
     # Offer to delete droplet on exit
     trap "doctl compute droplet delete -t ${DOTOKEN} ${DID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
+
     # Get IP
     while true; do
         DIPRAW=$(doctl compute droplet \
@@ -177,6 +178,7 @@ function do_provision {
             break
         fi
     done
+
     # Get IP, setup SSH and Ansible config, create DNS A record
     ssh_config_add_host "$NAME" "$SSHHOSTS" "$DIP" "$PATHTOPRIVKEY" \
         || { echo "ssh config error $?"; exit 2; }
@@ -186,9 +188,9 @@ function do_provision {
         || { echo "dns config error $?"; exit 2; }
     connection_test "$NAME"
 
-### INSTALL SOFTWARE ###
+    ### INSTALL SOFTWARE ###
     install_prerequisite "$NAME"
-# Run ansible playbook to set up servers
+    # Run ansible playbook to set up servers
     ansible-playbook "${SCRIPTDIR}/ansible" --extra-vars "
         host=${NAME}
         adminip=${ADMINIP}
@@ -201,13 +203,12 @@ function do_provision {
         wildcard=${WILDCARD}
         wildcardchain=${WILDCARDCHAIN}
         elasticsearch=${ELASTICSEARCH}"
-
     if [ ! $? -eq 0 ]; then
         echo "Error running ansible."
         exit 1
     fi
 
-# Run wordpress-install new / clone repo
+    # Run wordpress-install new / clone repo
     wordpress-install \
         "${NAME}" \
         "${FQDN}" \
@@ -218,14 +219,13 @@ function do_provision {
         echo "Error running wordpress-install."
         exit 1
     fi
-# Preserve the fresh config file
+    # Preserve the fresh config file
     ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
     if [ ! $? -eq 0 ]; then
         echo "Error copying config file."
         exit 1
     fi
-
-# Change webroot permissions
+    # Change webroot permissions
     wordpress-permissions "$NAME" dev
     if [ ! $? -eq 0 ]; then
         echo "Error setting permissions."
