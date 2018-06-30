@@ -210,11 +210,6 @@ function install_prerequisite {
             echo "Error installing packages, trying again..."
         fi
     done
-    ssh "$NAME" "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x wp-cli.phar; mv wp-cli.phar /usr/local/bin/wp"
-    if [ ! $? -eq 0 ]; then
-        echo "Error installing wp-cli."
-        exit 1
-    fi
 }
 
 # Optionally run a restoration
