@@ -145,20 +145,17 @@ function provision_do {
         echo "${DIDRAW}"
         exit 1
     fi
-    DIDRAW=$(echo "${DIDRAW}" | jq '.[0] .id')
-    if [ ! $? -eq 0 ]; then
-        echo "Error parsing JSON."
-        echo "${DIDRAW}"
-        exit 1
-    fi
-    DID=$(echo "${DIDRAW}" | tr -d '\n')
+    DID=$(echo "${DIDRAW}" | jq -j '.[0] .id')
+    [ $? -eq 0 ] || { echo "Error parsing DIDRAW."; exit 1; }
     if [ -z "$DID" ]; then
         echo "Droplet ID is empty."
+        echo "${DIDRAW}"
         exit 1
     else
         echo "Wait three seconds for the IP to become available....."
         sleep 3
     fi
+    echo "DID=\"$DID\"" >> "$1"
     # Offer to delete droplet on exit
     trap "doctl compute droplet delete -t ${DOTOKEN} ${DID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
 
@@ -168,25 +165,12 @@ function provision_do {
             get "${DID}" \
             -t "${DOTOKEN}" \
             -o json) 
-        if [ ! $? -eq 0 ]; then
-            echo "Error retrieving droplet IP address."
-            echo "$DIPRAW"
-            exit 1
-        fi
-        DIPRAW=$(echo "${DIPRAW}" | jq '.[0] .networks.v4[0].ip_address')
-        if [ ! $? -eq 0 ]; then
-            echo "Error parsing JSON."
-            exit 1
-        fi
-        DIP=$(echo "${DIPRAW}" | tr -d '\n' | tr -d '"')
-        if [ -z "$DIP" ]; then
-            echo "IP address is empty?"
-            exit 1
-        else
-            break
-        fi
+        [ $? -eq 0 ] || { echo "Error getting IP."; exit 1; }
+        DIP=$(echo "${DIPRAW}" | jq -j '.[0] .networks.v4[0].ip_address')
+        [ $? -eq 0 ] || { echo "Error parsing JSON."; exit 1; }
+        [ -z "$DIP" ] && { echo "IP address is empty"; exit 1; } || break
     done
-
+    echo "DIP=\"$DIP\"" >> "$1"
     # Get IP, setup SSH and Ansible config, create DNS A record
     ssh_config_add_host "$1" "$DIP" \
         || { echo "ssh config error $?"; exit 2; }
