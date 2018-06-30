@@ -72,32 +72,23 @@ function main {
     "
 }
 
-# Provision a new droplet and install wordpress
+# Provision a new droplet
 function provision_wordpress {
-    local FQDN ADMINIP SCRIPTDIR WPUSER MYSQLROOTPASSWORD
-    local SSHHOSTS ANSHOSTS PATHTOPRIVKEY DROPLETSIZE IMAGE REGION MYSQLWPPASSWORD
-    local DIDRAW DID DIP TMP WILDCARDCHAIN NEWCERT
+    local FQDN ADMINIP SCRIPTDIR 
+    local PATHTOPRIVKEY DROPLETSIZE IMAGE REGION
+    local TMP WILDCARDCHAIN NEWCERT
     # Include the config file
     . "$1"
-    # TODO add ses creds
     # Check that required variables are set
     [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
     [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
-    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
     [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
-    [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
     [ -z "$ELASTICSEARCH" ] && ELASTICSEARCH=false
     [ -z "$WILDCARD" ] && WILDCARD=true
     [ "$WILDCARD" ] && NEWCERT=false || NEWCERT=true
     [ "$WILDCARD" ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}" || echo "Wildcard not set"
     ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
-    FQDN="${SUBDOMAIN}.${DOMAIN}"
     SCRIPTDIR=$(dirname "${0}")
-    # Set default values for optional variables
-    WPUSER=${WPUSER:-admin}
-    # Generate db passwords
-    MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
     # Setup a tmp dir
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
@@ -126,8 +117,29 @@ function provision_wordpress {
         echo "Error running ansible."
         exit 1
     fi
-
     # Run wordpress-install new / clone repo
+    install_wordpress "$1"
+}
+
+function install_wordpress {
+    local FQDN WPUSER MYSQLROOTPASSWORD
+    local MYSQLWPPASSWORD
+    local DOMAIN SUBDOMAIN
+    # Include the config file
+    . "$1"
+    # TODO add ses creds
+    # Check that required variables are set
+    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
+    [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
+    [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
+    FQDN="${SUBDOMAIN}.${DOMAIN}"
+    # Set default values for optional variables
+    WPUSER=${WPUSER:-admin}
+    # Generate db passwords
+    MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+    MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+
     wordpress-install \
         "${NAME}" \
         "${FQDN}" \
