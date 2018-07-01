@@ -42,42 +42,34 @@ CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
 [ -f "$1" ] || { echo "Config file not found"; exit 1; }
 [ -f "$CONFIGPARSE" ] || { echo "Includes error"; exit 1; }
 
+# If host exists then offer to overwrite
+# Optionally restore a site to new droplet
 function main {
     local FQDN 
     . "$CONFIGPARSE"
-
-    # If host exists then offer to overwrite
     ssh_config_check "$1"
     if [ $? -eq 1 ]; then
         wp_restore "$1"
         exit $?
     fi
-
     provision_wordpress "$1"
-
-    # Optionally restore a site to new droplet
     if [ ! -z "$DB" ] \
         || [ ! -z "$RESTICDB" ]; then
         wp_restore "$1"
     fi
     echo "
-    ***
-
+***
     https://${FQDN}
-
-    ***
+***
     "
 }
 
 # Provision a new droplet
 function provision_wordpress {
     . "$CONFIGPARSE"
-    # add nonce
-    # repeat until no conflicts
     provision_do "$1"
     connection_test "$1"
     install_prerequisite "$1"
-    # Run ansible playbook to set up servers
     ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
         host=${NAME}
         adminip=${ADMINIP}
@@ -94,10 +86,11 @@ function provision_wordpress {
         echo "Error running ansible."
         exit 1
     fi
-    # Run wordpress-install new / clone repo
     install_wordpress "$1"
 }
 
+# Run wordpress-install new / clone repo
+# Preserve the fresh config file
 function install_wordpress {
     . "$CONFIGPARSE"
     wordpress-install \
@@ -110,13 +103,11 @@ function install_wordpress {
         echo "Error running wordpress-install."
         exit 1
     fi
-    # Preserve the fresh config file
     ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
     if [ ! $? -eq 0 ]; then
         echo "Error copying config file."
         exit 1
     fi
-    # Change webroot permissions
     wordpress-permissions "$NAME" dev
     if [ ! $? -eq 0 ]; then
         echo "Error setting permissions."
@@ -124,10 +115,12 @@ function install_wordpress {
     fi
 }
 
+# Provision the droplet and store its ID
+# Get IP, setup SSH and Ansible config, create DNS A record
+# Offer to delete droplet on exit
 function provision_do {
     local DIDRAW DID DIPRAW DIP
     . "$CONFIGPARSE"
-    # Provision the droplet and store its ID
     echo "Provisioning new droplet for ${NAME}."
     DIDRAW=$(doctl compute droplet create \
         "$NAME" \
@@ -156,10 +149,8 @@ function provision_do {
         sleep 3
     fi
     echo "DID=\"$DID\"" >> "$1"
-    # Offer to delete droplet on exit
     trap "doctl compute droplet delete -t ${DOTOKEN} ${DID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
 
-    # Get IP
     while true; do
         DIPRAW=$(doctl compute droplet \
             get "${DID}" \
@@ -168,10 +159,9 @@ function provision_do {
         [ $? -eq 0 ] || { echo "Error getting IP."; exit 1; }
         DIP=$(echo "${DIPRAW}" | jq -j '.[0] .networks.v4[0].ip_address')
         [ $? -eq 0 ] || { echo "Error parsing JSON."; exit 1; }
-        [ -z "$DIP" ] && { echo "IP address is empty"; exit 1; } || break
+        [ -z "$DIP" ] || break
     done
     echo "DIP=\"$DIP\"" >> "$1"
-    # Get IP, setup SSH and Ansible config, create DNS A record
     ssh_config_add_host "$1" "$DIP" \
         || { echo "ssh config error $?"; exit 2; }
     ansible_add_host "$1" "$DIP" \
@@ -249,6 +239,7 @@ function ssh_config_check {
         return 0
     fi
 }
+
 function ssh_config_add_host {
     . "$CONFIGPARSE"
     DIP="$2"
@@ -265,10 +256,8 @@ function ansible_add_host {
     . "$CONFIGPARSE"
     DIP="$2"
     HOSTPATTERN="^${NAME} "
-    # Setup a tmp dir
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
-    # Cleanup on exit
     trap "rm -rf ${TMP}" EXIT	
 
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
@@ -299,7 +288,6 @@ function do_add_record {
     local DIP DNSRAW DNSID
     . "$CONFIGPARSE"
     DIP="$2"
-# TODO find and update matching DNS records
     echo "Setup subdomain with Digitalocean DNS."
     DNSRAW=$(doctl compute domain records \
         create "${DOMAIN}" \
