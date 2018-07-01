@@ -50,39 +50,51 @@ function main {
 # Find the wordpress webroot and copy to server
         WPCONFIG="${CODEBASE}/wp-config.php"
         [ ! -f "$WPCONFIG" ] && { echo "wp-config.php not found"; exit 1; }
-        ssh "$NAME" "mkdir /var/www/new" || exit 1
+        ssh "$NAME" "[ ! -d /var/www/new ] && mkdir /var/www/new"
         rsync \
             -az \
+            --protect-args \
+            --delete \
             --exclude=".git*" \
-            --exclude="node_modules" \
-            --exclude="wp-content/uploads" \
+            --exclude="wp-content/updraft" \
             --progress \
-            "${CODEBASE}"/* \
-            "${NAME}:/var/www/new"
+            "${CODEBASE}/" \
+            "${NAME}:/var/www/new/"
 # Replace the webroot with the new files
-        ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
-        ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
+        ssh "$NAME" 'rm -rf /var/www/html-vanilla'
+        ssh "$NAME" "mv -f /var/www/html /var/www/html-vanilla" || exit 1
+        ssh "$NAME" "mv -f /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
         ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
         ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+        echo "${CODEBASE} restored"
 # Extract the db table prefix from old config
 # Find the old line, remove the trailing newline, escape single quotes
         PREFIX=$(grep "table_prefix" "$WPCONFIG")
-        PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\\'/g")
+        echo "a"
+        PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\'/g")
+        echo "$PREFIX"
         ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
+        echo "Table prefix replaced in wp-config.php"
         ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
+        echo "Nginx restarted"
     else
         echo "CODEBASE not supplied, restoring database only."
     fi
 # Find, extract and import the db
 # Replace the siteurl
     gunzip -k "$DB" || { echo "gunzip failed"; exit 1; }
+    echo "Database dump extracted"
     DB="${DB%.*}"
     scp "$DB" "${NAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     trap "rm ${DB}" EXIT
     wp $WPARGS db import /var/www/restore.sql
+    [ ! $? -eq 0 ] && { echo "Db import error"; exit 1; }
     SITEURL=$(wp $WPARGS option get siteurl)
+    [ ! $? -eq 0 ] && { echo "Siteurl error"; exit 1; }
     wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
+    [ ! $? -eq 0 ] && { echo "Search replace error"; exit 1; }
     wp $WPARGS cache flush
+    [ ! $? -eq 0 ] && { echo "Cache flush error wtf"; exit 1; }
     wordpress-permissions "$NAME" dev || echo "Permissions error"
     notify "Site has been restored to https://${FQDN}."
 }
