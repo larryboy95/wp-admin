@@ -54,7 +54,7 @@ function main {
     fi
 
     if [ ! -z "$DROPLETID" ]
-        || [ ! -z "$DIP" ]; then
+        || [ ! -z "$DROPLETADDR" ]; then
         echo "DROPLET variables already set"}
         exit 1
     else
@@ -128,7 +128,7 @@ function install_wordpress {
 # Get IP, setup SSH and Ansible config, create DNS A record
 # Offer to delete droplet on exit
 function provision_do {
-    local DIDRAW DROPLETID DIPRAW DIP
+    local DIDRAW DROPLETID DIPRAW DROPLETADDR
     . "$CONFIGPARSE"
     echo "Provisioning new droplet for ${HOSTNAME}."
     DIDRAW=$(doctl compute droplet create \
@@ -166,16 +166,16 @@ function provision_do {
             -t "${DOTOKEN}" \
             -o json) 
         [ $? -eq 0 ] || { echo "Error getting IP."; exit 1; }
-        DIP=$(echo "${DIPRAW}" | jq -j '.[0] .networks.v4[0].ip_address')
+        DROPLETADDR=$(echo "${DIPRAW}" | jq -j '.[0] .networks.v4[0].ip_address')
         [ $? -eq 0 ] || { echo "Error parsing JSON."; exit 1; }
-        [ -z "$DIP" ] || break
+        [ -z "$DROPLETADDR" ] || break
     done
-    echo "DIP=\"$DIP\"" >> "$1"
-    ssh_config_add_host "$1" "$DIP" \
+    echo "DROPLETADDR=\"$DROPLETADDR\"" >> "$1"
+    ssh_config_add_host "$1" "$DROPLETADDR" \
         || { echo "ssh config error $?"; exit 2; }
-    ansible_add_host "$1" "$DIP" \
+    ansible_add_host "$1" "$DROPLETADDR" \
         || { echo "ansible config error $?"; exit 2; }
-    do_add_record "$1" "$DIP" \
+    do_add_record "$1" "$DROPLETADDR" \
         || { echo "dns config error $?"; exit 2; }
 }
 
@@ -251,9 +251,9 @@ function ssh_config_check {
 
 function ssh_config_add_host {
     . "$CONFIGPARSE"
-    DIP="$2"
+    DROPLETADDR="$2"
     echo "Host ${HOSTNAME}
-    HostName ${DIP}
+    HostName ${DROPLETADDR}
     User root
     IdentityFile ${PRIVATEKEY}
     IdentitiesOnly yes
@@ -261,9 +261,9 @@ function ssh_config_add_host {
 }
 
 function ansible_add_host {
-    local DIP OLDIP HOSTPATTERN
+    local DROPLETADDR OLDIP HOSTPATTERN
     . "$CONFIGPARSE"
-    DIP="$2"
+    DROPLETADDR="$2"
     HOSTPATTERN="^${HOSTNAME} "
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
@@ -277,7 +277,7 @@ function ansible_add_host {
             echo "Changing IP for $HOSTNAME in $ANSIBLEHOSTS"
             OLDIP=$(grep "$HOSTPATTERN" $ANSIBLEHOSTS | cut -d'=' -f3)
             [ ! $? -eq 0 ] && return 1
-            sed "s/${OLDIP}/${DIP}/g" "$ANSIBLEHOSTS" > "${TMP}/anshosts"
+            sed "s/${OLDIP}/${DROPLETADDR}/g" "$ANSIBLEHOSTS" > "${TMP}/anshosts"
             cat "${TMP}/anshosts" > "$ANSIBLEHOSTS"
             [ ! $? -eq 0 ] && return 1
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
@@ -287,23 +287,23 @@ function ansible_add_host {
             return 1
         fi
     else
-        echo "${HOSTNAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSIBLEHOSTS}"
+        echo "${HOSTNAME} ansible_port=22 ansible_host=${DROPLETADDR}" >> "${ANSIBLEHOSTS}"
         [ ! $? -eq 0 ] && return 1
     fi
     return 0
 }
 
 function do_add_record {
-    local DIP DNSRAW DNSID
+    local DROPLETADDR DNSRAW DNSID
     . "$CONFIGPARSE"
-    DIP="$2"
+    DROPLETADDR="$2"
     echo "Setup subdomain with Digitalocean DNS."
     DNSRAW=$(doctl compute domain records \
         create "${DOMAIN}" \
         -t "${DOTOKEN}" \
         --record-type A \
         --record-name "${SUBDOMAIN}" \
-        --record-data "${DIP}" \
+        --record-data "${DROPLETADDR}" \
         -o json
         )
     if [ ! $? -eq 0 ]; then
@@ -322,7 +322,7 @@ function do_add_record {
         echo "DNSID is empty."
         return 1
     else
-        echo "DNS A record for ${FQDN} to ${DIP} was created."
+        echo "DNS A record for ${FQDN} to ${DROPLETADDR} was created."
     fi
     return 0
 }
