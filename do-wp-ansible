@@ -14,7 +14,7 @@ ADMINIP is automatically obtained from eth0
 
 Optional vars and their default values:
     SSHHOSTS ~/.ssh/config
-    ANSHOSTS /etc/ansible/hosts
+    ANSIBLEHOSTS /etc/ansible/hosts
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
@@ -27,7 +27,7 @@ function main {
 ### VARIABLES ###
 ###
     local FQDN ADMINIP SCRIPTDIR 
-    local SSHHOSTS ANSHOSTS 
+    local SSHHOSTS ANSIBLEHOSTS 
 # Include the config file
     . "$1"
 # TODO add ses creds
@@ -42,7 +42,7 @@ function main {
     SCRIPTDIR=$(dirname "${0}")
 # Set default values for optional variables
     SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
-    ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
+    ANSIBLEHOSTS=${ANSIBLEHOSTS:-/etc/ansible/hosts}
 
 # Wait for the new droplet to become ready
     echo -ne "Wait for the droplet initialisation to complete..."

@@ -1,6 +1,6 @@
 # Declare all variables locally per function for privacy
 local HOSTNAME DOMAIN SUBDOMAIN EMAIL 
-local SSHHOSTS ANSHOSTS PUBLICKEY PATHTOPRIVKEY
+local SSHHOSTS ANSIBLEHOSTS PUBLICKEY PRIVATEKEY
 local DOTOKEN DROPLETSIZE IMAGE REGION 
 local WILDCARD ELASTICSEARCH
 local WPUSER MYSQLROOTPASSWORD MYSQLWPPASSWORD
@@ -25,8 +25,8 @@ ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' 
 FQDN="${SUBDOMAIN}.${DOMAIN}"
 # Set default values for optional variables
 SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
-ANSHOSTS=${ANSHOSTS:-/etc/ansible/hosts}
-PATHTOPRIVKEY=${PATHTOPRIVKEY:-~/.ssh/id_rsa}
+ANSIBLEHOSTS=${ANSIBLEHOSTS:-/etc/ansible/hosts}
+PRIVATEKEY=${PRIVATEKEY:-~/.ssh/id_rsa}
 DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
 IMAGE=${IMAGE:-ubuntu-16-04-x64}
 REGION=${REGION:-sfo2}

@@ -16,8 +16,8 @@ ADMINIP is automatically obtained from eth0
 Optional vars and their default values:
     SUBDOMAIN defaults to HOSTNAME
     SSHHOSTS ~/.ssh/config
-    ANSHOSTS /etc/ansible/hosts
-    PATHTOPRIVKEY ~/.ssh/id_rsa
+    ANSIBLEHOSTS /etc/ansible/hosts
+    PRIVATEKEY ~/.ssh/id_rsa
     DROPLETSIZE s-1vcpu-1gb
     IMAGE ubuntu-16-04-x64
     REGION sfo2
@@ -246,7 +246,7 @@ function ssh_config_add_host {
     echo "Host ${HOSTNAME}
     HostName ${DIP}
     User root
-    IdentityFile ${PATHTOPRIVKEY}
+    IdentityFile ${PRIVATEKEY}
     IdentitiesOnly yes
     " >> "${SSHHOSTS}"
 }
@@ -260,16 +260,16 @@ function ansible_add_host {
     [ ! -d "$TMP" ] && mkdir "$TMP"
     trap "rm -rf ${TMP}" EXIT	
 
-    if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
+    if grep "$HOSTPATTERN" "${ANSIBLEHOSTS}"; then
         echo "/n"
-        read -p "${HOSTNAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
+        read -p "${HOSTNAME} was found in ${ANSIBLEHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Changing IP for $HOSTNAME in $ANSHOSTS"
-            OLDIP=$(grep "$HOSTPATTERN" $ANSHOSTS | cut -d'=' -f3)
+            echo "Changing IP for $HOSTNAME in $ANSIBLEHOSTS"
+            OLDIP=$(grep "$HOSTPATTERN" $ANSIBLEHOSTS | cut -d'=' -f3)
             [ ! $? -eq 0 ] && return 1
-            sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMP}/anshosts"
-            cat "${TMP}/anshosts" > "$ANSHOSTS"
+            sed "s/${OLDIP}/${DIP}/g" "$ANSIBLEHOSTS" > "${TMP}/anshosts"
+            cat "${TMP}/anshosts" > "$ANSIBLEHOSTS"
             [ ! $? -eq 0 ] && return 1
         elif [[ $REPLY =~ ^[Nn]$ ]]; then
             echo "Cancelled due to user request"
@@ -278,7 +278,7 @@ function ansible_add_host {
             return 1
         fi
     else
-        echo "${HOSTNAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
+        echo "${HOSTNAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSIBLEHOSTS}"
         [ ! $? -eq 0 ] && return 1
     fi
     return 0
