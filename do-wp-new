@@ -52,7 +52,11 @@ function main {
         wp_restore "$1"
         exit $?
     fi
-    provision_wordpress "$1"
+    provision_do "$1"
+    connection_test "$1"
+    install_prerequisite "$1"
+    provision_ansible "$1"
+    install_wordpress "$1"
     if [ ! -z "$DB" ] \
         || [ ! -z "$RESTICDB" ]; then
         wp_restore "$1"
@@ -65,11 +69,8 @@ function main {
 }
 
 # Provision a new droplet
-function provision_wordpress {
+function provision_ansible {
     . "$CONFIGPARSE"
-    provision_do "$1"
-    connection_test "$1"
-    install_prerequisite "$1"
     ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
         host=${NAME}
         adminip=${ADMINIP}
@@ -86,7 +87,6 @@ function provision_wordpress {
         echo "Error running ansible."
         exit 1
     fi
-    install_wordpress "$1"
 }
 
 # Run wordpress-install new / clone repo
