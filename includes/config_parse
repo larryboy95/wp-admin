@@ -20,14 +20,24 @@ local TMP FQDN
 
 # Set automatic values
 # Generate db passwords if unset
-ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 FQDN="${SUBDOMAIN}.${DOMAIN}"
+ADMINIP="$(ifconfig \
+    | grep -A 1 'eth0' \
+    | tail -1 \
+    | cut -d ':' -f 2 \
+    | cut -d ' ' -f 1)"
 if [ -z "$DBROOTPASS" ]; then
-    DBROOTPASS=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+    DBROOTPASS=$(tr -dc 'a-zA-Z0-9' \
+        < /dev/urandom \
+        | fold -w 18 \
+        | head -n 1)
     echo "DBROOTPASS=\"${DBROOTPASS}\"" >> "$1"
 fi
 if [ -z "$DBWPPASS" ]; then
-    DBWPPASS=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+    DBWPPASS=$(tr -dc 'a-zA-Z0-9' \
+        < /dev/urandom \
+        | fold -w 18 \
+        | head -n 1)
     echo "DBWPPASS=\"${DBWPPASS}\"" >> "$1"
 fi
 
