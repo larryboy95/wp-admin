@@ -52,15 +52,24 @@ function main {
         wp_restore "$1"
         exit $?
     fi
-    provision_do "$1"
-    connection_test "$1"
-    install_prerequisite "$1"
-    provision_ansible "$1"
-    install_wordpress "$1"
+
+    if [ ! -z "$DROPLETID" ]
+        || [ ! -z "$DIP" ]; then
+        echo "DROPLET variables already set"}
+        exit 1
+    else
+        provision_do "$1"
+        connection_test "$1"
+        install_prerequisite "$1"
+        provision_ansible "$1"
+        install_wordpress "$1"
+    fi
+
     if [ ! -z "$DB" ] \
         || [ ! -z "$RESTICDB" ]; then
         wp_restore "$1"
     fi
+
     echo "
 ***
     https://${FQDN}
