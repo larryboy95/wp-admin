@@ -1,6 +1,6 @@
 # Name: Canonical, no spaces, alphanumeric and dashes only
 # This will be used as the droplet hostname and the ssh/Ansible Host 
-NAME=""
+HOSTNAME=""
 # A Fully qualified domain name will be assembled from subdomain.domain
 # Must resolve to the new droplet IP before letsencrypt certificates
 # can be issued.

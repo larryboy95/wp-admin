@@ -1,5 +1,5 @@
 # Declare all variables locally per function for privacy
-local NAME DOMAIN SUBDOMAIN EMAIL 
+local HOSTNAME DOMAIN SUBDOMAIN EMAIL 
 local SSHHOSTS ANSHOSTS PUBLICKEY PATHTOPRIVKEY
 local DOTOKEN DROPLETSIZE IMAGE REGION 
 local WILDCARD ELASTICSEARCH
@@ -9,9 +9,9 @@ local TMP FQDN
 
 . "$1"
     # Check that required variables are set
-[ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+[ -z "$HOSTNAME" ] && { echo "HOSTNAME not set"; exit 1; }
 [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
-[ -z "$SUBDOMAIN" ] && SUBDOMAIN=${NAME}
+[ -z "$SUBDOMAIN" ] && SUBDOMAIN=${HOSTNAME}
 [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
 [ -z "$DOTOKEN" ] && { echo "DOTOKEN not set"; exit 1; }
 [ -z "$PUBLICKEY" ] && { echo "PUBLICKEY not set"; exit 1; }

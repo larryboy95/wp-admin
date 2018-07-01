@@ -5,7 +5,7 @@ Usage: do-wp-new CONFIGFILE
 Provisions a new droplet at Digitalocean and installs WordPress.
 
 Config file vars required, (see do-new-wp.conf.example):
-    NAME (alphanumeric and dashes only) 
+    HOSTNAME (alphanumeric and dashes only) 
     DOMAIN
     EMAIL
     DOTOKEN
@@ -14,7 +14,7 @@ Config file vars required, (see do-new-wp.conf.example):
 ADMINIP is automatically obtained from eth0
 
 Optional vars and their default values:
-    SUBDOMAIN defaults to NAME
+    SUBDOMAIN defaults to HOSTNAME
     SSHHOSTS ~/.ssh/config
     ANSHOSTS /etc/ansible/hosts
     PATHTOPRIVKEY ~/.ssh/id_rsa
@@ -72,7 +72,7 @@ function main {
 function provision_ansible {
     . "$CONFIGPARSE"
     ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
-        host=${NAME}
+        host=${HOSTNAME}
         adminip=${ADMINIP}
         mysql_root_password=${MYSQLROOTPASSWORD}
         mysql_wp_password=${MYSQLWPPASSWORD}
@@ -94,7 +94,7 @@ function provision_ansible {
 function install_wordpress {
     . "$CONFIGPARSE"
     wordpress-install \
-        "${NAME}" \
+        "${HOSTNAME}" \
         "${FQDN}" \
         "${WPUSER}" \
         "${EMAIL}" \
@@ -103,12 +103,12 @@ function install_wordpress {
         echo "Error running wordpress-install."
         exit 1
     fi
-    ssh "${NAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
+    ssh "${HOSTNAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
     if [ ! $? -eq 0 ]; then
         echo "Error copying config file."
         exit 1
     fi
-    wordpress-permissions "$NAME" dev
+    wordpress-permissions "$HOSTNAME" dev
     if [ ! $? -eq 0 ]; then
         echo "Error setting permissions."
         exit 1
@@ -121,9 +121,9 @@ function install_wordpress {
 function provision_do {
     local DIDRAW DID DIPRAW DIP
     . "$CONFIGPARSE"
-    echo "Provisioning new droplet for ${NAME}."
+    echo "Provisioning new droplet for ${HOSTNAME}."
     DIDRAW=$(doctl compute droplet create \
-        "$NAME" \
+        "$HOSTNAME" \
         -t "$DOTOKEN" \
         --ssh-keys "$PUBLICKEY" \
         --size "$DROPLETSIZE" \
@@ -172,10 +172,10 @@ function provision_do {
 
 function install_prerequisite {
     . "$CONFIGPARSE"
-    [ -z "$NAME" ] && { echo "NAME not set"; exit 1; }
+    [ -z "$HOSTNAME" ] && { echo "HOSTNAME not set"; exit 1; }
     echo "Install prerequisite packages."
     while true; do
-        ssh -o ConnectTimeout=3 "${NAME}" \
+        ssh -o ConnectTimeout=3 "${HOSTNAME}" \
             "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
         if [ $? -eq 0 ]; then
             sleep 3
@@ -190,18 +190,18 @@ function install_prerequisite {
 function wp_restore {
     . "$CONFIGPARSE"
     if [ ! -z "$DB" ]; then
-        read -p "Restore ${DB} to ${NAME}? (y/n)" -n 1 -r
+        read -p "Restore ${DB} to ${HOSTNAME}? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            do-wp-restore-local "$NAME" "$FQDN" "$DB" "$CODEBASE"
+            do-wp-restore-local "$HOSTNAME" "$FQDN" "$DB" "$CODEBASE"
         else
             return 1
         fi
     elif [ -f ~/.wp-admin ] && [ ! -z "$RESTICDB" ]; then
-        read -p "Restore restic snapshot ${RESTICDB} to ${NAME}? (y/n)" -n 1 -r
+        read -p "Restore restic snapshot ${RESTICDB} to ${HOSTNAME}? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            do-wp-restore-restic "$NAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
+            do-wp-restore-restic "$HOSTNAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
         else
             return 1
         fi
@@ -213,7 +213,7 @@ function connection_test {
     . "$CONFIGPARSE"
     echo -ne "Wait for the droplet to become available..."
     while true; do
-        ssh -o ConnectTimeout=3 -q "${NAME}" \
+        ssh -o ConnectTimeout=3 -q "${HOSTNAME}" \
             "[ -f /var/lib/cloud/instance/boot-finished ]"
         if [ $? -eq 0 ]; then
             sleep 1
@@ -229,10 +229,10 @@ function connection_test {
 function ssh_config_check {
     local HOSTPATTERN
     . "$CONFIGPARSE"
-    HOSTPATTERN="^Host ${NAME}$"
+    HOSTPATTERN="^Host ${HOSTNAME}$"
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
-        echo "${NAME} was found in ${SSHHOSTS}"
+        echo "${HOSTNAME} was found in ${SSHHOSTS}"
         connection_test "$1"
         return 1
     else
@@ -243,7 +243,7 @@ function ssh_config_check {
 function ssh_config_add_host {
     . "$CONFIGPARSE"
     DIP="$2"
-    echo "Host ${NAME}
+    echo "Host ${HOSTNAME}
     HostName ${DIP}
     User root
     IdentityFile ${PATHTOPRIVKEY}
@@ -255,17 +255,17 @@ function ansible_add_host {
     local DIP OLDIP HOSTPATTERN
     . "$CONFIGPARSE"
     DIP="$2"
-    HOSTPATTERN="^${NAME} "
+    HOSTPATTERN="^${HOSTNAME} "
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
     trap "rm -rf ${TMP}" EXIT	
 
     if grep "$HOSTPATTERN" "${ANSHOSTS}"; then
         echo "/n"
-        read -p "${NAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
+        read -p "${HOSTNAME} was found in ${ANSHOSTS}, update it with new IP? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Changing IP for $NAME in $ANSHOSTS"
+            echo "Changing IP for $HOSTNAME in $ANSHOSTS"
             OLDIP=$(grep "$HOSTPATTERN" $ANSHOSTS | cut -d'=' -f3)
             [ ! $? -eq 0 ] && return 1
             sed "s/${OLDIP}/${DIP}/g" "$ANSHOSTS" > "${TMP}/anshosts"
@@ -278,7 +278,7 @@ function ansible_add_host {
             return 1
         fi
     else
-        echo "${NAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
+        echo "${HOSTNAME} ansible_port=22 ansible_host=${DIP}" >> "${ANSHOSTS}"
         [ ! $? -eq 0 ] && return 1
     fi
     return 0

@@ -24,16 +24,16 @@ if [ $# -eq 0 ]; then
 fi
 
 function main {
-    local NAME RESTICCODEBASE RESTICDB CONFIGFILE SCRIPTDIR
+    local HOSTNAME RESTICCODEBASE RESTICDB CONFIGFILE SCRIPTDIR
     local RESTIC BIGTMP WPDIR SQLGZ SITEURL PREFIX WPCONFIG
-    NAME="$1"
+    HOSTNAME="$1"
     FQDN="$2"
     RESTICDB="$3"
     [ ! -z "$4" ] && RESTICCODEBASE="$4"
     CONFIGFILE="${5:-${HOME}/.wp-admin}"
     echo "$CONFIGFILE"
     SCRIPTDIR=$(dirname "${0}")
-    WPARGS="--path=/var/www/html --ssh=${NAME} --allow-root"
+    WPARGS="--path=/var/www/html --ssh=${HOSTNAME} --allow-root"
     RESTIC=$(which restic)
     BIGTMP="${BIGTMP:-${HOME}/.tmp-big}"
 # TODO implement WEBROOT
@@ -51,7 +51,7 @@ function main {
 
     echo "Test connection"
     while true; do
-        ssh -o ConnectTimeout=3 -q "$NAME" \
+        ssh -o ConnectTimeout=3 -q "$HOSTNAME" \
             "[ -f /var/lib/cloud/instance/boot-finished ]"
         if [ $? -eq 0 ]; then
             sleep 1
@@ -81,25 +81,25 @@ function main {
         WPDIR=$(find ${BIGTMP}/ -name "wp-config.php" | xargs dirname)
         WPDIR=${WPDIR//$'\n'/}
         [ -z "$WPDIR" ] && { echo "wp dir not found"; exit 1; }
-        ssh "$NAME" "mkdir /var/www/new" 
+        ssh "$HOSTNAME" "mkdir /var/www/new" 
         rsync \
             -av \
             --exclude=".git*" \
             --progress \
             "${WPDIR}"/* \
-            "${NAME}:/var/www/new"
+            "${HOSTNAME}:/var/www/new"
 # Replace the webroot with the new files
-        ssh "$NAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
-        ssh "$NAME" "mv /var/www/new /var/www/html" || exit 1
-        ssh "$NAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
-        ssh "$NAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+        ssh "$HOSTNAME" "mv /var/www/html /var/www/html-vanilla" || exit 1
+        ssh "$HOSTNAME" "mv /var/www/new /var/www/html" || exit 1
+        ssh "$HOSTNAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
+        ssh "$HOSTNAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
 # Extract the db table prefix from old config
 # Find the old line, remove the trailing newline, escape single quotes
         PREFIX=$(grep "table_prefix" "$WPCONFIG")
         PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\\'/g")
-        ssh "$NAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
-        ssh "$NAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
-        wordpress-permissions "$NAME" dev || exit 1
+        ssh "$HOSTNAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
+        ssh "$HOSTNAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
+        wordpress-permissions "$HOSTNAME" dev || exit 1
     else
         echo "RESTICCODEBASE not supplied, restoring database only."
     fi
@@ -115,12 +115,12 @@ function main {
     SQLGZ=${SQLGZ//$'\n'/}
     gunzip "$SQLGZ"
     SQL=$(find ${BIGTMP}/ -name "*.sql")
-    scp "$SQL" "${NAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
+    scp "$SQL" "${HOSTNAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     wp $WPARGS db import /var/www/restore.sql
     SITEURL=$(wp $WPARGS option get siteurl)
     wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
     wp $WPARGS cache flush
-#notify "Site has been restored to ${NAME}."
+#notify "Site has been restored to ${HOSTNAME}."
 }
 
 main "$@"
