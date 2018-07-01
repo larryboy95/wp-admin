@@ -83,8 +83,8 @@ function main {
     ansible-playbook wordpress.yml --extra-vars "
         host=${HOSTNAME}
         adminip=${ADMINIP}
-        mysql_root_password=${MYSQLROOTPASSWORD}
-        mysql_wp_password=${MYSQLWPPASSWORD}
+        mysql_root_password=${DBROOTPASS}
+        mysql_wp_password=${DBWPPASS}
         fqdn=${FQDN}
         email=${EMAIL}"
     if [ ! $? -eq 0 ]; then

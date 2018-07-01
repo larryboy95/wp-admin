@@ -74,8 +74,8 @@ function provision_ansible {
     ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
         host=${HOSTNAME}
         adminip=${ADMINIP}
-        mysql_root_password=${MYSQLROOTPASSWORD}
-        mysql_wp_password=${MYSQLWPPASSWORD}
+        mysql_root_password=${DBROOTPASS}
+        mysql_wp_password=${DBWPPASS}
         fqdn=${FQDN}
         email=${EMAIL}
         domain=${DOMAIN}
@@ -98,7 +98,7 @@ function install_wordpress {
         "${FQDN}" \
         "${WPUSER}" \
         "${EMAIL}" \
-        "${MYSQLWPPASSWORD}"
+        "${DBWPPASS}"
     if [ ! $? -eq 0 ]; then
         echo "Error running wordpress-install."
         exit 1

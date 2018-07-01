@@ -3,7 +3,7 @@ local HOSTNAME DOMAIN SUBDOMAIN EMAIL
 local SSHHOSTS ANSIBLEHOSTS PUBLICKEY PRIVATEKEY
 local DOTOKEN DROPLETSIZE IMAGE REGION 
 local WILDCARD ELASTICSEARCH NEWCERT
-local WPUSER MYSQLROOTPASSWORD MYSQLWPPASSWORD
+local WPUSER DBROOTPASS DBWPPASS
 local DB CODEBASE RESTICDB RESTICCODEBASE
 local TMP FQDN
 
@@ -22,13 +22,13 @@ local TMP FQDN
 # Generate db passwords if unset
 ADMINIP="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 FQDN="${SUBDOMAIN}.${DOMAIN}"
-if [ -z "$MYSQLROOTPASSWORD" ]; then
-    MYSQLROOTPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    echo "MYSQLROOTPASSWORD=\"${MYSQLROOTPASSWORD}\"" >> "$1"
+if [ -z "$DBROOTPASS" ]; then
+    DBROOTPASS=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+    echo "DBROOTPASS=\"${DBROOTPASS}\"" >> "$1"
 fi
-if [ -z "$MYSQLWPPASSWORD" ]; then
-    MYSQLWPPASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
-    echo "MYSQLWPPASSWORD=\"${MYSQLWPPASSWORD}\"" >> "$1"
+if [ -z "$DBWPPASS" ]; then
+    DBWPPASS=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 18 | head -n 1)
+    echo "DBWPPASS=\"${DBWPPASS}\"" >> "$1"
 fi
 
 # Set default values for optional variables
