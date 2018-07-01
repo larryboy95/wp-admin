@@ -53,7 +53,7 @@ function main {
         exit $?
     fi
 
-    if [ ! -z "$DROPLETID" ]
+    if [ ! -z "$DROPLETID" ] \
         || [ ! -z "$DROPLETADDR" ]; then
         echo "DROPLET variables already set"}
         exit 1
