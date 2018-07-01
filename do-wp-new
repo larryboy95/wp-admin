@@ -119,7 +119,7 @@ function install_wordpress {
 # Get IP, setup SSH and Ansible config, create DNS A record
 # Offer to delete droplet on exit
 function provision_do {
-    local DIDRAW DID DIPRAW DIP
+    local DIDRAW DROPLETID DIPRAW DIP
     . "$CONFIGPARSE"
     echo "Provisioning new droplet for ${HOSTNAME}."
     DIDRAW=$(doctl compute droplet create \
@@ -138,9 +138,9 @@ function provision_do {
         echo "${DIDRAW}"
         exit 1
     fi
-    DID=$(echo "${DIDRAW}" | jq -j '.[0] .id')
+    DROPLETID=$(echo "${DIDRAW}" | jq -j '.[0] .id')
     [ $? -eq 0 ] || { echo "Error parsing DIDRAW."; exit 1; }
-    if [ -z "$DID" ]; then
+    if [ -z "$DROPLETID" ]; then
         echo "Droplet ID is empty."
         echo "${DIDRAW}"
         exit 1
@@ -148,12 +148,12 @@ function provision_do {
         echo "Wait three seconds for the IP to become available....."
         sleep 3
     fi
-    echo "DID=\"$DID\"" >> "$1"
-    trap "doctl compute droplet delete -t ${DOTOKEN} ${DID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
+    echo "DROPLETID=\"$DROPLETID\"" >> "$1"
+    trap "doctl compute droplet delete -t ${DOTOKEN} ${DROPLETID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
 
     while true; do
         DIPRAW=$(doctl compute droplet \
-            get "${DID}" \
+            get "${DROPLETID}" \
             -t "${DOTOKEN}" \
             -o json) 
         [ $? -eq 0 ] || { echo "Error getting IP."; exit 1; }
