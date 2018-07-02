@@ -1,4 +1,4 @@
-...
+---
 # If wildcard:
 - name: Copying wildcard certs
   when: wildcard
