@@ -12,3 +12,4 @@
   - sbaerlocher.wp-cli
   - { role: elastic.elasticsearch, when: elasticsearch }
   - post-book
+  - post-ssl
