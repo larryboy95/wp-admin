@@ -28,10 +28,9 @@ CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
 function main {
     local FQDN 
     . "$CONFIGPARSE"
-    ansible_check_host "$1" ] 
+    ansible_check_host "$1"
     [ $? -eq 1 ] && ansible_add_host "$1"
     letsencrypt_ansible "$1"
-    connection_test "$1"
     echo "
 ***
     https://${FQDN}
@@ -53,24 +52,6 @@ function letsencrypt_ansible {
         echo "Error running ansible."
         exit 1
     fi
-}
-
-# Wait for the new droplet to become ready
-function connection_test {
-    . "$CONFIGPARSE"
-    echo -ne "Wait for the droplet to become available..."
-    while true; do
-        ssh -o ConnectTimeout=3 -q "${HOSTNAME}" \
-            "[ -f /var/lib/cloud/instance/boot-finished ]"
-        if [ $? -eq 0 ]; then
-            sleep 1
-            echo -ne "\r"
-            break
-        else
-            echo -ne "."
-            sleep 1
-        fi
-    done
 }
 
 function ansible_check_host {
