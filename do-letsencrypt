@@ -1,0 +1,109 @@
+#!/bin/bash
+
+USAGE="
+Usage: do-letsencrypt CONFIGFILE
+
+Config file vars required, (see do-new-wp.conf.example):
+    HOSTNAME (alphanumeric and dashes only) 
+    FQDN
+    EMAIL
+
+Optional vars and their default values:
+    SSHHOSTS ~/.ssh/config
+    ANSIBLEHOSTS /etc/ansible/hosts
+    WILDCARD boolean defaults true
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+SCRIPTDIR=$(dirname "${0}")
+CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
+[ -f "$1" ] || { echo "Config file not found"; exit 1; }
+[ -f "$CONFIGPARSE" ] || { echo "Includes error"; exit 1; }
+
+# If host exists then offer to overwrite
+# Optionally restore a site to new droplet
+function main {
+    local FQDN 
+    . "$CONFIGPARSE"
+    letsencrypt_ansible "$1"
+    connection_test "$1"
+    echo "
+***
+    https://${FQDN}
+***
+    "
+}
+
+function provision_ansible {
+    . "$CONFIGPARSE"
+    ansible-playbook "${SCRIPTDIR}/ansible/letsencrypt.yml" --extra-vars "
+        host=${HOSTNAME}
+        fqdn=${FQDN}
+        email=${EMAIL}
+        domain=${DOMAIN}
+        newcert=${NEWCERT}
+        wildcard=${WILDCARD}
+        wildcardchain=${WILDCARDCHAIN}"
+    if [ ! $? -eq 0 ]; then
+        echo "Error running ansible."
+        exit 1
+    fi
+}
+
+# Wait for the new droplet to become ready
+function connection_test {
+    . "$CONFIGPARSE"
+    echo -ne "Wait for the droplet to become available..."
+    while true; do
+        ssh -o ConnectTimeout=3 -q "${HOSTNAME}" \
+            "[ -f /var/lib/cloud/instance/boot-finished ]"
+        if [ $? -eq 0 ]; then
+            sleep 1
+            echo -ne "\r"
+            break
+        else
+            echo -ne "."
+            sleep 1
+        fi
+    done
+}
+
+function ansible_add_host {
+    local DROPLETADDR OLDIP HOSTPATTERN
+    . "$CONFIGPARSE"
+    DROPLETADDR="$2"
+    HOSTPATTERN="^${HOSTNAME} "
+    TMP="/tmp/do-new-wp"
+    [ ! -d "$TMP" ] && mkdir "$TMP"
+    trap "rm -rf ${TMP}" EXIT	
+
+    if grep "$HOSTPATTERN" "${ANSIBLEHOSTS}"; then
+        echo "/n"
+        read -p "${HOSTNAME} was found in ${ANSIBLEHOSTS}, update it with new IP? (y/n)" -n 1 -r
+        echo "/n"
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "Changing IP for $HOSTNAME in $ANSIBLEHOSTS"
+            OLDIP=$(grep "$HOSTPATTERN" $ANSIBLEHOSTS | cut -d'=' -f3)
+            [ ! $? -eq 0 ] && return 1
+            sed "s/${OLDIP}/${DROPLETADDR}/g" "$ANSIBLEHOSTS" > "${TMP}/anshosts"
+            cat "${TMP}/anshosts" > "$ANSIBLEHOSTS"
+            [ ! $? -eq 0 ] && return 1
+        elif [[ $REPLY =~ ^[Nn]$ ]]; then
+            echo "Cancelled due to user request"
+            return 0
+        else
+            return 1
+        fi
+    else
+        echo "${HOSTNAME} ansible_port=22 ansible_host=${DROPLETADDR}" >> "${ANSIBLEHOSTS}"
+        [ ! $? -eq 0 ] && return 1
+    fi
+    return 0
+}
+
+
+main "$@"
+exit 0
