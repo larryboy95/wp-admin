@@ -1,0 +1,7 @@
+---
+- name: Install letsencrypt
+  hosts: "{{ host }}"
+  remote_user: root
+  roles:
+  - geerlingguy.certbot
+  - post-ssl
