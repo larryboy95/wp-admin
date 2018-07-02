@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-Usage: do-wp-new CONFIGFILE
+Usage: do-wp-new CONFIGFILE [HOSTNAME DB CODEBASE]
 Provisions a new droplet at Digitalocean and installs WordPress.
 
 Config file vars required, (see do-new-wp.conf.example):
@@ -29,8 +29,6 @@ Optional vars with no defaults.
 Set these to trigger related feature.
     CODEBASE path of webroot to restore
     DB path to (.sql.gz) db to restore
-    RESTICCODEBASE id of target snapshot to restore
-    RESTICDB id of target db to restore
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
@@ -65,8 +63,7 @@ function main {
         install_wordpress "$1"
     fi
 
-    if [ ! -z "$DB" ] \
-        || [ ! -z "$RESTICDB" ]; then
+    if [ ! -z "$DB" ]; then
         wp_restore "$1"
     fi
 
@@ -203,14 +200,6 @@ function wp_restore {
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             do-wp-restore-local "$HOSTNAME" "$FQDN" "$DB" "$CODEBASE"
-        else
-            return 1
-        fi
-    elif [ -f ~/.wp-admin ] && [ ! -z "$RESTICDB" ]; then
-        read -p "Restore restic snapshot ${RESTICDB} to ${HOSTNAME}? (y/n)" -n 1 -r
-        echo "/n"
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            do-wp-restore-restic "$HOSTNAME" "$FQDN" "$RESTICDB" "$RESTICCODEBASE"
         else
             return 1
         fi
