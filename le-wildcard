@@ -8,17 +8,22 @@
 # Docs:
 # https://certbot-dns-digitalocean.readthedocs.io/en/latest/
 # https://certbot.eff.org/docs/install.html#running-with-docker
+# (The -v switch links local:remote)
 
-CREDENTIALS="$1"
-DOMAIN="$2"
-# -v links local:remote
-sudo docker run -it --rm --name certbot \
-    -v "/etc/letsencrypt:/etc/letsencrypt" \
-    -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
-    certbot/dns-digitalocean \
-    --server https://acme-v02.api.letsencrypt.org/directory \
-    certonly \
-    --dns-digitalocean-credentials "$CREDENTIALS" \
-    -d "$DOMAIN"
+function main {
+    local CREDENTIALS DOMAIN
+    CREDENTIALS="$1"
+    DOMAIN="$2"
+    sudo docker run -it --rm --name certbot \
+        -v "/etc/letsencrypt:/etc/letsencrypt" \
+        -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+        certbot/dns-digitalocean \
+        --server https://acme-v02.api.letsencrypt.org/directory \
+        certonly \
+        --dns-digitalocean-credentials "$CREDENTIALS" \
+        -d "$DOMAIN"
+}
+
+main "$@"
 
 exit 0
