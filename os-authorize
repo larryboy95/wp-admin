@@ -1,0 +1,29 @@
+#!/bin/bash
+AUTHFILE="${HOME}/AUTHORIZED_KEYS"
+HOSTNAME="$1"
+REMOTEUSER="$2"
+REMOTEPATH="/home/${REMOTEUSER}/.ssh"
+REMOTEFILE="${REMOTEPATH}/authorized_keys"
+
+# Print USAGE if no args
+if [ $# -lt 2 ]; then
+    echo "Usage: os-authorize HOSTNAME REMOTEUSER"
+    exit 1
+fi
+if [ -f "$AUTHFILE" ]; then
+	ssh-keygen -lf "$AUTHFILE"
+else
+	echo "Master authority file not found."
+	exit 1
+fi
+ssh "$HOSTNAME" "mkdir ${REMOTEPATH}"
+ssh "$HOSTNAME" "touch ${REMOTEFILE}"
+ssh "$HOSTNAME" "chown -R ${REMOTEUSER}:${REMOTEUSER} ${REMOTEPATH}"
+ssh "$HOSTNAME" "chmod 600 ${REMOTEFILE}"
+scp "$AUTHFILE" "$HOSTNAME":"$REMOTEFILE"
+# Confirm user's intent
+#echo "Replace authorized_keys file on ${1}"
+#read -p "Are you sure? (y/n) " -r  
+#if [[ $REPLY =~ ^[Yy]$ ]]; then  
+#fi
+exit 0
