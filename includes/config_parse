@@ -49,8 +49,8 @@ DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
 IMAGE=${IMAGE:-ubuntu-16-04-x64}
 REGION=${REGION:-sfo2}
 WPUSER=${WPUSER:-admin}
-[ -z "$ELASTICSEARCH" ] && ELASTICSEARCH=false
-[ -z "$WILDCARD" ] && WILDCARD=true
-[ "$WILDCARD" ] && NEWCERT=false || NEWCERT=true
+[ -z "$ELASTICSEARCH" ] && ELASTICSEARCH="no"
+[ -z "$WILDCARD" ] && WILDCARD="yes"
+[ "$WILDCARD" ] && NEWCERT="no" || NEWCERT="yes"
 [ "$WILDCARD" ] && WILDCARDCHAIN="/etc/letsencrypt/archive/${DOMAIN}"
 

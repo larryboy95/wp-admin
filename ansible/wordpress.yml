@@ -10,6 +10,6 @@
   - geerlingguy.nginx
   - geerlingguy.certbot
   - sbaerlocher.wp-cli
-  - { role: elastic.elasticsearch, when: elasticsearch }
+  - { role: elastic.elasticsearch, when: elasticsearch == "yes" }
   - post-book
   - post-ssl

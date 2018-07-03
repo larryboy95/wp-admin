@@ -1,7 +1,7 @@
 ---
 # If wildcard:
 - name: Copying wildcard certs
-  when: wildcard
+  when: wildcard == "yes"
   copy:
     src: "{{ wildcardchain }}"
     dest: "/etc/letsencrypt/archive/"
@@ -10,7 +10,7 @@
     mode: 0640
 
 - name: Creates directory for live cert links
-  when: wildcard
+  when: wildcard == "yes"
   file: 
     path: "/etc/letsencrypt/live/{{ domain }}"
     state: directory
@@ -19,7 +19,7 @@
     mode: 0640
 
 - name: Link certs into live directory 
-  when: wildcard
+  when: wildcard == "yes"
   file:
     src: "../../archive/{{ domain }}/fullchain1.pem"
     dest: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
@@ -27,7 +27,7 @@
     state: link
 
 - name: Link certs into live directory 
-  when: wildcard
+  when: wildcard == "yes"
   file:
     src: "../../archive/{{ domain }}/privkey1.pem"
     dest: "/etc/letsencrypt/live/{{ domain }}/privkey.pem"
@@ -35,7 +35,7 @@
     state: link
 
 - name: Replace ssl_certificate line in nginx
-  when: wildcard
+  when: wildcard == "yes"
   lineinfile: 
     dest: /etc/nginx/sites-enabled/wordpress.conf 
     regexp: '^(.*)ssl_certificate\ (.*)$' 
@@ -43,7 +43,7 @@
     backrefs: yes
 
 - name: Replace ssl_certificate_key line in nginx
-  when: wildcard
+  when: wildcard == "yes"
   lineinfile: 
     dest: /etc/nginx/sites-enabled/wordpress.conf 
     regexp: '^(.*)ssl_certificate_key(.*)$' 
@@ -52,7 +52,7 @@
 
 # Else
 - name: Replace ssl_certificate line in nginx
-  when: not wildcard
+  when: wildcard == "no"
   lineinfile: 
     dest: /etc/nginx/sites-enabled/wordpress.conf 
     regexp: '^(.*)ssl_certificate\ (.*)$' 
@@ -60,7 +60,7 @@
     backrefs: yes
 
 - name: Replace ssl_certificate_key line in nginx
-  when: not wildcard
+  when: wildcard == "no"
   lineinfile: 
     dest: /etc/nginx/sites-enabled/wordpress.conf 
     regexp: '^(.*)ssl_certificate_key(.*)$' 

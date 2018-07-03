@@ -2,7 +2,7 @@
 
 USAGE="
 Usage: do-wp-ansible CONFIGFILE
-Provisions a new droplet at Digitalocean and installs WordPress.
+Run ansible playbook (deprecated?)
 
 Config file vars required, (see do-new-wp.conf.example):
     HOSTNAME (alphanumeric and dashes only) 
