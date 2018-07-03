@@ -1,22 +1,15 @@
-# Name: Canonical, no spaces, alphanumeric and dashes only
-# This will be used as the droplet hostname and the ssh/Ansible Host 
-HOSTNAME=""
 # A Fully qualified domain name will be assembled from subdomain.domain
 # Must resolve to the new droplet IP before letsencrypt certificates
 # can be issued.
 DOMAIN=""
+# Subdomain will be set from hostname
 SUBDOMAIN=""
 # Email address for letsencrypt and wordpress admin
 EMAIL=""
 # Dotoken: Get an API access token for the targeted DO account
 DOTOKEN=""
 # Publickey: Your public key for ssh access
+# Must first add to the appropriate team account in CP
 # Get the hash of your key using this command:
 # ssh-keygen -E md5 -lf ~/.ssh/id_rsa.pub
 PUBLICKEY=""
-# OPTIONALLY add the ID's of backups you would like to restore
-# from restic. Restic credentials must be present in ~/.wp-admin
-RESTICCODEBASE=""
-RESTICDB=""
-# Optional: choose size from `doctl compute size list`
-SIZE=""

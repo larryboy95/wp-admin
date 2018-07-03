@@ -1,17 +1,25 @@
 #!/bin/bash
 
 USAGE="
-Usage: do-wp-new CONFIGFILE [HOSTNAME DB CODEBASE]
+Usage: do-wp-new CONFIGFILE HOSTNAME [DB CODEBASE]
 Provisions a new droplet at Digitalocean and installs WordPress.
 
+CONFIGFILE is the path to the config file for your DO account
+HOSTNAME (alphanumeric and dashes only) 
+
+Optional args with no defaults.
+Set these to restore site from backup.
+    DB path to (.sql.gz) db to restore
+    CODEBASE path of webroot to restore
+
 Config file vars required, (see do-new-wp.conf.example):
-    HOSTNAME (alphanumeric and dashes only) 
     DOMAIN
     EMAIL
     DOTOKEN
     PUBLICKEY
 
 ADMINIP is automatically obtained from eth0
+(ssh access is restricted to this IP)
 
 Optional vars and their default values:
     SUBDOMAIN defaults to HOSTNAME
@@ -25,10 +33,6 @@ Optional vars and their default values:
     WILDCARD boolean defaults true
     ELASTICSEARCH boolean defaults false
 
-Optional vars with no defaults.
-Set these to trigger related feature.
-    CODEBASE path of webroot to restore
-    DB path to (.sql.gz) db to restore
 "
 # Print USAGE if no args
 if [ $# -lt 2 ]; then
