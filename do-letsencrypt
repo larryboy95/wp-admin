@@ -1,10 +1,11 @@
 #!/bin/bash
 
 USAGE="
-Usage: do-letsencrypt CONFIGFILE
+Usage: do-letsencrypt CONFIGFILE HOSTNAME
+
+HOSTNAME (alphanumeric and dashes only) 
 
 Config file vars required, (see do-new-wp.conf.example):
-    HOSTNAME (alphanumeric and dashes only) 
     FQDN
     EMAIL
 
@@ -28,9 +29,9 @@ CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
 function main {
     local FQDN 
     . "$CONFIGPARSE"
-    ansible_check_host "$1"
-    [ $? -eq 1 ] && ansible_add_host "$1"
-    letsencrypt_ansible "$1"
+    ansible_check_host "$@"
+    [ $? -eq 1 ] && ansible_add_host "$@"
+    letsencrypt_ansible "$@"
     echo "
 ***
     https://${FQDN}
@@ -55,7 +56,7 @@ function letsencrypt_ansible {
 }
 
 function ansible_check_host {
-    local DROPLETADDR HOSTPATTERN ANSIBLEHOSTS
+    local HOSTPATTERN ANSIBLEHOSTS
     . "$CONFIGPARSE"
     HOSTPATTERN="^${HOSTNAME} "
     if grep -q "$HOSTPATTERN" "${ANSIBLEHOSTS}"; then
@@ -68,11 +69,11 @@ function ansible_check_host {
 }
 
 function ansible_add_host {
-    local DROPLETADDR HOSTPATTERN ANSIBLEHOSTS
+    local HOSTPATTERN ANSIBLEHOSTS
     . "$CONFIGPARSE"
     HOSTPATTERN="^${HOSTNAME} "
     echo "Adding ${HOSTNAME} to ${ANSIBLEHOSTS}"
-    echo "${HOSTNAME} ansible_port=22 ansible_host=${DROPLETADDR}" >> "${ANSIBLEHOSTS}"
+    echo "${HOSTNAME} ansible_port=22 ansible_host=${FQDN}" >> "${ANSIBLEHOSTS}"
     [ ! $? -eq 0 ] && return 1
     return 0
 }
