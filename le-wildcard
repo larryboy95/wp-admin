@@ -11,9 +11,9 @@
 # (The -v switch links local:remote)
 
 USAGE="
-Usage: le-wildcard CREDENTIALS DOMAIN
+Usage: le-wildcard DOMAIN
 
-Use *.do.domain.com for wildcard
+Appends *. to DOMAIN for wildcard
 "
 # Print USAGE if no args
 if [ $# -lt 1 ]; then
@@ -22,9 +22,10 @@ if [ $# -lt 1 ]; then
 fi
 
 function main {
-    local CREDENTIALS DOMAIN
-    CREDENTIALS="$1"
-    DOMAIN="$2"
+    local CREDENTIALS DOMAIN WILDDOMAIN
+    DOMAIN="$1"
+    WILDDOMAIN="*.${1}"
+    CREDENTIALS="/etc/letsencrypt/${DOMAIN}.ini"
     sudo docker run -it --rm --name certbot \
         -v "/etc/letsencrypt:/etc/letsencrypt" \
         -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
@@ -32,7 +33,8 @@ function main {
         --server https://acme-v02.api.letsencrypt.org/directory \
         certonly \
         --dns-digitalocean-credentials "$CREDENTIALS" \
-        -d "$DOMAIN"
+        -d "$WILDDOMAIN"
+    sudo chgrp mri -R /etc/letsencrypt/archive
 }
 
 main "$@"
