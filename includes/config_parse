@@ -3,15 +3,17 @@ local HOSTNAME DOMAIN SUBDOMAIN EMAIL
 local SSHHOSTS ANSIBLEHOSTS PUBLICKEY PRIVATEKEY
 local DOTOKEN DROPLETSIZE IMAGE REGION 
 local WILDCARD ELASTICSEARCH NEWCERT
-local WPUSER DBROOTPASS DBWPPASS
 local DB CODEBASE RESTICDB RESTICCODEBASE
-local TMP FQDN
+local TMP FQDN WPUSER 
 
 # Include the config file
-. "$1"
+CONFIG="$1"
+. "$CONFIG"
 
-    # Check that required variables are set
-[ -z "$HOSTNAME" ] && { echo "HOSTNAME not set"; exit 1; }
+HOSTNAME="$2"
+[ -z "$3" ] || DB="$3"
+[ -z "$4" ] || CODEBASE="$4"
+# Check that required variables are set
 [ -z "$DOMAIN" ] && { echo "DOMAIN not set"; exit 1; }
 [ -z "$SUBDOMAIN" ] && SUBDOMAIN=${HOSTNAME}
 [ -z "$EMAIL" ] && { echo "EMAIL not set"; exit 1; }
@@ -31,14 +33,12 @@ if [ -z "$DBROOTPASS" ]; then
         < /dev/urandom \
         | fold -w 18 \
         | head -n 1)
-    echo "DBROOTPASS=\"${DBROOTPASS}\"" >> "$1"
 fi
 if [ -z "$DBWPPASS" ]; then
     DBWPPASS=$(tr -dc 'a-zA-Z0-9' \
         < /dev/urandom \
         | fold -w 18 \
         | head -n 1)
-    echo "DBWPPASS=\"${DBWPPASS}\"" >> "$1"
 fi
 
 # Set default values for optional variables

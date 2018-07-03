@@ -31,7 +31,7 @@ Set these to trigger related feature.
     DB path to (.sql.gz) db to restore
 "
 # Print USAGE if no args
-if [ $# -eq 0 ]; then
+if [ $# -lt 2 ]; then
     echo "$USAGE"
     exit 1
 fi
@@ -39,15 +39,19 @@ SCRIPTDIR=$(dirname "${0}")
 CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
 [ -f "$1" ] || { echo "Config file not found"; exit 1; }
 [ -f "$CONFIGPARSE" ] || { echo "Includes error"; exit 1; }
+DROPLETID=""
+DROPLETADDR=""
+DBROOTPASS=""
+DBWPPASS=""
 
 # If host exists then offer to overwrite
 # Optionally restore a site to new droplet
 function main {
     local FQDN 
     . "$CONFIGPARSE"
-    ssh_config_check "$1"
+    ssh_config_check "$@"
     if [ $? -eq 1 ]; then
-        wp_restore "$1"
+        wp_restore "$@"
         exit $?
     fi
 
@@ -56,15 +60,15 @@ function main {
         echo "DROPLET variables already set"}
         exit 1
     else
-        provision_do "$1"
-        connection_test "$1"
-        install_prerequisite "$1"
-        provision_ansible "$1"
-        install_wordpress "$1"
+        provision_do "$@"
+        connection_test "$@"
+        install_prerequisite "$@"
+        provision_ansible "$@"
+        install_wordpress "$@"
     fi
 
     if [ ! -z "$DB" ]; then
-        wp_restore "$1"
+        wp_restore "$@"
     fi
 
     echo "
@@ -125,7 +129,7 @@ function install_wordpress {
 # Get IP, setup SSH and Ansible config, create DNS A record
 # Offer to delete droplet on exit
 function provision_do {
-    local DIDRAW DROPLETID DIPRAW DROPLETADDR
+    local DIDRAW DIPRAW 
     . "$CONFIGPARSE"
     echo "Provisioning new droplet for ${HOSTNAME}."
     DIDRAW=$(doctl compute droplet create \
@@ -154,7 +158,6 @@ function provision_do {
         echo "Wait three seconds for the IP to become available....."
         sleep 3
     fi
-    echo "DROPLETID=\"$DROPLETID\"" >> "$1"
     trap "doctl compute droplet delete -t ${DOTOKEN} ${DROPLETID}; sleep 3; doctl compute droplet list -t ${DOTOKEN}" EXIT
 
     while true; do
@@ -167,12 +170,11 @@ function provision_do {
         [ $? -eq 0 ] || { echo "Error parsing JSON."; exit 1; }
         [ -z "$DROPLETADDR" ] || break
     done
-    echo "DROPLETADDR=\"$DROPLETADDR\"" >> "$1"
-    ssh_config_add_host "$1" "$DROPLETADDR" \
+    ssh_config_add_host "$@" \
         || { echo "ssh config error $?"; exit 2; }
-    ansible_add_host "$1" "$DROPLETADDR" \
+    ansible_add_host "$@" \
         || { echo "ansible config error $?"; exit 2; }
-    do_add_record "$1" "$DROPLETADDR" \
+    do_add_record "$@" \
         || { echo "dns config error $?"; exit 2; }
 }
 
@@ -231,7 +233,7 @@ function ssh_config_check {
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         echo "${HOSTNAME} was found in ${SSHHOSTS}"
-        connection_test "$1"
+        connection_test "$@"
         return 1
     else
         return 0
@@ -240,7 +242,6 @@ function ssh_config_check {
 
 function ssh_config_add_host {
     . "$CONFIGPARSE"
-    DROPLETADDR="$2"
     echo "Host ${HOSTNAME}
     HostName ${DROPLETADDR}
     User root
@@ -250,9 +251,8 @@ function ssh_config_add_host {
 }
 
 function ansible_add_host {
-    local DROPLETADDR OLDIP HOSTPATTERN
+    local OLDIP HOSTPATTERN
     . "$CONFIGPARSE"
-    DROPLETADDR="$2"
     HOSTPATTERN="^${HOSTNAME} "
     TMP="/tmp/do-new-wp"
     [ ! -d "$TMP" ] && mkdir "$TMP"
@@ -283,9 +283,8 @@ function ansible_add_host {
 }
 
 function do_add_record {
-    local DROPLETADDR DNSRAW DNSID
+    local DNSRAW DNSID
     . "$CONFIGPARSE"
-    DROPLETADDR="$2"
     echo "Setup subdomain with Digitalocean DNS."
     DNSRAW=$(doctl compute domain records \
         create "${DOMAIN}" \
