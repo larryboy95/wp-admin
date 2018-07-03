@@ -10,6 +10,17 @@
 # https://certbot.eff.org/docs/install.html#running-with-docker
 # (The -v switch links local:remote)
 
+USAGE="
+Usage: le-wildcard CREDENTIALS DOMAIN
+
+Use *.do.domain.com for wildcard
+"
+# Print USAGE if no args
+if [ $# -lt 1 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
 function main {
     local CREDENTIALS DOMAIN
     CREDENTIALS="$1"
