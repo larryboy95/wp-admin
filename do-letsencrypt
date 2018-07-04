@@ -23,7 +23,7 @@ SCRIPTDIR=$(dirname "${0}")
 CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
 [ -f "$1" ] || { echo "Config file not found"; exit 1; }
 [ -f "$CONFIGPARSE" ] || { echo "Includes error"; exit 1; }
-
+. "${SCRIPTDIR}/includes/helpers"
 # If host exists then offer to overwrite
 # Optionally restore a site to new droplet
 function main {
