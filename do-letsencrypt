@@ -55,28 +55,6 @@ function letsencrypt_ansible {
     fi
 }
 
-function ansible_check_host {
-    local HOSTPATTERN ANSIBLEHOSTS
-    . "$CONFIGPARSE"
-    HOSTPATTERN="^${HOSTNAME} "
-    if grep -q "$HOSTPATTERN" "${ANSIBLEHOSTS}"; then
-        echo "${HOSTNAME} was found in ${ANSIBLEHOSTS}"
-        return 0
-    else
-        echo "${HOSTNAME} was not found in ${ANSIBLEHOSTS}"
-        return 1
-    fi
-}
-
-function ansible_add_host {
-    local HOSTPATTERN ANSIBLEHOSTS
-    . "$CONFIGPARSE"
-    HOSTPATTERN="^${HOSTNAME} "
-    echo "Adding ${HOSTNAME} to ${ANSIBLEHOSTS}"
-    echo "${HOSTNAME} ansible_port=22 ansible_host=${FQDN}" >> "${ANSIBLEHOSTS}"
-    [ ! $? -eq 0 ] && return 1
-    return 0
-}
 
 
 main "$@"
