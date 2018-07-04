@@ -46,7 +46,9 @@ DROPLETID=""
 DROPLETADDR=""
 DBROOTPASS=""
 DBWPPASS=""
+# Include helper functions
 . "${SCRIPTDIR}/includes/helpers"
+. "${SCRIPTDIR}/includes/dns"
 # If host exists then offer to overwrite
 # Optionally restore a site to new droplet
 function main {
@@ -173,12 +175,27 @@ function provision_do {
         [ $? -eq 0 ] || { echo "Error parsing JSON."; exit 1; }
         [ -z "$DROPLETADDR" ] || break
     done
-    ssh_config_add_host "$@" \
-        || { echo "ssh config error $?"; exit 2; }
-    ansible_add_host "$@" \
-        || { echo "ansible config error $?"; exit 2; }
-    do_add_record "$@" \
-        || { echo "dns config error $?"; exit 2; }
+    ssh_config_check "$@"
+    if [ "$?" -eq 0 ]; then
+        ssh_config_add_host "$@"
+    else
+        echo "Host exists in ${SSHHOSTS}"
+        exit 2
+    fi
+    ansible_check_host "$@"
+    if [ "$?" -eq 0 ]; then
+        ansible_add_host "$@"
+    else
+        echo "Host exists in ${ANSIBLEHOSTS}"
+        exit 2
+    fi
+    do_dns_check "$@"
+    if [ "$?" -eq 0 ]; then
+        do_dns_add "$@"
+    else
+        echo "DNS record exists"
+        exit 2
+    fi
 }
 
 function install_prerequisite {

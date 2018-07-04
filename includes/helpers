@@ -24,10 +24,10 @@ function ansible_check_host {
     HOSTPATTERN="^${HOSTNAME} "
     if grep -q "$HOSTPATTERN" "${ANSIBLEHOSTS}"; then
         echo "${HOSTNAME} was found in ${ANSIBLEHOSTS}"
-        return 0
+        return 1
     else
         echo "${HOSTNAME} was not found in ${ANSIBLEHOSTS}"
-        return 1
+        return 0
     fi
 }
 
@@ -36,9 +36,7 @@ function ansible_add_host {
     . "$CONFIGPARSE"
     HOSTPATTERN="^${HOSTNAME} "
     echo "Adding ${HOSTNAME} to ${ANSIBLEHOSTS}"
-    echo "${HOSTNAME} ansible_port=22 ansible_host=${FQDN}" >> "${ANSIBLEHOSTS}"
-    [ ! $? -eq 0 ] && return 1
-    return 0
+    echo "${HOSTNAME} ansible_port=22 ansible_host=${DROPLETADDR}" >> "${ANSIBLEHOSTS}"
 }
 
 function ssh_config_check {
@@ -62,38 +60,7 @@ function ssh_config_add_host {
     User root
     IdentityFile ${PRIVATEKEY}
     IdentitiesOnly yes
+    StrictHostKeyChecking no
     " >> "${SSHHOSTS}"
 }
 
-function do_add_record {
-    local DNSRAW DNSID
-    . "$CONFIGPARSE"
-    echo "Setup subdomain with Digitalocean DNS."
-    DNSRAW=$(doctl compute domain records \
-        create "${DOMAIN}" \
-        -t "${DOTOKEN}" \
-        --record-type A \
-        --record-name "${SUBDOMAIN}" \
-        --record-data "${DROPLETADDR}" \
-        -o json
-        )
-    if [ ! $? -eq 0 ]; then
-        echo "Error creating dns record."
-        return 1
-    fi
-    DNSID=$(echo "${DNSRAW}" | jq '.[0] .id')
-    if [ ! $? -eq 0 ] || [ -z "$DNSID" ]; then
-        echo "Error parsing JSON."
-        echo "${DNSRAW}"
-        echo "${DNSID}"
-        return 1
-    fi
-    DNSID=$(echo "${DNSID}" | tr -d '\n')
-    if [ -z "$DNSID" ]; then
-        echo "DNSID is empty."
-        return 1
-    else
-        echo "DNS A record for ${FQDN} to ${DROPLETADDR} was created."
-    fi
-    return 0
-}
