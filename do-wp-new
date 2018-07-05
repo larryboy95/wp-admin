@@ -138,7 +138,7 @@ function provision_do {
     . "$CONFIGPARSE"
     echo "Provisioning new droplet for ${FQDN}."
     DIDRAW=$(doctl compute droplet create \
-        "$HOSTNAME" \
+        "$FQDN" \
         -t "$DOTOKEN" \
         --ssh-keys "$PUBLICKEY" \
         --size "$DROPLETSIZE" \
@@ -173,7 +173,7 @@ function provision_do {
         [ $? -eq 0 ] || { echo "Error getting IP."; exit 1; }
         DROPLETADDR=$(echo "${DIPRAW}" | jq -j '.[0] .networks.v4[0].ip_address')
         [ $? -eq 0 ] || { echo "Error parsing JSON."; exit 1; }
-        [ -z "$DROPLETADDR" ] || break
+        [ "$DROPLETADDR" != "null" ] && break
     done
     ssh_config_check "$@"
     if [ "$?" -eq 0 ]; then

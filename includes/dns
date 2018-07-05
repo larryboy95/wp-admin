@@ -41,18 +41,21 @@ function do_dns_add {
     . "$CONFIGPARSE"
     [ -z "$DROPLETADDR" ] && { "IP not set"; return 1; }
     echo "Setup subdomain with Digitalocean DNS."
-    DNSRAW=$(doctl compute domain records \
-        create "${DOMAIN}" \
-        -t "${DOTOKEN}" \
-        --record-type A \
-        --record-name "${SUBDOMAIN}" \
-        --record-data "${DROPLETADDR}" \
-        -o json
-        )
-    if [ ! $? -eq 0 ]; then
-        echo "Error creating dns record."
-        return 1
-    fi
+    while true; do
+        DNSRAW=$(doctl compute domain records \
+            create "${DOMAIN}" \
+            -t "${DOTOKEN}" \
+            --record-type A \
+            --record-name "${SUBDOMAIN}" \
+            --record-data "${DROPLETADDR}" \
+            -o json
+            )
+        if [ ! $? -eq 0 ]; then
+            echo "Error creating dns record."
+        else
+            break
+        fi
+    done
     DNSID=$(echo "${DNSRAW}" | jq '.[0] .id')
     if [ ! $? -eq 0 ] || [ -z "$DNSID" ]; then
         echo "Error parsing JSON."
