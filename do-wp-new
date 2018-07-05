@@ -46,9 +46,11 @@ DROPLETID=""
 DROPLETADDR=""
 DBROOTPASS=""
 DBWPPASS=""
+WPPASS=""
 # Include helper functions
 . "${SCRIPTDIR}/includes/helpers"
 . "${SCRIPTDIR}/includes/dns"
+. "${SCRIPTDIR}/includes/wordpress"
 
 # If host exists then offer to overwrite
 # Optionally restore a site to new droplet
@@ -106,31 +108,6 @@ function provision_ansible {
     fi
 }
 
-# Run wordpress-install new / clone repo
-# Preserve the fresh config file
-function install_wordpress {
-    . "$CONFIGPARSE"
-    wordpress-install \
-        "${FQDN}" \
-        "${FQDN}" \
-        "${WPUSER}" \
-        "${EMAIL}" \
-        "${DBWPPASS}"
-    if [ ! $? -eq 0 ]; then
-        echo "Error running wordpress-install."
-        exit 1
-    fi
-    ssh "${FQDN}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
-    if [ ! $? -eq 0 ]; then
-        echo "Error copying config file."
-        exit 1
-    fi
-    wordpress-permissions "$FQDN" dev
-    if [ ! $? -eq 0 ]; then
-        echo "Error setting permissions."
-        exit 1
-    fi
-}
 
 # Provision the droplet and store its ID
 # Get IP, setup SSH and Ansible config, create DNS A record

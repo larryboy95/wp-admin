@@ -30,7 +30,7 @@ function main {
     local FQDN 
     . "$CONFIGPARSE"
     ansible_check_host "$@"
-    [ $? -eq 1 ] && ansible_add_host "$@"
+#    [ $? -eq 0 ] && ansible_add_host "$@"
     letsencrypt_ansible "$@"
     echo "
 ***
@@ -54,8 +54,6 @@ function letsencrypt_ansible {
         exit 1
     fi
 }
-
-
 
 main "$@"
 exit 0
