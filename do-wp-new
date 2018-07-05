@@ -49,6 +49,7 @@ DBWPPASS=""
 # Include helper functions
 . "${SCRIPTDIR}/includes/helpers"
 . "${SCRIPTDIR}/includes/dns"
+
 # If host exists then offer to overwrite
 # Optionally restore a site to new droplet
 function main {
@@ -70,16 +71,17 @@ function main {
         install_prerequisite "$@"
         provision_ansible "$@"
         install_wordpress "$@"
+        os-authorize "$FQDN" dev
     fi
 
     if [ ! -z "$DB" ]; then
         wp_restore "$@"
     fi
 
-    echo "
-***
-    https://${FQDN}
-***
+    echo " 
+     ***
+         https://${FQDN}
+     ***
     "
 }
 
