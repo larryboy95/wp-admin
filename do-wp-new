@@ -87,7 +87,7 @@ function main {
 function provision_ansible {
     . "$CONFIGPARSE"
     ansible-playbook "${SCRIPTDIR}/ansible/wordpress.yml" --extra-vars "
-        host=${HOSTNAME}
+        host=${FQDN}
         adminip=${ADMINIP}
         mysql_root_password=${DBROOTPASS}
         mysql_wp_password=${DBWPPASS}
@@ -109,7 +109,7 @@ function provision_ansible {
 function install_wordpress {
     . "$CONFIGPARSE"
     wordpress-install \
-        "${HOSTNAME}" \
+        "${FQDN}" \
         "${FQDN}" \
         "${WPUSER}" \
         "${EMAIL}" \
@@ -118,12 +118,12 @@ function install_wordpress {
         echo "Error running wordpress-install."
         exit 1
     fi
-    ssh "${HOSTNAME}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
+    ssh "${FQDN}" "cp /var/www/html/wp-config.php /var/www/wp-config.php.fresh"
     if [ ! $? -eq 0 ]; then
         echo "Error copying config file."
         exit 1
     fi
-    wordpress-permissions "$HOSTNAME" dev
+    wordpress-permissions "$FQDN" dev
     if [ ! $? -eq 0 ]; then
         echo "Error setting permissions."
         exit 1
@@ -136,7 +136,7 @@ function install_wordpress {
 function provision_do {
     local DIDRAW DIPRAW 
     . "$CONFIGPARSE"
-    echo "Provisioning new droplet for ${HOSTNAME}."
+    echo "Provisioning new droplet for ${FQDN}."
     DIDRAW=$(doctl compute droplet create \
         "$HOSTNAME" \
         -t "$DOTOKEN" \
@@ -203,7 +203,7 @@ function install_prerequisite {
     [ -z "$HOSTNAME" ] && { echo "HOSTNAME not set"; exit 1; }
     echo "Install prerequisite packages."
     while true; do
-        ssh -o ConnectTimeout=3 "${HOSTNAME}" \
+        ssh -o ConnectTimeout=3 "${FQDN}" \
             "DEBIAN_FRONTEND=noninteractive apt-get -y -q install python ssl-cert"
         if [ $? -eq 0 ]; then
             sleep 3
@@ -218,10 +218,10 @@ function install_prerequisite {
 function wp_restore {
     . "$CONFIGPARSE"
     if [ ! -z "$DB" ]; then
-        read -p "Restore ${DB} to ${HOSTNAME}? (y/n)" -n 1 -r
+        read -p "Restore ${DB} to ${FQDN}? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            do-wp-restore-local "$HOSTNAME" "$FQDN" "$DB" "$CODEBASE"
+            do-wp-restore-local "$FQDN" "$FQDN" "$DB" "$CODEBASE"
         else
             return 1
         fi

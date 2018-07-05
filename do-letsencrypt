@@ -42,7 +42,7 @@ function main {
 function letsencrypt_ansible {
     . "$CONFIGPARSE"
     ansible-playbook "${SCRIPTDIR}/ansible/letsencrypt.yml" --extra-vars "
-        host=${HOSTNAME}
+        host=${FQDN}
         fqdn=${FQDN}
         email=${EMAIL}
         domain=${DOMAIN}

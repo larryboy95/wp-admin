@@ -5,7 +5,7 @@ function connection_test {
     . "$CONFIGPARSE"
     echo -ne "Wait for the droplet to become available..."
     while true; do
-        ssh -o ConnectTimeout=3 -q "${HOSTNAME}" \
+        ssh -o ConnectTimeout=3 -q "${FQDN}" \
             "[ -f /var/lib/cloud/instance/boot-finished ]"
         if [ $? -eq 0 ]; then
             sleep 1
@@ -21,12 +21,12 @@ function connection_test {
 function ansible_check_host {
     local HOSTPATTERN ANSIBLEHOSTS
     . "$CONFIGPARSE"
-    HOSTPATTERN="^${HOSTNAME} "
+    HOSTPATTERN="^${FQDN} "
     if grep -q "$HOSTPATTERN" "${ANSIBLEHOSTS}"; then
-        echo "${HOSTNAME} was found in ${ANSIBLEHOSTS}"
+        echo "${FQDN} was found in ${ANSIBLEHOSTS}"
         return 1
     else
-        echo "${HOSTNAME} was not found in ${ANSIBLEHOSTS}"
+        echo "${FQDN} was not found in ${ANSIBLEHOSTS}"
         return 0
     fi
 }
@@ -34,18 +34,18 @@ function ansible_check_host {
 function ansible_add_host {
     local HOSTPATTERN ANSIBLEHOSTS
     . "$CONFIGPARSE"
-    HOSTPATTERN="^${HOSTNAME} "
-    echo "Adding ${HOSTNAME} to ${ANSIBLEHOSTS}"
-    echo "${HOSTNAME} ansible_port=22 ansible_host=${DROPLETADDR}" >> "${ANSIBLEHOSTS}"
+    HOSTPATTERN="^${FQDN} "
+    echo "Adding ${FQDN} to ${ANSIBLEHOSTS}"
+    echo "${FQDN} ansible_port=22 ansible_host=${DROPLETADDR}" >> "${ANSIBLEHOSTS}"
 }
 
 function ssh_config_check {
     local HOSTPATTERN
     . "$CONFIGPARSE"
-    HOSTPATTERN="^Host ${HOSTNAME}$"
+    HOSTPATTERN="^Host ${FQDN}$"
     if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
-        echo "${HOSTNAME} was found in ${SSHHOSTS}"
+        echo "${FQDN} was found in ${SSHHOSTS}"
         connection_test "$@"
         return 1
     else
@@ -55,7 +55,7 @@ function ssh_config_check {
 
 function ssh_config_add_host {
     . "$CONFIGPARSE"
-    echo "Host ${HOSTNAME}
+    echo "Host ${FQDN}
     HostName ${DROPLETADDR}
     User root
     IdentityFile ${PRIVATEKEY}

@@ -26,13 +26,13 @@ function main {
     DB="$3"
     [ ! -z "$4" ] && CODEBASE="$4"
     SCRIPTDIR=$(dirname "${0}")
-    WPARGS="--path=/var/www/html --ssh=${HOSTNAME} --allow-root"
+    WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root"
 # Check for required values and binaries
     [ ! -f "$DB" ] && { echo "${DB} is not a file"; exit 1; }
 
     echo "Test connection"
     while true; do
-        ssh -o ConnectTimeout=3 -q "$HOSTNAME" \
+        ssh -o ConnectTimeout=3 -q "$FQDN" \
             "[ -f /var/lib/cloud/instance/boot-finished ]"
         if [ $? -eq 0 ]; then
             sleep 1
@@ -50,7 +50,7 @@ function main {
 # Find the wordpress webroot and copy to server
         WPCONFIG="${CODEBASE}/wp-config.php"
         [ ! -f "$WPCONFIG" ] && { echo "wp-config.php not found"; exit 1; }
-        ssh "$HOSTNAME" "[ ! -d /var/www/new ] && mkdir /var/www/new"
+        ssh "$FQDN" "[ ! -d /var/www/new ] && mkdir /var/www/new"
         rsync \
             -az \
             --protect-args \
@@ -59,13 +59,13 @@ function main {
             --exclude="wp-content/updraft" \
             --progress \
             "${CODEBASE}/" \
-            "${HOSTNAME}:/var/www/new/"
+            "${FQDN}:/var/www/new/"
 # Replace the webroot with the new files
-        ssh "$HOSTNAME" 'rm -rf /var/www/html-vanilla'
-        ssh "$HOSTNAME" "mv -f /var/www/html /var/www/html-vanilla" || exit 1
-        ssh "$HOSTNAME" "mv -f /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
-        ssh "$HOSTNAME" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
-        ssh "$HOSTNAME" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
+        ssh "$FQDN" 'rm -rf /var/www/html-vanilla'
+        ssh "$FQDN" "mv -f /var/www/html /var/www/html-vanilla" || exit 1
+        ssh "$FQDN" "mv -f /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
+        ssh "$FQDN" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
+        ssh "$FQDN" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
         echo "${CODEBASE} restored"
 # Extract the db table prefix from old config
 # Find the old line, remove the trailing newline, escape single quotes
@@ -73,9 +73,9 @@ function main {
         echo "a"
         PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\'/g")
         echo "$PREFIX"
-        ssh "$HOSTNAME" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
+        ssh "$FQDN" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
         echo "Table prefix replaced in wp-config.php"
-        ssh "$HOSTNAME" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
+        ssh "$FQDN" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         echo "Nginx restarted"
     else
         echo "CODEBASE not supplied, restoring database only."
@@ -85,7 +85,7 @@ function main {
     gunzip -k "$DB" || { echo "gunzip failed"; exit 1; }
     echo "Database dump extracted"
     DB="${DB%.*}"
-    scp "$DB" "${HOSTNAME}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
+    scp "$DB" "${FQDN}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     trap "rm ${DB}" EXIT
     wp $WPARGS db import /var/www/restore.sql
     [ ! $? -eq 0 ] && { echo "Db import error"; exit 1; }
@@ -95,7 +95,7 @@ function main {
     [ ! $? -eq 0 ] && { echo "Search replace error"; exit 1; }
     wp $WPARGS cache flush
     [ ! $? -eq 0 ] && { echo "Cache flush error wtf"; exit 1; }
-    wordpress-permissions "$HOSTNAME" dev || echo "Permissions error"
+    wordpress-permissions "$FQDN" dev || echo "Permissions error"
     notify "Site has been restored to https://${FQDN}."
 }
 
