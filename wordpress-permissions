@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-Usage: $(basename $0) HOST [USER]
+Usage: $(basename $0) HOST [USER WEBROOT]
 
 Change primary owner of webroot to USER
 while preserving write permissions for
@@ -14,25 +14,24 @@ if [ $# -eq 0 ]; then
     echo "$USAGE"
     exit 1
 fi
+HOST="$1"
 # If USER not supplied, ask for it
-if [ ! ${2+x} ]; then
-	read -p "User: [dev]" webroot_owner
-	webroot_owner=${webroot_owner:-dev}
+if [ $# -eq 1 ]; then
+	read -p "User: [dev]" OWNER
+	OWNER=${OWNER:-dev}
 else
-	webroot_owner=${2}
+	OWNER=${2}
 fi
-while true; do
-    ssh ${1} "sudo chown -R ${webroot_owner}:${webroot_owner}  /var/www/html;"
-    ssh ${1} "[ -d /var/www/html/wp-content/uploads ] && \
-        sudo chown -R www-data /var/www/html/wp-content/uploads; \
-        [ -d /var/www/html/wp-content/banners ] && \
-        sudo chown -R www-data /var/www/html/wp-content/banners; \
-        [ -d /var/www/html/wp-content/plugins/wpspx-master/cache ] && \
-        sudo chown -R www-data /var/www/html/wp-content/plugins/wpspx-master/cache;
-    "
-    ssh ${1} "sudo find /var/www/html -type f -exec chmod 644 {} +; \
-        sudo find /var/www/html -type d -exec chmod 755 {} +;
-    "
-    [ $? -eq 0 ] && break || sleep 1
-done
+WEBROOT="${3:-/var/www/html}"
+ssh ${1} "sudo chown -R ${OWNER}:${OWNER}  ${WEBROOT};"
+ssh ${1} "[ -d ${WEBROOT}/wp-content/uploads ] && \
+    sudo chown -R www-data ${WEBROOT}/wp-content/uploads; \
+    [ -d ${WEBROOT}/wp-content/banners ] && \
+    sudo chown -R www-data ${WEBROOT}/wp-content/banners; \
+    [ -d ${WEBROOT}/wp-content/plugins/wpspx-master/cache ] && \
+    sudo chown -R www-data ${WEBROOT}/wp-content/plugins/wpspx-master/cache;
+"
+ssh ${1} "sudo find ${WEBROOT} -type f -exec chmod 644 {} +; \
+    sudo find ${WEBROOT} -type d -exec chmod 755 {} +;
+"
 exit 0
