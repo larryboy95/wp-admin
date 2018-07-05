@@ -2,8 +2,6 @@
 # Must resolve to the new droplet IP before letsencrypt certificates
 # can be issued.
 DOMAIN=""
-# Subdomain will be set from hostname
-SUBDOMAIN=""
 # Email address for letsencrypt and wordpress admin
 EMAIL=""
 # Dotoken: Get an API access token for the targeted DO account
