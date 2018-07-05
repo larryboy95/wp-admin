@@ -1,8 +1,21 @@
 #!/bin/bash
 
 USAGE="
+Deploys a WordPress site to a fresh droplet at digitalocean.
+
+Requires a configuration file with Digitalocean API credentials, domain, email and ssh key info, (see below).
+
+With the bare minimum arguments (HOSTNAME), the script will download and install the latest version of Wordpress on the new droplet.
+
+If DB and CODEBASE are set, the script will then proceed to deploy an existing WordPress site with a fresh configuration file.
+
+Each droplet is configured with letsencrypt. You may supply a wildcard certificate in '/etc/letsencrypt/archive/FQDN' or request a certificate for the domain during the provisioning process (WILDCARD=\"no\").
+
+Warning: If the host already exists in SSH config the script will  overwrite the contents of the existing droplet.
+
+[ Note: This script is not be used to deploy directly to production. The purpose here is to rapidly spin up sites that will then be used for staging or modified by hand for use as a production server. ]
+
 Usage: do-wp-new CONFIGFILE HOSTNAME [DB CODEBASE]
-Provisions a new droplet at Digitalocean and installs WordPress.
 
 CONFIGFILE is the path to the config file for your DO account
 HOSTNAME (alphanumeric and dashes only) 
@@ -13,10 +26,11 @@ Set these to restore site from backup.
     CODEBASE path of webroot to restore
 
 Config file vars required, (see do-new-wp.conf.example):
-    DOMAIN
-    EMAIL
-    DOTOKEN
-    PUBLICKEY
+    DOMAIN the root domain where you will create subdomains
+    EMAIL for letsencrypt and wordpress admin user
+    DOTOKEN from the API tab of Digitalocean
+    PUBLICKEY fingerprint of your ssh key, added to
+      the team security pane in Digitalocean
 
 ADMINIP is automatically obtained from eth0
 (ssh access is restricted to this IP)
