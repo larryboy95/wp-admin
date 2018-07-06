@@ -23,7 +23,7 @@ else
 	OWNER=${2}
 fi
 WEBROOT="${3:-/var/www/html}"
-ssh ${1} "sudo chown -R ${OWNER}:${OWNER}  ${WEBROOT};"
+ssh ${1} "sudo chown -R ${OWNER}:${OWNER}  ${WEBROOT}/..;"
 ssh ${1} "[ -d ${WEBROOT}/wp-content/uploads ] && \
     sudo chown -R www-data ${WEBROOT}/wp-content/uploads; \
     [ -d ${WEBROOT}/wp-content/banners ] && \
