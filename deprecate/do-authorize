@@ -1,0 +1,22 @@
+#!/bin/bash
+
+USAGE="
+Usage: do-authorize CONFIGFILE
+"
+# Print USAGE if no args
+if [ $# -lt 1 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+SCRIPTDIR=$(dirname "${0}")
+CONFIGPARSE="${SCRIPTDIR}/includes/config_parse"
+[ -f "$1" ] || { echo "Config file not found"; exit 1; }
+[ -f "$CONFIGPARSE" ] || { echo "Includes error"; exit 1; }
+
+function main {
+    . "$CONFIGPARSE"
+    [ -z "$DOTOKEN" ] && { echo "Token not set"; exit 1; }
+    doctl auth init -t="$DOTOKEN"
+}
+main "$@"
+exit $?
