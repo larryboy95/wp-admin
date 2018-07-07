@@ -61,17 +61,25 @@ $ do-wp-new
 
 Deploys a WordPress site to a fresh droplet at digitalocean.
 
-Requires a configuration file with Digitalocean API credentials, domain, email and ssh key info, (see below).
+Requires a configuration file with Digitalocean API credentials, domain, email 
+and ssh key info, (see below).
 
-With the bare minimum arguments (HOSTNAME), the script will download and install the latest version of Wordpress on the new droplet.
+With the bare minimum arguments (HOSTNAME), the script will download and install 
+the latest version of Wordpress on the new droplet.
 
-If DB and CODEBASE are set, the script will then proceed to deploy an existing WordPress site with a fresh configuration file.
+If DB and CODEBASE are set, the script will then proceed to deploy an existing 
+WordPress site with a fresh configuration file.
 
-Each droplet is configured with letsencrypt. You may supply a wildcard certificate in '/etc/letsencrypt/archive/FQDN' or request a certificate for the domain during the provisioning process (WILDCARD=\"no\").
+Each droplet is configured with letsencrypt. You may supply a wildcard 
+certificate in '/etc/letsencrypt/archive/FQDN' or request a certificate for the 
+domain during the provisioning process (WILDCARD=\"no\").
 
-Warning: If the host already exists in SSH config the script will  overwrite the contents of the existing droplet.
+Warning: If the host already exists in SSH config the script will  overwrite the 
+contents of the existing droplet.
 
-[ Note: This script is not be used to deploy directly to production. The purpose here is to rapidly spin up sites that will then be used for staging or modified by hand for use as a production server. ]
+[ Note: This script is not be used to deploy directly to production. The purpose 
+here is to rapidly spin up sites that will then be used for staging or modified 
+by hand for use as a production server. ]
 
 ---
 
