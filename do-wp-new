@@ -211,7 +211,7 @@ function install_prerequisite {
 function wp_restore {
     . "$CONFIGPARSE"
     if [ ! -z "$DB" ]; then
-        read -p "Restore ${DB} to ${FQDN}? (y/n)" -n 1 -r
+        read -p "Restore to ${FQDN}. Are you sure? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             do-wp-restore-local "$FQDN" "$FQDN" "$DB" "$CODEBASE"
