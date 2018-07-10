@@ -91,7 +91,12 @@ function main {
     [ ! $? -eq 0 ] && { echo "Db import error"; exit 1; }
     SITEURL=$(wp $WPARGS option get siteurl)
     [ ! $? -eq 0 ] && { echo "Siteurl error"; exit 1; }
-    wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
+
+    read -p "Search and replace the site url? (y/n) " -n 1 -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
+    fi
+
     [ ! $? -eq 0 ] && { echo "Search replace error"; exit 1; }
     wp $WPARGS cache flush
     [ ! $? -eq 0 ] && { echo "Cache flush error wtf"; exit 1; }
