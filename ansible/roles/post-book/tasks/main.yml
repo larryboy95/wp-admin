@@ -25,7 +25,7 @@
   lineinfile:
     dest: /etc/sudoers
     regexp: '^(.*)admin\ ALL=\(ALL\)\ ALL(.*)$'
-    line: 'admin ALL=(ALL) NOPASSWD:ALL'
+    line: '%admin ALL=(ALL) NOPASSWD:ALL'
     backrefs: yes
 # Delete default nginx conf
 
