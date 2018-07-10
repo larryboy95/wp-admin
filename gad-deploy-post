@@ -5,7 +5,7 @@ deploypath=${2:-/var/www/html}
 rsync -qr \
 	--filter=':- /var/repos/${1}/.gitignore' \
  	/var/repos/${1}/ ${1}:${deploypath}
-wordpress-permissions "$1"
+wordpress-permissions "$1" dev
 if [ ! $? -eq 0 ]; then
 	notify-critical "rsync exited with code $? for ${LOGNAME}@${HOSTNAME} \
 		while attempting to deploy ${1}"
