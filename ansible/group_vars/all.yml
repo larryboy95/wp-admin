@@ -51,6 +51,7 @@ certbot_certs:
   #     - example2.com
   - domains:
       - "{{ fqdn }}"
+      - "www.{{ fqdn }}"
 certbot_create_command: "{{ certbot_script }} certonly --standalone --noninteractive --agree-tos --email {{ cert_item.email | default(certbot_admin_email) }} -d {{ cert_item.domains | join(',') }}"
 certbot_create_standalone_stop_services:
   - nginx
@@ -78,7 +79,6 @@ nginx_vhosts:
       error_page: "404 /404.html"
       state: "present"
       template: "{{ nginx_vhost_template }}"
-      filename: "wordpress.conf"
       extra_parameters: |
         location ~ \.php$ {
             fastcgi_split_path_info ^(.+\.php)(/.+)$;
@@ -111,11 +111,31 @@ nginx_vhosts:
         resolver            1.1.1.1 valid=300s;
         resolver_timeout    5s;
         ssl_prefer_server_ciphers on;
+      filename: "{{ fqdn }}.443.conf"
 
     - listen: "80"
       server_name: "{{ fqdn }} www.{{ fqdn }}"
       return: "301 https://{{ fqdn }}/$request_uri"
       filename: "{{ fqdn }}.80.conf"
+
+    - listen: "443"
+      server_name: "www.{{ fqdn }}"
+      return: "301 https://{{ fqdn }}/$request_uri"
+      template: "{{ nginx_vhost_template }}"
+      extra_parameters: |
+        ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
+        ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+        ssl_protocols       TLSv1.1 TLSv1.2;
+        ssl_ciphers         "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+        ssl_ecdh_curve      secp384r1;
+        ssl_session_cache   shared:SSL:10m;
+        ssl_session_tickets off;
+        ssl_stapling        on;
+        ssl_stapling_verify on;
+        resolver            1.1.1.1 valid=300s;
+        resolver_timeout    5s;
+        ssl_prefer_server_ciphers on;
+      filename: "www.{{ fqdn }}.443.conf"
 
 php_owner: 'www-data'
 php_group: 'www-data'

@@ -37,7 +37,7 @@
 - name: Replace ssl_certificate line in nginx
   when: wildcard == "yes"
   lineinfile: 
-    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    dest: /etc/nginx/sites-enabled/{{ fqdn }}.443.conf  
     regexp: '^(.*)ssl_certificate\ (.*)$' 
     line: '        ssl_certificate     /etc/letsencrypt/live/{{ domain }}/fullchain.pem;'
     backrefs: yes
@@ -45,7 +45,23 @@
 - name: Replace ssl_certificate_key line in nginx
   when: wildcard == "yes"
   lineinfile: 
-    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    dest: /etc/nginx/sites-enabled/{{ fqdn }}.443.conf 
+    regexp: '^(.*)ssl_certificate_key(.*)$' 
+    line: '        ssl_certificate_key /etc/letsencrypt/live/{{ domain }}/privkey.pem;'
+    backrefs: yes
+
+- name: Replace ssl_certificate line in nginx
+  when: wildcard == "yes"
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/www.{{ fqdn }}.443.conf  
+    regexp: '^(.*)ssl_certificate\ (.*)$' 
+    line: '        ssl_certificate     /etc/letsencrypt/live/{{ domain }}/fullchain.pem;'
+    backrefs: yes
+
+- name: Replace ssl_certificate_key line in nginx
+  when: wildcard == "yes"
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/www.{{ fqdn }}.443.conf 
     regexp: '^(.*)ssl_certificate_key(.*)$' 
     line: '        ssl_certificate_key /etc/letsencrypt/live/{{ domain }}/privkey.pem;'
     backrefs: yes
@@ -54,7 +70,7 @@
 - name: Replace ssl_certificate line in nginx
   when: wildcard == "no"
   lineinfile: 
-    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    dest: /etc/nginx/sites-enabled/{{ fqdn }}.443.conf 
     regexp: '^(.*)ssl_certificate\ (.*)$' 
     line: '        ssl_certificate     /etc/letsencrypt/live/{{ fqdn }}/fullchain.pem;'
     backrefs: yes
@@ -62,9 +78,25 @@
 - name: Replace ssl_certificate_key line in nginx
   when: wildcard == "no"
   lineinfile: 
-    dest: /etc/nginx/sites-enabled/wordpress.conf 
+    dest: /etc/nginx/sites-enabled/{{ fqdn }}.443.conf 
     regexp: '^(.*)ssl_certificate_key(.*)$' 
     line: '        ssl_certificate_key /etc/letsencrypt/live/{{ fqdn }}/privkey.pem;'
+    backrefs: yes
+
+- name: Replace ssl_certificate line in nginx
+  when: wildcard == "no"
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/www.{{ fqdn }}.443.conf 
+    regexp: '^(.*)ssl_certificate\ (.*)$' 
+    line: '        ssl_certificate     /etc/letsencrypt/live/www.{{ fqdn }}/fullchain.pem;'
+    backrefs: yes
+
+- name: Replace ssl_certificate_key line in nginx
+  when: wildcard == "no"
+  lineinfile: 
+    dest: /etc/nginx/sites-enabled/www.{{ fqdn }}.443.conf 
+    regexp: '^(.*)ssl_certificate_key(.*)$' 
+    line: '        ssl_certificate_key /etc/letsencrypt/live/www.{{ fqdn }}/privkey.pem;'
     backrefs: yes
 
 - name: Restart nginx
