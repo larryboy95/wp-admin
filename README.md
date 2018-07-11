@@ -29,6 +29,13 @@ Near future plans include:
 - cloning sites for installing and staging updates
 - script to change domain of a running site
 
+## W-I-P Notes
+The provisioning script works best at the moment if you have a wildcard certificate for the domain you are provisioning to.
+The le-wildcard script will now do this for you in one step as long as you have a digitalocean token.
+
+Two domain records are now made for every server deployed.
+The www prefix is now automatically redirected to the bare domain.
+
 ## Installation
 Clone this repo and add it to your PATH. 
 The directory `~/bin` is in your PATH which means you can now run the scripts from anywhere, like `wordpress-backup personal`
