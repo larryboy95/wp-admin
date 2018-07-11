@@ -19,6 +19,7 @@ function do_dns_check {
     fi
 }
 
+# UNTESTED
 function do_dns_delete {
     local FQDN RECORDS DNSID DOMAIN
     . "$CONFIGPARSE"
@@ -45,13 +46,29 @@ function do_dns_add {
         DNSRAW=$(doctl compute domain records \
             create "${DOMAIN}" \
             -t "${DOTOKEN}" \
-            --record-type A \
+            --record-type "A" \
             --record-name "${SUBDOMAIN}" \
             --record-data "${DROPLETADDR}" \
             -o json
             )
         if [ ! $? -eq 0 ]; then
-            echo "Error creating dns record."
+            echo "Error creating A record."
+        else
+            break
+        fi
+    done
+    while true; do
+        WWWRAW=$(doctl compute domain records \
+            create "${DOMAIN}" \
+            -t "${DOTOKEN}" \
+            --record-type "CNAME" \
+            --record-name "www.${SUBDOMAIN}" \
+            --record-data "${FQDN}." \
+            -o json
+            )
+        if [ ! $? -eq 0 ]; then
+            echo "Error creating CNAME record."
+            echo "$WWWRAW"
         else
             break
         fi
@@ -69,6 +86,20 @@ function do_dns_add {
         return 1
     else
         echo "DNS A record for ${FQDN} to ${DROPLETADDR} was created."
+    fi
+    WWWID=$(echo "${WWWRAW}" | jq '.[0] .id')
+    if [ ! $? -eq 0 ] || [ -z "$WWWID" ]; then
+        echo "Error parsing JSON."
+        echo "${WWWRAW}"
+        echo "${WWWID}"
+        return 1
+    fi
+    WWWID=$(echo "${WWWID}" | tr -d '\n')
+    if [ -z "$WWWID" ]; then
+        echo "WWWID is empty."
+        return 1
+    else
+        echo "WWW CNAME record for www.${FQDN} to ${FQDN} was created."
     fi
     return 0
 }
