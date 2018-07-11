@@ -29,8 +29,6 @@ Config file vars required, (see do-new-wp.conf.example):
     DOMAIN the root domain where you will create subdomains
     EMAIL for letsencrypt and wordpress admin user
     DOTOKEN from the API tab of Digitalocean
-    PUBLICKEY fingerprint of your ssh key, added to
-      the team security pane in Digitalocean
 
 ADMINIP is automatically obtained from eth0
 (ssh access is restricted to this IP)
@@ -39,6 +37,7 @@ Optional vars and their default values:
     SUBDOMAIN defaults to HOSTNAME
     SSHHOSTS ~/.ssh/config
     ANSIBLEHOSTS /etc/ansible/hosts
+    PUBLICKEY ~/.ssh/id_rsa.pub
     PRIVATEKEY ~/.ssh/id_rsa
     DROPLETSIZE s-1vcpu-1gb
     IMAGE ubuntu-16-04-x64
@@ -133,7 +132,7 @@ function provision_do {
     DIDRAW=$(doctl compute droplet create \
         "$FQDN" \
         -t "$DOTOKEN" \
-        --ssh-keys "$PUBLICKEY" \
+        --ssh-keys "$PUBLICHASH" \
         --size "$DROPLETSIZE" \
         --image "$IMAGE" \
         --region "$REGION" \
