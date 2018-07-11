@@ -2,7 +2,6 @@
 
 # Run the latest version of certbot in docker
 # Supports wildcard certs
-# Usage: le-docker CREDENTIALS DOMAIN
 # Requires https://hub.docker.com/r/certbot/dns-digitalocean/
 # Install docker with apt-get install docker.io
 # Docs:
@@ -13,11 +12,18 @@
 USAGE="
 Usage: le-wildcard DOMAIN
 
+Must be run as root.
+You will be asked to provide a token for Digitalocean
+if a configuration file does not exist in /etc/letsencrypt.
 Appends *. to DOMAIN for wildcard
 "
 # Print USAGE if no args
 if [ $# -lt 1 ]; then
     echo "$USAGE"
+    exit 1
+fi
+if ! [ $(id -u) = 0 ]; then
+    echo "This script must be run as root."
     exit 1
 fi
 
@@ -26,7 +32,14 @@ function main {
     DOMAIN="$1"
     WILDDOMAIN="*.${1}"
     CREDENTIALS="/etc/letsencrypt/${DOMAIN}.ini"
-    sudo docker run -it --rm --name certbot \
+    if [ ! -f "$CREDENTIALS" ]; then
+        read -p "Digitalocean token is required for ${DOMAIN}: " -r
+        echo "/n"
+        echo "dns_digitalocean_token = ${REPLY}" > "$CREDENTIALS" 
+        [ $? -eq 0 ] && echo "Configuration file ${CREDENTIALS} written."
+        chmod 600 "$CREDENTIALS"
+    fi
+    docker run -it --rm --name certbot \
         -v "/etc/letsencrypt:/etc/letsencrypt" \
         -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
         certbot/dns-digitalocean \
@@ -34,7 +47,7 @@ function main {
         certonly \
         --dns-digitalocean-credentials "$CREDENTIALS" \
         -d "$WILDDOMAIN"
-    sudo chgrp mri -R /etc/letsencrypt/archive
+    chgrp mri -R /etc/letsencrypt/archive
 }
 
 main "$@"
