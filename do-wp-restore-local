@@ -71,9 +71,9 @@ function main {
 # Find the old line, remove the trailing newline, escape single quotes
         PREFIX=$(grep "table_prefix" "$WPCONFIG")
         echo "a"
-        PREFIX=$(echo -n "$PREFIX" | sed "s/'/\\'/g")
+        PREFIX=$(echo -n "$PREFIX" | sed "s/'/\"/g")
         echo "$PREFIX"
-        ssh "$FQDN" "sed -i '/table_prefix/c "${PREFIX}"' /var/www/html/wp-config.php" || exit 1
+        ssh "$FQDN" "sed -i '/table_prefix/c ${PREFIX}' /var/www/html/wp-config.php" || exit 1
         echo "Table prefix replaced in wp-config.php"
         ssh "$FQDN" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         echo "Nginx restarted"
