@@ -19,37 +19,40 @@ Dependencies:
 
 This command will:
 * Check if your ssh key is registered to the DO account and add it if necessary
-* Check for the hostname in your ssh config file, or add it
-* Check for the hostname in your ansible hosts file, or add it
+* Add the host to your ssh config file
+* Add the host to your ansible hosts file
 * If hostname is found you can restore to it right away
 * Create a droplet at Digitalocean (DO)
 * Create DNS records for hostname at the domain supplied in the config file, including a cname for the www variant
 * Install nginx, php and mysql configured for WordPress hosting
 * Install certbot and elasticsearch (optional)
-* Copy a wildcard certificate and configure ssl (see [le-wildcard](le-wildcard))
-* Create a dev user
+* Copy a wildcard certificate and configure SSL (see [le-wildcard](le-wildcard))
+* Create user 'dev' with sudo priveleges
 * Restrict ssh access to the IP of the deploying machine
+* Download and install the latest version of WordPress
+* Deploy an existing site from backup
+* Search and replace the site URL
+* Run [wordpress-permissions](wordpress-permissions) to chown the webrrot for user 'dev'
+* Run [os-authorize](os-authorize) to add authorized ssh keys for user 'dev'
 
-Backups run on a schedule and a recent copy is always available.
-The backup function is also useful for to migrate a WordPress host from any host that supports ssh and wp-cli. 
 
-## How to migrate a site
+## How to Migrate a Site
 
 Prep: 
-* Configure `oldserver` in your ssh config file
+* Setup `oldserver` in your ssh config file
 * Create a domain in the Digitalocean control panel for your client like this: do.clientsite.com
 * Login to the client's DNS provider and create NS records for the subdomain do to the three Digitalocean nameservers.
 * Create an API token in the client's DO control panel and copy it to your clipboard
 * Run `le-wildcard` and give it your token
-* Create `account.conf` with at least the required paramters, (see do-wp-new.sample.conf)
+* Create `account.conf` with at least the required paramters, (see [do-wp-new.sample.conf](do-wp-new.sample.conf))
 
-This command will write to `/var/backups/wordpress` (by default).
+The following command will write to `/var/backups/wp-db-backups` and `/var/backups/wp-full-backups` (by default):
 
 ```
 $ wordpress-backup oldserver full /path/to/webroot
 ```
 
-This command will deploy that backup to `http://hostname.do.clientsite.com`:
+This command will deploy that backup to `https://hostname.do.clientsite.com`:
 
 ```
 $ do-wp-new account.conf HOSTNAME /var/backups/wordpress/oldserver.sql.gz /var/backups/wordpress/oldserver/html
