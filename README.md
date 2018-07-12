@@ -13,34 +13,52 @@ Dependencies:
 * Restic
 * Ansible
 
-## Goals
-* Highly opinionated, our goal is to have a definitive answer for every question
-* Scripts should be single purpose and built to work as part of a higher order script
-* Readability for educational purposes
-* Output should be concise and consistent for logging
-* Each script should be portable enough for cron
+## Quickstart
 
-## Status
-Beta.
-Do not run these scripts before reading them and understanding exactly what they do.
-Many variables are still hard-coded to match this platform.
-This project is in transition to a new version.
-Near future plans include:
-- cloning sites for installing and staging updates
-- script to change domain of a running site
+`do-wp-new account.conf hostname backup.sql.gz backups/site/html`
+
+This command will:
+* Check if your ssh key is registered to the DO account and add it if necessary
+* Check for the hostname in your ssh config file, or add it
+* Check for the hostname in your ansible hosts file, or add it
+* If hostname is found you can restore to it right away
+* Create a droplet at Digitalocean (DO)
+* Create DNS records for hostname at the domain supplied in the config file, including a cname for the www variant
+* Install nginx, php and mysql configured for WordPress hosting
+* Install certbot and elasticsearch (optional)
+* Copy a wildcard certificate and configure ssl (see le-wildcard)
+* Create a dev user
+* Restrict ssh access to the IP of the deploying machine
+
+Backups run on a schedule and a recent copy is always available.
+The backup function is also useful for to migrate a WordPress host from any host that supports ssh and wp-cli. 
+
+## How to migrate a site
+
+Prep: 
+* Configure `oldserver` in your ssh config file
+* Create a domain in the Digitalocean control panel for your client like this: do.clientsite.com
+* Login to the client's DNS provider and create NS records for the subdomain do to the three Digitalocean nameservers.
+* Create an API token in the client's DO control panel and copy it to your clipboard
+* Run `le-wildcard` and give it your token
+* Create `account.conf` with at least the required paramters, (see do-wp-new.sample.conf)
+
+This command will write to `/var/backups/wordpress` (by default).
+
+`wordpress-backup oldserver full /path/to/webroot`
+
+This command will deploy that backup to `http://hostname.do.clientsite.com`:
+
+`do-wp-new account.conf hostname /var/backups/wordpress/oldserver.sql.gz /var/backups/wordpress/oldserver/html`
 
 ## W-I-P Notes
 The provisioning script works best at the moment if you have a wildcard certificate for the domain you are provisioning to.
-The le-wildcard script will now do this for you in one step as long as you have a digitalocean token.
+The le-wildcard script will do this for you in one step as long as you have a digitalocean token.
 
-Two domain records are now made for every server deployed.
-The www prefix is now automatically redirected to the bare domain.
-
-Your ssh key will be added to the team account if it isn't already.
+The www prefix is automatically redirected to the bare domain.
 
 ## Installation
-Clone this repo and add it to your PATH. 
-The directory `~/bin` is in your PATH which means you can now run the scripts from anywhere, like `wordpress-backup personal`
+Clone this repo and add it to your PATH, or just put it in `~/bin` 
 
 ## Configuration
 You will need:
@@ -48,13 +66,7 @@ You will need:
 - a domain using digitalocean nameservers in that account
 - a private/public key pair (run `ssh-keygen -t rsa`)
 
-`do-wp-new` will create:
-- a droplet
-- an entry in the ssh config file
-- an entry in the ansible hosts file
-- an A record for the domain
-
-You will create one configuration file per DO account which can be used to deploy any number of droplets.
+You must create a configuration file and a wildcard certificate per DO account which can be used to deploy any number of droplets.
 
 ## Letsencrypt
 By default the web server will use ssl but will still show a red icon.
