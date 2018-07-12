@@ -15,7 +15,9 @@ Dependencies:
 
 ## Quickstart
 
-`do-wp-new account.conf hostname backup.sql.gz backups/site/html`
+```
+do-wp-new account.conf hostname backup.sql.gz backups/site/html
+```
 
 This command will:
 * Check if your ssh key is registered to the DO account and add it if necessary
