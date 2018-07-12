@@ -16,14 +16,14 @@ Dependencies:
 ## Quickstart
 
 ```
-do-wp-new account.conf hostname backup.sql.gz backups/site/html
+$ do-wp-new account.conf HOSTNAME backup.sql.gz backups/site/html
 ```
 
 This command will:
 * Check if your ssh key is registered to the DO account and add it if necessary
 * Add the host to your ssh config file
 * Add the host to your ansible hosts file
-* If hostname is found you can restore to it right away
+* If the host is found you can restore to it right away
 * Create a droplet at Digitalocean (DO)
 * Create DNS records for hostname at the domain supplied in the config file, including a cname for the www variant
 * Install nginx, php and mysql configured for WordPress hosting
@@ -32,7 +32,10 @@ This command will:
 * Create user 'dev' with sudo priveleges
 * Restrict ssh access to the IP of the deploying machine
 * Download and install the latest version of WordPress
-* Deploy an existing site from backup
+* Deploy an existing site from `backups/site/html`
+* Use the `wp-config.php` from the fresh WP install
+* Replace the table_prefix paramter in `wp-config.php` with the one from backup
+* Import `backup.sql.gz` to the database
 * Search and replace the site URL
 * Run [wordpress-permissions](wordpress-permissions) to chown the webrrot for user 'dev'
 * Run [os-authorize](os-authorize) to add authorized ssh keys for user 'dev'
