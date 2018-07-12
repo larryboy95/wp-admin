@@ -26,7 +26,7 @@ This command will:
 * Create DNS records for hostname at the domain supplied in the config file, including a cname for the www variant
 * Install nginx, php and mysql configured for WordPress hosting
 * Install certbot and elasticsearch (optional)
-* Copy a wildcard certificate and configure ssl (see le-wildcard)
+* Copy a wildcard certificate and configure ssl (see [le-wildcard](le-wildcard))
 * Create a dev user
 * Restrict ssh access to the IP of the deploying machine
 
@@ -45,11 +45,15 @@ Prep:
 
 This command will write to `/var/backups/wordpress` (by default).
 
-`wordpress-backup oldserver full /path/to/webroot`
+```
+$ wordpress-backup oldserver full /path/to/webroot
+```
 
 This command will deploy that backup to `http://hostname.do.clientsite.com`:
 
-`do-wp-new account.conf hostname /var/backups/wordpress/oldserver.sql.gz /var/backups/wordpress/oldserver/html`
+```
+$ do-wp-new account.conf HOSTNAME /var/backups/wordpress/oldserver.sql.gz /var/backups/wordpress/oldserver/html
+```
 
 ## W-I-P Notes
 The provisioning script works best at the moment if you have a wildcard certificate for the domain you are provisioning to.
