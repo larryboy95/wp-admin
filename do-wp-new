@@ -3,13 +3,13 @@
 USAGE="
 Deploys a WordPress site to a fresh droplet at digitalocean.
 
-Requires a configuration file with Digitalocean API credentials, domain, email and ssh key info, (see below).
+Requires a configuration file with Digitalocean API credentials, domain, and email, (see below).
 
-With the bare minimum arguments (HOSTNAME), the script will download and install the latest version of Wordpress on the new droplet.
+With the bare minimum arguments (HOSTNAME), the script will download and install the latest version of WordPress on the new droplet.
 
 If DB and CODEBASE are set, the script will then proceed to deploy an existing WordPress site with a fresh configuration file.
 
-Each droplet is configured with letsencrypt. You may supply a wildcard certificate in '/etc/letsencrypt/archive/FQDN' or request a certificate for the domain during the provisioning process (WILDCARD=\"no\").
+Each droplet is configured with letsencrypt. You may supply a wildcard certificate in '/etc/letsencrypt/archive/FQDN' (see le-wildcard) or request a certificate for the domain during the provisioning process (WILDCARD=\"no\").
 
 Warning: If the host already exists in SSH config the script will  overwrite the contents of the existing droplet.
 
@@ -63,6 +63,7 @@ WPPASS=""
 # Include helper functions
 . "${SCRIPTDIR}/includes/helpers"
 . "${SCRIPTDIR}/includes/dns"
+. "${SCRIPTDIR}/includes/ssh"
 . "${SCRIPTDIR}/includes/wordpress"
 
 # If host exists then offer to overwrite
@@ -74,6 +75,11 @@ function main {
     if [ $? -eq 1 ]; then
         wp_restore "$@"
         exit $?
+    fi
+    ssh_key_check "$@"
+    if [ $? -eq 1 ]; then
+        ssh_key_add "$@"
+        [ $? -eq 0 ] || { echo "Could not add key ${PUBLICHASH}"; exit 2; }
     fi
 
     if [ ! -z "$DROPLETID" ] \

@@ -25,3 +25,21 @@ function ssh_config_add_host {
     " >> "${SSHHOSTS}"
 }
 
+function ssh_key_check {
+    . "$CONFIGPARSE"
+    doctl compute ssh-key \
+        get "$PUBLICHASH" \
+        -t "$DOTOKEN" 
+    return $?
+}
+
+function ssh_key_add {
+    local KEYDATA
+    . "$CONFIGPARSE"
+    KEYDATA=$(cat $PUBLICKEY)
+    doctl compute ssh-key create \
+        "$USER" \
+        -t "$DOTOKEN" \
+        --public-key "$KEYDATA"
+    return $?
+}
