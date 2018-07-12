@@ -36,6 +36,8 @@ The le-wildcard script will now do this for you in one step as long as you have 
 Two domain records are now made for every server deployed.
 The www prefix is now automatically redirected to the bare domain.
 
+Your ssh key will be added to the team account if it isn't already.
+
 ## Installation
 Clone this repo and add it to your PATH. 
 The directory `~/bin` is in your PATH which means you can now run the scripts from anywhere, like `wordpress-backup personal`
