@@ -51,7 +51,7 @@ Prep:
 * Run `le-wildcard` and give it your token
 * Create `account.conf` with at least the required paramters, (see [do-wp-new.sample.conf](do-wp-new.sample.conf))
 
-The following command will write to `/var/backups/wp-db-backups` and `/var/backups/wp-full-backups` (by default):
+The following command will write to `/var/backups/wordpress` (by default):
 
 ```
 $ wordpress-backup oldserver full /path/to/webroot
