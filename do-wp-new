@@ -45,6 +45,7 @@ Optional vars and their default values:
     WPUSER admin
     WILDCARD defaults to yes
     ELASTICSEARCH defaults to no
+    REMOTEUSER dev
 "
 # Print USAGE if no args
 if [ $# -lt 2 ]; then
@@ -120,7 +121,8 @@ function provision_ansible {
         newcert=${NEWCERT}
         wildcard=${WILDCARD}
         wildcardchain=${WILDCARDCHAIN}
-        elasticsearch=${ELASTICSEARCH}"
+        elasticsearch=${ELASTICSEARCH}
+        remoteuser=${REMOTEUSER}"
     if [ ! $? -eq 0 ]; then
         echo "Error running ansible."
         exit 1

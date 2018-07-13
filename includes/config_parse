@@ -68,4 +68,4 @@ if [ -z "$WILDCARD" ] \
 else
     NEWCERT="yes"
 fi
-
+REMOTEUSER=${REMOTEUSER:-dev}

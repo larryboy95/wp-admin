@@ -1,7 +1,7 @@
 ---
-- name: Add the user dev with a bash shell, appending new groups for the user
+- name: Add a user with a bash shell, appending new groups for the user
   user:
-    name: dev
+    name: "{{ remoteuser }}"
     shell: /bin/bash
     groups: admin,www-data
     append: yes
