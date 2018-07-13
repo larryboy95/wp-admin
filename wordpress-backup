@@ -32,8 +32,10 @@ DBFNAME=${HOSTNAME}.sql
 EXCLUDE="sites/default/files/legacy"
 # Below can be set as environment variables
 BUPDIR="${BUPDIR:-/var/backups/wordpress}"
+FULLBUPDIR=""
 KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
+TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
 
 function rotate-db-backups {
@@ -71,15 +73,19 @@ function wp-check {
 function dump-db {
     ssh ${HOSTNAME} "wp --path=\"${WEBROOT}\" db export ${WEBROOT}/../${DBFNAME}"
     if [ ! $? -eq 0  ]; then
-        notify-critical "Database export failed for ${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}" 
+        notify-critical "Database export failed for ${TEASER}" 
         exit 1
     fi
     ssh ${HOSTNAME} "gzip -vf ${WEBROOT}/../${DBFNAME}"
     if [ ! $? -eq 0  ]; then
-        notify-critical "Backup gzip failed for ${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}" 
+        notify-critical "Backup gzip failed for ${TEASER}" 
         exit 1
     fi
     scp ${HOSTNAME}:${WEBROOT}/../${DBFNAME}.gz .
+    if [ ! $? -eq 0  ]; then
+        notify-critical "DB scp failed for ${TEASER}" 
+        exit 1
+    fi
 }
 
 function check-args {
@@ -110,6 +116,10 @@ function sync-files {
 		--exclude=${EXCLUDE} \
 		${HOSTNAME}:${WEBROOT} \
 		${FULLBUPDIR}
+    if [ ! $? -eq 0  ]; then
+        notify-critical "File sync failed for ${TEASER}" 
+        exit 1
+    fi
 }
 
 function restic-check {
