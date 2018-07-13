@@ -47,11 +47,15 @@ function rotate-db-backups {
 		if [ $i -gt 1 ]; then
 			h=$[i-1]
 			if [ -f ${HOSTNAME}.${h}.sql.gz ]; then
-				mv ${HOSTNAME}.${h}.sql.gz ${HOSTNAME}.${i}.sql.gz >/dev/null 2>&1
+				mv ${HOSTNAME}.${h}.sql.gz \
+                ${HOSTNAME}.${i}.sql.gz \
+                >/dev/null 2>&1
 			fi
 		else
 			if [ -f ${HOSTNAME}.sql.gz ]; then
-				mv ${HOSTNAME}.sql.gz ${HOSTNAME}.1.sql.gz >/dev/null 2>&1
+				mv ${HOSTNAME}.sql.gz \
+                ${HOSTNAME}.1.sql.gz \
+                >/dev/null 2>&1
 			fi
 		fi
 		(( i-- ))
@@ -60,18 +64,26 @@ function rotate-db-backups {
 
 # Look for the wp-cli binary, if found then run test to see if wp installed
 function wp-check {
-    ssh -q ${HOSTNAME} "wp --quiet --path=\"${WEBROOT}\" core is-installed" < /dev/null
+    ssh -q ${HOSTNAME} \
+        "wp --quiet \
+        --path=\"${WEBROOT}\" \
+        core is-installed" \
+        < /dev/null
     if [ ! $? -eq 0 ]; then
-        notify-critical "${HOSTNAME} WP does not appear to be running. What the heck?"
+        notify-critical "${HOSTNAME} \
+            WP does not appear to be running. What the heck?"
         exit 1
     else 
         return 0
     fi
-    SITEURL=$(ssh ${HOSTNAME} "wp --path=\"${WEBROOT}\" option get siteurl")
+    SITEURL=$(ssh ${HOSTNAME} \
+        "wp --path=\"${WEBROOT}\" \
+        option get siteurl")
 }
 
 function dump-db {
-    ssh ${HOSTNAME} "wp --path=\"${WEBROOT}\" db export ${WEBROOT}/../${DBFNAME}"
+    ssh ${HOSTNAME} "wp --path=\"${WEBROOT}\" \
+        db export ${WEBROOT}/../${DBFNAME}"
     if [ ! $? -eq 0  ]; then
         notify-critical "Database export failed for ${TEASER}" 
         exit 1
@@ -93,7 +105,8 @@ function check-args {
         || [ "$HOSTNAME" == "db" ] \
         || [ "$HOSTNAME" == "manual" ] \
         || [ "$HOSTNAME" == "tmp" ]; then
-        notify-critical "Error in first argument, ${HOSTNAME} ${BACKUPTYPE} backup."
+        notify-critical "Error in first argument, \
+            ${HOSTNAME} ${BACKUPTYPE} backup."
         exit 1
     fi
 }
@@ -168,4 +181,5 @@ else
         Post-backup screenshot:"
 fi
 
+ll /var/backups/wordpress
 exit 0
