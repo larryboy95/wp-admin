@@ -5,9 +5,9 @@ Where:
 - HOSTNAME must be available in ssh config
 - BACKUPTYPE can be one of:
     - full: backup webroot and db to s3, rotated
-    - manual: full backup to s3, not rotated
+    - manual: full backup to BUPDIR/manual, not rotated
     - db: backup db to admin server
-    - tmp: backup db to /tmp on admin server
+    - tmp: backup db and webroot to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
 "
 
@@ -202,7 +202,6 @@ elif [ ${BACKUPTYPE} = "tmp" ]; then
 elif [ ${BACKUPTYPE} = "manual" ]; then
 	echo "Skipping restic. \
         This backup will not be written to s3."
-    rotate-db-backups
     dump-db
     sync-files
 else
