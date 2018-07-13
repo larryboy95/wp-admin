@@ -28,7 +28,7 @@ HOSTNAME="$1"
 # Set defaults if arguments absent
 BACKUPTYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
-DBFNAME=${HOSTNAME}.sql
+DBFNAME="${HOSTNAME}.sql"
 EXCLUDE="sites/default/files/legacy"
 # Below can be set as environment variables
 BUPDIR="${BUPDIR:-/var/backups/wordpress}"
@@ -40,7 +40,7 @@ SITEURL=""
 WPARGS="--path=\"${WEBROOT}\" --allow-root"
 
 function rotate-db-backups {
-    local i
+    local h i
 	echo "Rotate db backups"
 	i=$KEEP
 	while [ $i -gt 0 ]
@@ -56,6 +56,30 @@ function rotate-db-backups {
 			if [ -f ${HOSTNAME}.sql.gz ]; then
 				mv ${HOSTNAME}.sql.gz \
                 ${HOSTNAME}.1.sql.gz \
+                >/dev/null 2>&1
+			fi
+		fi
+		(( i-- ))
+	done
+}
+
+function rotate-dbonly-backups {
+    local h i
+	echo "Rotate dbonly backups"
+	i=$KEEP
+	while [ $i -gt 0 ]
+	do
+		if [ $i -gt 1 ]; then
+			h=$[i-1]
+			if [ -f ${HOSTNAME}-dbonly.${h}.sql.gz ]; then
+				mv ${HOSTNAME}-dbonly.${h}.sql.gz \
+                ${HOSTNAME}-dbonly.${i}.sql.gz \
+                >/dev/null 2>&1
+			fi
+		else
+			if [ -f ${HOSTNAME}-dbonly.sql.gz ]; then
+				mv ${HOSTNAME}-dbonly.sql.gz \
+                ${HOSTNAME}-dbonly.1.sql.gz \
                 >/dev/null 2>&1
 			fi
 		fi
@@ -160,20 +184,22 @@ function backup-db {
 
 check-args 
 set-backup-dir
-rotate-db-backups
 wp-check
 echo "Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
 	echo "Database backup, skipping full sync."
+    rotate-dbonly-backups
     dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
 	echo "Backup db to /tmp, skipping restic. \
         This backup will not be written to s3."
+    rotate-db-backups
     dump-db
     sync-files
 else
     restic-check
+    rotate-db-backups
     dump-db
     backup-db
     sync-files
@@ -183,5 +209,4 @@ else
         Post-backup screenshot:"
 fi
 
-ls -l /var/backups/wordpress
 exit 0
