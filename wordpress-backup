@@ -139,6 +139,8 @@ function check-args {
 function set-backup-dir {
     if [ ${BACKUPTYPE} == "db" ]; then
         DBFNAME=${HOSTNAME}-dbonly.sql
+    elif [ ${BACKUPTYPE} == "manual" ]; then
+        BUPDIR="${BUPDIR}/manual"
     elif [ ${BACKUPTYPE} == "tmp" ]; then
         BUPDIR="/tmp"
     fi
@@ -193,6 +195,12 @@ if [ ${BACKUPTYPE} = "db" ]; then
     dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
 	echo "Backup db to /tmp, skipping restic. \
+        This backup will not be written to s3."
+    rotate-db-backups
+    dump-db
+    sync-files
+elif [ ${BACKUPTYPE} = "manual" ]; then
+	echo "Skipping restic. \
         This backup will not be written to s3."
     rotate-db-backups
     dump-db
