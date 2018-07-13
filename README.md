@@ -1,18 +1,6 @@
 # wp-admin
 Deploy and manage WordPress on Ubuntu at Digitalocean.
 
-Dependencies:
-
-* Ubuntu Linux
-* Php / MySql / Nginx
-* LetsEncrypt
-* WordPress
-* wp-cli
-* doctl
-* git-auto-deploy
-* Restic
-* Ansible
-
 ## Quickstart
 
 ```
