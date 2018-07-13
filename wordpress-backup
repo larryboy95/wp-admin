@@ -37,6 +37,7 @@ KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
+WPARGS="--path=\"${WEBROOT}\" --allow-root"
 
 function rotate-db-backups {
     local i
@@ -66,7 +67,7 @@ function rotate-db-backups {
 function wp-check {
     ssh -q ${HOSTNAME} \
         "wp --quiet \
-        --path=\"${WEBROOT}\" \
+        ${WPARGS} \
         core is-installed" \
         < /dev/null
     if [ ! $? -eq 0 ]; then
@@ -77,12 +78,12 @@ function wp-check {
         return 0
     fi
     SITEURL=$(ssh ${HOSTNAME} \
-        "wp --path=\"${WEBROOT}\" \
+        "wp ${WPARGS} \
         option get siteurl")
 }
 
 function dump-db {
-    ssh ${HOSTNAME} "wp --path=\"${WEBROOT}\" \
+    ssh ${HOSTNAME} "wp ${WPARGS} \
         db export ${WEBROOT}/../${DBFNAME}"
     if [ ! $? -eq 0  ]; then
         notify-critical "Database export failed for ${TEASER}" 
@@ -114,11 +115,12 @@ function check-args {
 function set-backup-dir {
     if [ ${BACKUPTYPE} == "db" ]; then
         DBFNAME=${HOSTNAME}-dbonly.sql
-    else     
-        BUPDIR=/tmp
+    elif [ ${BACKUPTYPE} == "tmp" ]; then
+        BUPDIR="/tmp"
     fi
     [ ! -d $BUPDIR ] && mkdir $BUPDIR
     cd ${BUPDIR}
+    pwd
 }
 
 function sync-files {
@@ -181,5 +183,5 @@ else
         Post-backup screenshot:"
 fi
 
-ll /var/backups/wordpress
+ls -l /var/backups/wordpress
 exit 0
