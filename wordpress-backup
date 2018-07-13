@@ -1,9 +1,9 @@
 #!/bin/bash
 USAGE="
-Usage: wordpress-backup HOST TYPE [WEBROOT]
+Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
-- HOST must be available in ssh config
-- TYPE can be one of:
+- HOSTNAME must be available in ssh config
+- BACKUPTYPE can be one of:
     - full: backup webroot and db to s3, rotated
     - manual: full backup to s3, not rotated
     - db: backup db to admin server
@@ -24,108 +24,189 @@ fi
 # Remove the lockdir on exit
 trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT	
 
-HOST="$1"
+HOSTNAME="$1"
 # Set defaults if arguments absent
-TYPE="${2:-manual}"
+BACKUPTYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
-DBFNAME=${HOST}.sql
+DBFNAME="${HOSTNAME}.sql"
 EXCLUDE="sites/default/files/legacy"
 # Below can be set as environment variables
-BUPDIR="${BUPDIR:-/var/backups/wp-db-backups}"
-FULLBUPDIR="${FULLBUPDIR:-/var/backups/wp-full-backups}"
+BUPDIR="${BUPDIR:-/var/backups/wordpress}"
+FULLBUPDIR=""
 KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
+TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
+SITEURL=""
+WPARGS="--path=\"${WEBROOT}\" --allow-root"
 
-function rotate()
-{
+function rotate-db-backups {
+    local h i
 	echo "Rotate db backups"
 	i=$KEEP
 	while [ $i -gt 0 ]
 	do
 		if [ $i -gt 1 ]; then
 			h=$[i-1]
-			if [ -f ${HOST}.${h}.sql.gz ]; then
-				mv ${HOST}.${h}.sql.gz ${HOST}.${i}.sql.gz >/dev/null 2>&1
+			if [ -f ${HOSTNAME}.${h}.sql.gz ]; then
+				mv ${HOSTNAME}.${h}.sql.gz \
+                ${HOSTNAME}.${i}.sql.gz \
+                >/dev/null 2>&1
 			fi
 		else
-			if [ -f ${HOST}.sql.gz ]; then
-				mv ${HOST}.sql.gz ${HOST}.1.sql.gz >/dev/null 2>&1
+			if [ -f ${HOSTNAME}.sql.gz ]; then
+				mv ${HOSTNAME}.sql.gz \
+                ${HOSTNAME}.1.sql.gz \
+                >/dev/null 2>&1
 			fi
 		fi
 		(( i-- ))
 	done
 }
 
-if [ "$HOST" == "full" ] \
-    || [ "$HOST" == "db" ] \
-    || [ "$HOST" == "manual" ] \
-    || [ "$HOST" == "tmp" ]; then
-	notify-critical "Error in first argument, ${HOST} ${TYPE} backup."
-	exit 1
-fi
-
-if [ ${TYPE} == "full" ] \
-    || [ ${TYPE} == "db" ] \
-    || [ ${TYPE} == "manual" ]; then
-    BUPDIR=${BUPDIR}/${TYPE}
-else     
-    BUPDIR=/tmp
-fi
-[ ! -d $BUPDIR ] && mkdir $BUPDIR
-cd ${BUPDIR}
-rotate ${HOST}
+function rotate-dbonly-backups {
+    local h i
+	echo "Rotate dbonly backups"
+	i=$KEEP
+	while [ $i -gt 0 ]
+	do
+		if [ $i -gt 1 ]; then
+			h=$[i-1]
+			if [ -f ${HOSTNAME}-dbonly.${h}.sql.gz ]; then
+				mv ${HOSTNAME}-dbonly.${h}.sql.gz \
+                ${HOSTNAME}-dbonly.${i}.sql.gz \
+                >/dev/null 2>&1
+			fi
+		else
+			if [ -f ${HOSTNAME}-dbonly.sql.gz ]; then
+				mv ${HOSTNAME}-dbonly.sql.gz \
+                ${HOSTNAME}-dbonly.1.sql.gz \
+                >/dev/null 2>&1
+			fi
+		fi
+		(( i-- ))
+	done
+}
 
 # Look for the wp-cli binary, if found then run test to see if wp installed
-ssh -q ${HOST} "wp --quiet --path=\"${WEBROOT}\" core is-installed" < /dev/null
-# Check if the exit code from last command ^^ is non zero
-if [ ! $? -eq 0 ]; then
-	notify-critical "${HOST} WP does not appear to be running. What the heck?"
-	exit 1
-else 
-	siteurl=$(ssh ${HOST} "wp --path=\"${WEBROOT}\" option get siteurl")
-	echo "Proceeding with backup for ${HOST}."
-fi
+function wp-check {
+    ssh -q ${HOSTNAME} \
+        "wp --quiet \
+        ${WPARGS} \
+        core is-installed" \
+        < /dev/null
+    if [ ! $? -eq 0 ]; then
+        notify-critical "${HOSTNAME} \
+            WP does not appear to be running. What the heck?"
+        exit 1
+    else 
+        return 0
+    fi
+    SITEURL=$(ssh ${HOSTNAME} \
+        "wp ${WPARGS} \
+        option get siteurl")
+}
 
-# Save a new db dump one level up from the webroot
-ssh ${HOST} "wp --path=\"${WEBROOT}\" db export ${WEBROOT}/../${DBFNAME}"
-if [ ! $? -eq 0  ]; then
-	notify-critical "Database export failed for ${HOST} (${TYPE}) at ${siteurl}" 
-	exit 1
-fi
+function dump-db {
+    ssh ${HOSTNAME} "wp ${WPARGS} \
+        db export ${WEBROOT}/../${DBFNAME}"
+    if [ ! $? -eq 0  ]; then
+        notify-critical "Database export failed for ${TEASER}" 
+        exit 1
+    fi
+    ssh ${HOSTNAME} "gzip -vf ${WEBROOT}/../${DBFNAME}"
+    if [ ! $? -eq 0  ]; then
+        notify-critical "Backup gzip failed for ${TEASER}" 
+        exit 1
+    fi
+    scp ${HOSTNAME}:${WEBROOT}/../${DBFNAME}.gz .
+    if [ ! $? -eq 0  ]; then
+        notify-critical "DB scp failed for ${TEASER}" 
+        exit 1
+    fi
+}
 
-ssh ${HOST} "gzip -vf ${WEBROOT}/../${DBFNAME}"
-if [ ! $? -eq 0  ]; then
-	notify-critical "Backup gzip failed for ${HOST} (${TYPE}) at ${siteurl}" 
-	exit 1
-fi
+function check-args {
+    if [ "$HOSTNAME" == "full" ] \
+        || [ "$HOSTNAME" == "db" ] \
+        || [ "$HOSTNAME" == "manual" ] \
+        || [ "$HOSTNAME" == "tmp" ]; then
+        notify-critical "Error in first argument, \
+            ${HOSTNAME} ${BACKUPTYPE} backup."
+        exit 1
+    fi
+}
 
-# Copy gzipped db backup to admin server
-scp ${HOST}:${WEBROOT}/../${DBFNAME}.gz .
+function set-backup-dir {
+    if [ ${BACKUPTYPE} == "db" ]; then
+        DBFNAME=${HOSTNAME}-dbonly.sql
+    elif [ ${BACKUPTYPE} == "tmp" ]; then
+        BUPDIR="/tmp"
+    fi
+    [ ! -d $BUPDIR ] && mkdir $BUPDIR
+    cd ${BUPDIR}
+    pwd
+}
 
-if [ ${TYPE} = "db" ]; then
-	echo "Database backup, skipping full sync."
-elif [ ${TYPE} = "tmp" ]; then
-	echo "Backup db to /tmp, skipping full sync. This backup will not be written to s3."
-else
-	FULLBUPDIR="${FULLBUPDIR}/${HOST}"
+function sync-files {
+	FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
 	rsync \
 		-ptLr \
 		--exclude=${EXCLUDE} \
-		${HOST}:${WEBROOT} \
+		${HOSTNAME}:${WEBROOT} \
 		${FULLBUPDIR}
+    if [ ! $? -eq 0  ]; then
+        notify-critical "File sync failed for ${TEASER}" 
+        exit 1
+    fi
+}
+
+function restic-check {
 	if [ -f $RESTIC ] && [ -f ~/.wp-admin ]; then
 		source $HOME/.wp-admin
-		$RESTIC backup ${FULLBUPDIR}/ --tag ${HOST}
-        [ ! $? -eq 0  ] && notify-critical "Restic error"
-		$RESTIC backup ${DBFNAME}.gz --tag ${HOST}
-        [ ! $? -eq 0  ] && notify-critical "Restic error"
 	else
 		notify-critical \
-            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOST} is not happening."
+            "Restic or ~/.wp-admin config file not found \
+            for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} \
+            is not happening."
 	fi
+}
+
+function backup-full {
+	$RESTIC backup ${FULLBUPDIR}/ --tag ${HOSTNAME}
+    [ ! $? -eq 0  ] && notify-critical "Restic error"
+}
+
+function backup-db {
+	$RESTIC backup ${DBFNAME}.gz --tag ${HOSTNAME}
+    [ ! $? -eq 0  ] && notify-critical "Restic error"
+}
+
+check-args 
+set-backup-dir
+wp-check
+echo "Proceeding with backup for ${HOSTNAME}."
+
+if [ ${BACKUPTYPE} = "db" ]; then
+	echo "Database backup, skipping full sync."
+    rotate-dbonly-backups
+    dump-db
+elif [ ${BACKUPTYPE} = "tmp" ]; then
+	echo "Backup db to /tmp, skipping restic. \
+        This backup will not be written to s3."
+    rotate-db-backups
+    dump-db
+    sync-files
+else
+    restic-check
+    rotate-db-backups
+    dump-db
+    backup-db
+    sync-files
+    backup-full
 	notify-screenshot \
-	"$siteurl" "Backup (${TYPE}) completed for ${siteurl}. Post-backup screenshot:"
+	    "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. \
+        Post-backup screenshot:"
 fi
 
 exit 0
