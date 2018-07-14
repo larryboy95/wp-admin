@@ -39,6 +39,65 @@ TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
 WPARGS="--path=\"${WEBROOT}\" --allow-root"
 
+function restic-check {
+	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin" ]; then
+		. "${HOME}/.wp-admin"
+	else
+		notify-critical \
+            "Restic or ~/.wp-admin config file not found \
+            for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} \
+            is not happening."
+	fi
+}
+
+# Look for the wp-cli binary, if found then run test to see if wp installed
+function wp-check {
+    ssh -q ${HOSTNAME} \
+        "wp --quiet \
+        ${WPARGS} \
+        core is-installed" \
+        < /dev/null
+    if [ ! $? -eq 0 ]; then
+        notify-critical "${HOSTNAME} \
+            WP does not appear to be running. What the heck?"
+        exit 1
+    fi
+    SITEURL=$(ssh ${HOSTNAME} \
+        "wp ${WPARGS} \
+        option get siteurl")
+    [ -z "$SITEURL" ] && { echo "SITEURL is empty."; exit 1; }
+}
+
+function check-args {
+    if [ "$HOSTNAME" == "full" ] \
+        || [ "$HOSTNAME" == "db" ] \
+        || [ "$HOSTNAME" == "manual" ] \
+        || [ "$HOSTNAME" == "tmp" ]; then
+        notify-critical "Error in first argument, \
+            ${HOSTNAME} ${BACKUPTYPE} backup."
+        exit 1
+    fi
+}
+
+function set-backup-dir {
+    if [ ${BACKUPTYPE} == "db" ]; then
+        DBFNAME=${HOSTNAME}-dbonly.sql
+    elif [ ${BACKUPTYPE} == "manual" ]; then
+        local DATESTAMP=$(date +%F)
+        DBFNAME="${HOSTNAME}-${DATESTAMP}.sql"
+        BUPDIR="${BUPDIR}/manual"
+	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}-${DATESTAMP}"
+    elif [ ${BACKUPTYPE} == "full" ]; then
+	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
+    elif [ ${BACKUPTYPE} == "tmp" ]; then
+        BUPDIR="/tmp"
+	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
+    fi
+    [ ! -d $BUPDIR ] && mkdir $BUPDIR
+    cd ${BUPDIR}
+    pwd
+}
+
 function rotate-db-backups {
     local h i
 	echo "Rotate db backups"
@@ -87,24 +146,6 @@ function rotate-dbonly-backups {
 	done
 }
 
-# Look for the wp-cli binary, if found then run test to see if wp installed
-function wp-check {
-    ssh -q ${HOSTNAME} \
-        "wp --quiet \
-        ${WPARGS} \
-        core is-installed" \
-        < /dev/null
-    if [ ! $? -eq 0 ]; then
-        notify-critical "${HOSTNAME} \
-            WP does not appear to be running. What the heck?"
-        exit 1
-    fi
-    SITEURL=$(ssh ${HOSTNAME} \
-        "wp ${WPARGS} \
-        option get siteurl")
-    [ -z "$SITEURL" ] && { echo "SITEURL is empty."; exit 1; }
-}
-
 function dump-db {
     ssh ${HOSTNAME} "wp ${WPARGS} \
         db export ${WEBROOT}/../${DBFNAME}"
@@ -124,36 +165,6 @@ function dump-db {
     fi
 }
 
-function check-args {
-    if [ "$HOSTNAME" == "full" ] \
-        || [ "$HOSTNAME" == "db" ] \
-        || [ "$HOSTNAME" == "manual" ] \
-        || [ "$HOSTNAME" == "tmp" ]; then
-        notify-critical "Error in first argument, \
-            ${HOSTNAME} ${BACKUPTYPE} backup."
-        exit 1
-    fi
-}
-
-function set-backup-dir {
-    if [ ${BACKUPTYPE} == "db" ]; then
-        DBFNAME=${HOSTNAME}-dbonly.sql
-    elif [ ${BACKUPTYPE} == "manual" ]; then
-        local DATESTAMP=$(date +%F)
-        DBFNAME="${HOSTNAME}-${DATESTAMP}.sql"
-        BUPDIR="${BUPDIR}/manual"
-	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}-${DATESTAMP}"
-    elif [ ${BACKUPTYPE} == "full" ]; then
-	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
-    elif [ ${BACKUPTYPE} == "tmp" ]; then
-        BUPDIR="/tmp"
-	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
-    fi
-    [ ! -d $BUPDIR ] && mkdir $BUPDIR
-    cd ${BUPDIR}
-    pwd
-}
-
 function sync-files {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
     echo "Sync from ${HOSTNAME}"
@@ -166,17 +177,6 @@ function sync-files {
         notify-critical "File sync failed for ${TEASER}" 
         exit 1
     fi
-}
-
-function restic-check {
-	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin" ]; then
-		. "${HOME}/.wp-admin"
-	else
-		notify-critical \
-            "Restic or ~/.wp-admin config file not found \
-            for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} \
-            is not happening."
-	fi
 }
 
 function backup-full {
