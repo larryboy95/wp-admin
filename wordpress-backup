@@ -98,12 +98,11 @@ function wp-check {
         notify-critical "${HOSTNAME} \
             WP does not appear to be running. What the heck?"
         exit 1
-    else 
-        return 0
     fi
     SITEURL=$(ssh ${HOSTNAME} \
         "wp ${WPARGS} \
         option get siteurl")
+    [ -z "$SITEURL" ] && { echo "SITEURL is empty."; exit 1; }
 }
 
 function dump-db {
@@ -157,8 +156,9 @@ function set-backup-dir {
 
 function sync-files {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
+    echo "Sync from ${HOSTNAME}"
 	rsync \
-		-ptLr \
+		-vptLr \
 		--exclude=${EXCLUDE} \
 		${HOSTNAME}:${WEBROOT} \
 		${FULLBUPDIR}
@@ -199,13 +199,13 @@ if [ ${BACKUPTYPE} = "db" ]; then
     rotate-dbonly-backups
     dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
-	echo "Backup db to /tmp, skipping restic. \
-        This backup will not be written to s3."
+	echo "Backup db to /tmp, skipping restic."
+    echo "This backup will not be written to s3."
     dump-db
     sync-files
 elif [ ${BACKUPTYPE} = "manual" ]; then
-	echo "Skipping restic. \
-        This backup will not be written to s3."
+	echo "Skipping restic."
+    echo "This backup will not be written to s3."
     dump-db
     sync-files
 else
@@ -215,9 +215,9 @@ else
     backup-db
     sync-files
     backup-full
-	notify-screenshot \
-	    "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. \
-        Post-backup screenshot:"
 fi
+notify-screenshot \
+    "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. \
+    Post-backup screenshot:"
 
 exit 0
