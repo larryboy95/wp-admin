@@ -80,19 +80,24 @@ function check-args {
 }
 
 function set-backup-dir {
-    if [ ${BACKUPTYPE} == "db" ]; then
+    case "$BACKUPTYPE" in
+    "db") 
         DBFNAME=${HOSTNAME}-dbonly.sql
-    elif [ ${BACKUPTYPE} == "manual" ]; then
+        ;;
+    "manual") 
         local DATESTAMP=$(date +%F)
         DBFNAME="${HOSTNAME}-${DATESTAMP}.sql"
         BUPDIR="${BUPDIR}/manual"
 	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}-${DATESTAMP}"
-    elif [ ${BACKUPTYPE} == "full" ]; then
-	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
-    elif [ ${BACKUPTYPE} == "tmp" ]; then
+        ;;
+	"full") 
+        FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
+        ;;
+    "tmp") 
         BUPDIR="/tmp"
 	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
-    fi
+        ;;
+    esac
     [ ! -d $BUPDIR ] && mkdir $BUPDIR
     cd ${BUPDIR}
     pwd
