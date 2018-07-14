@@ -18,7 +18,7 @@ if [ $# -eq 0 ]; then
 fi
 # Check if already running
 if ! mkdir -p ~/tmp/wordpress-backup.lock; then
-	printf "Failed to aquire lock. (Script already running?)\n" >&2
+	printf "Failed to acquire lock. (Script already running?)\n" >&2
 	exit 1
 fi
 # Remove the lockdir on exit
@@ -140,9 +140,15 @@ function set-backup-dir {
     if [ ${BACKUPTYPE} == "db" ]; then
         DBFNAME=${HOSTNAME}-dbonly.sql
     elif [ ${BACKUPTYPE} == "manual" ]; then
+        local DATESTAMP=$(date +%F)
+        DBFNAME="${HOSTNAME}-${DATESTAMP}.sql"
         BUPDIR="${BUPDIR}/manual"
+	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}-${DATESTAMP}"
+    elif [ ${BACKUPTYPE} == "full" ]; then
+	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
     elif [ ${BACKUPTYPE} == "tmp" ]; then
         BUPDIR="/tmp"
+	    FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
     fi
     [ ! -d $BUPDIR ] && mkdir $BUPDIR
     cd ${BUPDIR}
@@ -150,7 +156,6 @@ function set-backup-dir {
 }
 
 function sync-files {
-	FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
 	rsync \
 		-ptLr \
@@ -164,8 +169,8 @@ function sync-files {
 }
 
 function restic-check {
-	if [ -f $RESTIC ] && [ -f ~/.wp-admin ]; then
-		source $HOME/.wp-admin
+	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin" ]; then
+		. "${HOME}/.wp-admin"
 	else
 		notify-critical \
             "Restic or ~/.wp-admin config file not found \
@@ -196,7 +201,6 @@ if [ ${BACKUPTYPE} = "db" ]; then
 elif [ ${BACKUPTYPE} = "tmp" ]; then
 	echo "Backup db to /tmp, skipping restic. \
         This backup will not be written to s3."
-    rotate-db-backups
     dump-db
     sync-files
 elif [ ${BACKUPTYPE} = "manual" ]; then
