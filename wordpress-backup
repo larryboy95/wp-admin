@@ -44,9 +44,7 @@ function restic-check {
 		. "${HOME}/.wp-admin"
 	else
 		notify-critical \
-            "Restic or ~/.wp-admin config file not found \
-            for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} \
-            is not happening."
+            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening."
 	fi
 }
 
@@ -73,8 +71,7 @@ function check-args {
         || [ "$HOSTNAME" == "db" ] \
         || [ "$HOSTNAME" == "manual" ] \
         || [ "$HOSTNAME" == "tmp" ]; then
-        notify-critical "Error in first argument, \
-            ${HOSTNAME} ${BACKUPTYPE} backup."
+        notify-critical "Error in first argument, ${HOSTNAME} ${BACKUPTYPE} backup."
         exit 1
     fi
 }
@@ -222,7 +219,6 @@ else
     backup-full
 fi
 notify-screenshot \
-    "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. \
-    Post-backup screenshot:"
+    "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:"
 
 exit 0
