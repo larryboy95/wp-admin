@@ -24,10 +24,10 @@ else
 fi
 WEBROOT="${3:-/var/www/html}"
 ssh ${1} "sudo chown -R ${OWNER}:www-data ${WEBROOT};"
-ssh ${1} "sudo chown dev:www-data ${WEBROOT}/..;"
+ssh ${1} "sudo chown ${OWNER}:www-data ${WEBROOT}/..;"
 ssh ${1} "sudo chown root:www-data ${WEBROOT}/wp-config.php;"
 ssh ${1} "[ -d ${WEBROOT}/wp-content/uploads ] && \
-    sudo chown -R www-data ${WEBROOT}/wp-content/uploads; \
+    sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/uploads; \
     [ -d ${WEBROOT}/wp-content/banners ] && \
     sudo chown -R www-data ${WEBROOT}/wp-content/banners; \
     [ -d ${WEBROOT}/wp-content/plugins/wpspx-master/cache ] && \
