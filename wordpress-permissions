@@ -33,6 +33,8 @@ ssh ${1} "[ -d ${WEBROOT}/wp-content/uploads ] && \
     [ -d ${WEBROOT}/wp-content/plugins/wpspx-master/cache ] && \
     sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx-master/cache;
 "
+ssh ${1} "[ -d ${WEBROOT}/wp-content/uploads ] && \
+    sudo chmod g+s -R ${WEBROOT}/wp-content;"
 ssh ${1} "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
     sudo find ${WEBROOT} -type d -exec chmod 750 {} +;
     sudo chmod 644 ${WEBROOT}/wp-config.php;
