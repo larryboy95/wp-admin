@@ -171,11 +171,11 @@ function sync-files {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
     echo "Sync from ${HOSTNAME}"
 	rsync \
-		-vptLr \
-		--exclude=${EXCLUDE} \
+        -vptLr \
+        --exclude=${EXCLUDE} \
         --delete \
-		${HOSTNAME}:${WEBROOT} \
-		${FULLBUPDIR}
+        ${HOSTNAME}:${WEBROOT} \
+        ${FULLBUPDIR}
     if [ ! $? -eq 0  ]; then
         notify-critical "File sync failed for ${TEASER}" 
         exit 1
