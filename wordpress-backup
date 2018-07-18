@@ -173,6 +173,7 @@ function sync-files {
 	rsync \
 		-vptLr \
 		--exclude=${EXCLUDE} \
+        --delete \
 		${HOSTNAME}:${WEBROOT} \
 		${FULLBUPDIR}
     if [ ! $? -eq 0  ]; then

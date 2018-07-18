@@ -4,7 +4,7 @@ function ssh_config_check {
     local HOSTPATTERN
     . "$CONFIGPARSE"
     HOSTPATTERN="^Host ${FQDN}$"
-    if grep "$HOSTPATTERN" "${SSHHOSTS}"; then
+    if grep -q "$HOSTPATTERN" "${SSHHOSTS}"; then
         grep "$HOSTPATTERN" -A5 "${SSHHOSTS}"
         echo "${FQDN} was found in ${SSHHOSTS}"
         connection_test "$@"
