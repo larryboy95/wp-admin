@@ -194,7 +194,9 @@ function backup-db {
 check-args 
 set-backup-dir
 wp-check
-wordpress-permissions "$HOSTNAME" dev
+if [ -z "$3" ]; then
+    wordpress-permissions "$HOSTNAME" dev
+fi
 echo "Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
