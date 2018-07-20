@@ -16,6 +16,11 @@
     name: php7.0-xml
     state: present
 
+- name: Install the package "php7.0-mbstring"
+  apt:
+    name: php7.0-mbstring
+    state: present
+
 - name: Install the package "glances"
   apt:
     name: glances
