@@ -223,5 +223,9 @@ else
 fi
 notify-screenshot \
     "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:"
+if [ ! $? -eq 0  ]; then
+    notify-critical "Screenshot tweet failed for ${TEASER}" 
+    exit 1
+fi
 
 exit 0
