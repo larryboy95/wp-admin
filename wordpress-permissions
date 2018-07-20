@@ -6,8 +6,8 @@ Usage: $(basename $0) HOST [OWNER WEBROOT]
 Change primary owner of webroot to OWNER
 while preserving write permissions for
 web server to appropriate directories.
-Sets all files to 644 and all directories
-to 755.
+Sets all files to 640 and all directories
+to 750. wp-config.php is owned by root, 644.
 
 Defaults:
 OWNER, dev
@@ -19,7 +19,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 HOST="$1"
-# If USER not supplied, ask for it
+# If OWNER is not supplied, ask for it
 if [ $# -eq 1 ]; then
 	read -p "User: [dev]" OWNER
 	OWNER=${OWNER:-dev}
