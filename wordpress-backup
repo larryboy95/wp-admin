@@ -178,7 +178,6 @@ function sync-files {
         ${FULLBUPDIR}
     if [ ! $? -eq 0  ]; then
         notify-critical "File sync failed for ${TEASER}" 
-        exit 1
     fi
 }
 
