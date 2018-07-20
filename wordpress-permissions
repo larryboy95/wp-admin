@@ -1,13 +1,17 @@
 #!/bin/bash
 
 USAGE="
-Usage: $(basename $0) HOST [USER WEBROOT]
+Usage: $(basename $0) HOST [OWNER WEBROOT]
 
-Change primary owner of webroot to USER
+Change primary owner of webroot to OWNER
 while preserving write permissions for
 web server to appropriate directories.
 Sets all files to 644 and all directories
 to 755.
+
+Defaults:
+OWNER, dev
+WEBROOT, /var/www/html
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
