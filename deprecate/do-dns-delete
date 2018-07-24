@@ -21,10 +21,7 @@ function main {
         --format "id,name" -o json
     )
     echo "$RECORDS"
-    IDS=$(
-        echo "$RECORDS" \
-        | jq '.[] | select(.name | contains("$SUBDOMAINPATTERN")) | .id'
-    )
+    IDS=$(echo "$RECORDS" | jq ".[] | select(.name | contains(\"$SUBDOMAINPATTERN\")) | .id")
     [ -z "$IDS" ] && { echo "No matching records."; exit 0; }
     echo "$IDS"
     echo "$IDS" | xargs doctl compute domain records delete "$DOMAIN" -f
