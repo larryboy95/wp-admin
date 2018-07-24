@@ -93,7 +93,7 @@ function main {
         install_prerequisite "$@"
         provision_ansible "$@"
         install_wordpress "$@"
-        os-authorize "$FQDN" dev
+        os-authorize "$FQDN" "$REMOTEUSER"
     fi
 
     if [ ! -z "$DB" ]; then
