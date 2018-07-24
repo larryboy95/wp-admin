@@ -43,8 +43,8 @@ else
         sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/uploads; \
         [ -d ${WEBROOT}/wp-content/banners ] && \
         sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/banners; \
-        [ -d ${WEBROOT}/wp-content/plugins/wpspx-master/cache ] && \
-        sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx-master/cache;
+        [ -d ${WEBROOT}/wp-content/plugins/wpspx/cache ] && \
+        sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
     "
     ssh "$1" "[ -d ${WEBROOT}/wp-content/uploads ] && \
         sudo chmod g+s -R ${WEBROOT}/wp-content;"
