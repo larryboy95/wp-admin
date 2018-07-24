@@ -37,7 +37,7 @@ Prep:
 * Login to the client's DNS provider and create NS records for the subdomain do to the three Digitalocean nameservers.
 * Create an API token in the client's DO control panel and copy it to your clipboard
 * Run `le-wildcard` and give it your token
-* Create `account.conf` with at least the required paramters, (see [do-wp-new.sample.conf](do-wp-new.sample.conf))
+* Create `account.conf` with at least the required paramters, (see [do-wp-new.conf.example](do-wp-new.conf.example))
 
 The following command will write to `/var/backups/wordpress` (by default):
 

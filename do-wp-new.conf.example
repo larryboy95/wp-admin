@@ -1,8 +1,35 @@
-# A Fully qualified domain name will be assembled from subdomain.domain
-# Must resolve to the new droplet IP before letsencrypt certificates
-# can be issued.
+### REQUIRED:
+
+# The domain in your Digitalocean account where you want to deploy
 DOMAIN=""
-# Email address for letsencrypt and wordpress admin
+# Email address for letsencrypt and default wordpress admin
 EMAIL=""
 # Dotoken: Get an API access token for the targeted DO account
 DOTOKEN=""
+
+### OPTIONAL:
+
+# SSHHOSTS="~/.ssh/config"
+# ANSIBLEHOSTS="/etc/ansible/hosts"
+# PRIVATEKEY="~/.ssh/id_rsa"
+# WPUSER="admin"
+
+# Name for user on new droplet
+# REMOTEUSER dev
+
+# Run `doctl compute size list`:
+# DROPLETSIZE="s-1vcpu-1gb"
+
+# Run `doctl compute image list --public`:
+# IMAGE="ubuntu-16-04-x64"
+
+# Run `doctl compute region list`:
+# REGION="sfo2"
+
+
+# Set to "no" to generate a bespoke certificate
+# WILDCARD="yes"
+
+# Whether or not to install elasticsearch
+# ELASTICSEARCH="no"
+
