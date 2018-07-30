@@ -50,11 +50,20 @@ fi
 SSHHOSTS=${SSHHOSTS:-~/.ssh/config}
 ANSIBLEHOSTS=${ANSIBLEHOSTS:-/etc/ansible/hosts}
 PUBLICKEY=${PUBLICKEY:-~/.ssh/id_rsa.pub}
+PRIVATEKEY=${PRIVATEKEY:-~/.ssh/id_rsa}
 PUBLICHASH=$(ssh-keygen -E md5 -lf ${PUBLICKEY} \
     | cut -d ' ' -f 2 \
     | cut -d ':' -f 2-17 )
-[ $? -eq 0 ] || { echo "keygen error ${PUBLICHASH}"; exit 1; }
-PRIVATEKEY=${PRIVATEKEY:-~/.ssh/id_rsa}
+[ $? -eq 0 ] || { echo "Key hash error ${PUBLICHASH}"; exit 1; }
+GITKEY=${GITKEY:-${HOME}/.ssh/${DOMAIN}.id_ecdsa}
+if [ ! -f "$GITKEY" ]; then
+    ssh-keygen \
+        -t ecdsa \
+        -f "$GITKEY" \
+        -N ""
+    cat "${GITKEY}.pub"
+    sleep 3
+fi
 DROPLETSIZE="${DROPLETSIZE:-s-1vcpu-1gb}"
 IMAGE=${IMAGE:-ubuntu-16-04-x64}
 REGION=${REGION:-sfo2}

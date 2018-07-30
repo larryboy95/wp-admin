@@ -25,6 +25,7 @@ function main {
     FQDN="$2"
     DB="$3"
     [ ! -z "$4" ] && CODEBASE="$4"
+    [ ! -z "$5" ] && GITKEY="$5"
     SCRIPTDIR=$(dirname "${0}")
     WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root"
 # Check for required values and binaries
@@ -43,8 +44,6 @@ function main {
             sleep 1
         fi
     done
-
-# Make big tmp dir if not exist
 
     if [ -d "$CODEBASE" ]; then 
 # Find the wordpress webroot and copy to server
@@ -77,6 +76,22 @@ function main {
         echo "Table prefix replaced in wp-config.php"
         ssh "$FQDN" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         echo "Nginx restarted"
+# If CODEBASE is a git repo:
+    elif [[ "$CODEBASE" =~ ^git* ]]; then
+        WEBROOT="/var/www/html"
+        OLDROOT="${WEBROOT}-old"
+        [ -f "$GITKEY" ] || { echo "GITKEY not found ${GITKEY}"; exit 1; }
+        ssh "$FQDN" "sudo apt-get install git"
+        ssh "$FQDN" -t "[ -d ${WEBROOT} ] && rm -rf ${OLDROOT}"
+        ssh "$FQDN" -t "[ -d ${WEBROOT} ] && mv -f ${WEBROOT} ${OLDROOT}"
+        scp "$GITKEY" "${FQDN}:.ssh/id_git" || { echo "scp error"; exit 1; }
+        ssh "$FQDN" "echo 'IdentityFile ~/.ssh/id_git' >> .ssh/config"
+        ssh "$FQDN" "echo 'StrictHostkeyChecking no' >> .ssh/config"
+        ssh "$FQDN" "git clone ${CODEBASE} ${WEBROOT}" || exit 1
+        ssh "$FQDN" "cp ${OLDROOT}/wp-config.php ${WEBROOT}/wp-config.php" || exit 1
+        wordpress-permissions "$FQDN" dev
+        wp ${WPARGS} plugin install debug-bar || echo "Error installing plugin"
+        wp ${WPARGS} plugin activate debug-bar || echo "Error installing plugin"
     else
         echo "CODEBASE not supplied, restoring database only."
     fi
