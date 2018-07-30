@@ -1,3 +1,18 @@
+
+## 6.3.1 - 2018/07/05
+
+## Features
+
+* 6.3.1 as default elasticsearch version
+
+## 6.3.0.1 - 2018/06/28
+
+### Fixes
+
+* [#460](https://github.com/elastic/ansible-elasticsearch/pull/460) - @toadjaune - Make sure ansible doesn't fail if the default systemd service file doesn't exist
+* [#461](https://github.com/elastic/ansible-elasticsearch/pull/461) - @bilsch - Add missing become root in tasks that require root access
+
+
 ## 6.3.0 - 2018/06/18
 
 ### Breaking changes

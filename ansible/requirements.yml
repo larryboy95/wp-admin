@@ -1,4 +1,5 @@
 - src: geerlingguy.mysql
+- src: elastic.elasticsearch
 - src: chusiang.php7
 - src: geerlingguy.nginx
 - src: geerlingguy.certbot

@@ -221,7 +221,11 @@ function wp_restore {
         read -p "Restore to ${FQDN}. Are you sure? (y/n)" -n 1 -r
         echo "/n"
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            do-wp-restore-local "$FQDN" "$FQDN" "$DB" "$CODEBASE"
+            if [ ! -z "$CODEBASE" ]; then
+                do-wp-restore-local "$FQDN" "$FQDN" "$DB" "$CODEBASE" "$GITKEY"
+            else
+                do-wp-restore-local "$FQDN" "$FQDN" "$DB"
+            fi
         else
             return 1
         fi
