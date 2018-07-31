@@ -1,4 +1,0 @@
-# vars file for ufw
----
-ufw_dependencies:
-  - ufw
