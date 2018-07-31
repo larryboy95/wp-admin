@@ -71,7 +71,14 @@ function check-args {
         || [ "$HOSTNAME" == "db" ] \
         || [ "$HOSTNAME" == "manual" ] \
         || [ "$HOSTNAME" == "tmp" ]; then
-        notify-critical "Error in first argument, ${HOSTNAME} ${BACKUPTYPE} backup."
+        notify-critical "Error in first argument, ${HOSTNAME} (arg1) ${BACKUPTYPE} (arg 2) backup."
+        exit 1
+    fi
+    if [ "$BACKUPTYPE" != "full" ] \
+        && [ "$BACKUPTYPE" != "db" ] \
+        && [ "$BACKUPTYPE" != "manual" ] \
+        && [ "$BACKUPTYPE" != "tmp" ]; then
+        notify-critical "Error in second argument, ${HOSTNAME} (arg 1) ${BACKUPTYPE} (arg 2) backup."
         exit 1
     fi
 }
