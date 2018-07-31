@@ -1,6 +1,8 @@
 #!/bin/bash
 
 USAGE="
+$(basename $0) Version 0.1
+
 Usage: $(basename $0) HOST [DOMAIN WPUSER WPEMAIL DBPASS]
 
 Downloads and configures a new WordPress instance

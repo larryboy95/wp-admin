@@ -1,6 +1,8 @@
 #!/bin/bash
 
 USAGE="
+$(basename $0) Version 0.1
+
 Usage: wordpress-restore-restic HOST FQDN RESTICDB [RESTICCODEBASE CONFIGFILE WEBROOT]
 For DigitalOcean only.
 Restores a WordPress site from Restic.

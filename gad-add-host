@@ -1,6 +1,8 @@
 #!/bin/bash
 
 USAGE="
+$(basename $0) Version 0.1
+
 Usage: gad-add-host HOST
 Adds HOST to /etc/git-auto-deploy.conf.json for automatic
 deployment on pushes to the specified branch.

@@ -1,4 +1,7 @@
 # wp-admin
+Version 0.1
+Status: Beta
+
 Shell scripts for the centralized management of WordPress.
 Part of a Digitalocean-based platform detailed in the wiki of this project.
 Intended to be kept as simple as possible for maximum legibility.
