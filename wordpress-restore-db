@@ -1,6 +1,8 @@
 #!/bin/bash
 
 USAGE="
+$(basename $0) Version 0.1
+
 wordpress-restore-db HOST FREQUENCY
 
 For HOSTs on DigitalOcean only.

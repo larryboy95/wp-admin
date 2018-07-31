@@ -1,6 +1,8 @@
 #!/bin/bash
 
 USAGE="
+$(basename $0) Version 0.1
+
 Usage: $(basename $0) HOST
 
 Deletes all posts from WordPress site on HOST.

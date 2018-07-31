@@ -1,5 +1,7 @@
 #!/bin/bash
 USAGE="
+$(basename $0) Version 0.1
+
 Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
 - HOSTNAME must be available in ssh config
