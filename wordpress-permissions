@@ -31,7 +31,7 @@ else
 fi
 WEBROOT="${3:-/var/www/html}"
 #ssh "$HOSTNAME" "[ -d ${WEBROOT} ] || exit 1"
-ssh "$HOSTNAME" "sudo -v"
+ssh "$HOSTNAME" "sudo ls"
 if [ ! $? -eq 0 ]; then
     echo "No sudo privileges"
     exit 1
