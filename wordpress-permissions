@@ -29,9 +29,10 @@ else
 	OWNER=${2}
 fi
 WEBROOT="${3:-/var/www/html}"
-ssh "$1" "[ -d ${WEBROOT} ] || exit 1"
+#ssh "$1" "[ -d ${WEBROOT} ] || exit 1"
+ssh "$1" "sudo -v"
 if [ $? -eq 1 ]; then
-    echo "Webroot not found"
+    echo "No sudo privileges"
     exit 1
 else
     ssh "$1" "sudo chown -R ${OWNER}:www-data ${WEBROOT};"
