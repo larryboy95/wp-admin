@@ -21,6 +21,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 HOSTNAME="$1"
+GROUP="www-data"
 # If OWNER is not supplied, ask for it
 if [ $# -eq 1 ]; then
 	read -p "User: [dev]" OWNER
@@ -29,29 +30,29 @@ else
 	OWNER=${2}
 fi
 WEBROOT="${3:-/var/www/html}"
-#ssh "$1" "[ -d ${WEBROOT} ] || exit 1"
-ssh "$1" "sudo -v"
+#ssh "$HOSTNAME" "[ -d ${WEBROOT} ] || exit 1"
+ssh "$HOSTNAME" "sudo -v"
 if [ $? -eq 1 ]; then
     echo "No sudo privileges"
     exit 1
 else
-    ssh "$1" "sudo chown -R ${OWNER}:www-data ${WEBROOT};"
+    ssh "$HOSTNAME" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
     if [ ! $? -eq 0 ]; then
         notify-critical "Permissions error on ${HOSTNAME}"
         exit 1
     fi
-    ssh "$1" "sudo chown ${OWNER}:www-data ${WEBROOT}/..;"
-    ssh "$1" "sudo chown root:www-data ${WEBROOT}/wp-config.php;"
-    ssh "$1" "[ -d ${WEBROOT}/wp-content/uploads ] && \
-        sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/uploads; \
+    ssh "$HOSTNAME" "sudo chown ${OWNER}:${GROUP} ${WEBROOT}/..;"
+    ssh "$HOSTNAME" "sudo chown root:${GROUP} ${WEBROOT}/wp-config.php;"
+    ssh "$HOSTNAME" "[ -d ${WEBROOT}/wp-content/uploads ] && \
+        sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/uploads; \
         [ -d ${WEBROOT}/wp-content/banners ] && \
-        sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/banners; \
+        sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/banners; \
         [ -d ${WEBROOT}/wp-content/plugins/wpspx/cache ] && \
-        sudo chown -R www-data:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
+        sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
     "
-    ssh "$1" "[ -d ${WEBROOT}/wp-content/uploads ] && \
+    ssh "$HOSTNAME" "[ -d ${WEBROOT}/wp-content/uploads ] && \
         sudo chmod g+s -R ${WEBROOT}/wp-content;"
-    ssh "$1" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
+    ssh "$HOSTNAME" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
         sudo find ${WEBROOT} -type d -exec chmod 750 {} +;
         sudo chmod 644 ${WEBROOT}/wp-config.php;
     "
