@@ -112,7 +112,7 @@ function main {
     SITEURL=$(wp $WPARGS option get siteurl)
     [ ! $? -eq 0 ] && { echo "Siteurl error"; exit 1; }
 
-    read -p "Search and replace the site url? (y/n) " -n 1 -r
+    read -p "Search and replace the site url to https://${FQDN}? (y/n) " -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
     fi
