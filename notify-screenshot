@@ -1,4 +1,24 @@
 #!/bin/bash
+USAGE="
+$(basename $0) Version 0.1.3
+
+Usage: $(basename $0) URL MESSAGE 
+
+Takes screenshots of URL and attaches to tweet.
+Sends MESSAGE as a tweet from the non-critical account.
+Configured in ~/.tw.conf
+
+Depends on:
+- https://github.com/piroor/tweet.sh
+- https://github.com/hrs/markov-sentence-generator
+- https://github.com/sindresorhus/pageres-cli
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
 cd /tmp
 tempURLs=".tw-urls.tmp"
 tempJPG="tw-tmp"

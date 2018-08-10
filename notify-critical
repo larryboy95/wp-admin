@@ -1,4 +1,21 @@
 #!/bin/sh
+USAGE="
+$(basename $0) Version 0.1.3
+
+Usage: $(basename $0) MESSAGE 
+
+Sends MESSAGE as a tweet from the critical account.
+Configured in ~/.tw-critical.conf
+
+Depends on:
+- https://github.com/piroor/tweet.sh
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
 if [ -f /usr/local/bin/tweet.sh ]; then
 	. ~/.tw-critical.conf
 	tweet.sh post "${1} $(date +%s)" >> ~/log.tweets
