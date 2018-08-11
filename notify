@@ -8,7 +8,7 @@ Sends MESSAGE as a tweet from the non-critical account.
 Configured in ~/.tw.conf
 
 Depends on:
-- https://github.com/hrs/markov-sentence-generator
+- https://github.com/hrs/MARKOV-sentence-generator
 - https://github.com/piroor/tweet.sh
 "
 # Print USAGE if no args
@@ -16,21 +16,23 @@ if [ $# -eq 0 ]; then
     echo "$USAGE"
     exit 1
 fi
-
-lastRun=$(cat "${HOME}/.tw.lastRun")
-sinceLastRun=`expr $(date +%s) - $lastRun`
-if [ $sinceLastRun -lt 30 ]; then
-	echo "$sinceLastRun is too short"
+MESSAGE="$1"
+LASTRUNFILE="${HOME}/.tw.lastrun"
+[ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
+LASTRUN=$(cat "$LASTRUNFILE")
+SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
+if [ $SINCELASTRUN -lt 30 ]; then
+	echo "${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
 	exit 1
 fi
-
+TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
+MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
 if [ -f /usr/local/bin/tweet.sh ]; then
-	markov=$(/opt/markov-sentence-generator/sentence-generator.py /opt/markov-sentence-generator/360.txt.utf-8 5 | cut -d " " -f 1-20)
 	. "${HOME}/.tw.conf"
-	tweet.sh post "${1} ${markov}" > /dev/null 2>&1
-	echo $(date +%s) > "${HOME}/.tw.lastRun"
+	tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
+	echo $(date +%s) > "$LASTRUNFILE"
 else 
 	echo "Could not find tweet.sh"
 fi
-echo $1
+echo "$MESSAGE"
 exit 0
