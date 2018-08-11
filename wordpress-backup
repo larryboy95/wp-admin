@@ -11,6 +11,17 @@ Where:
     - db: backup db to admin server
     - tmp: backup db and webroot to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
+
+Configure Restic for s3
+=======================
+Add the following information to ~/.wp-admin:
+
+export RESTIC_REPOSITORY="s3:https://s3-ca-central-1.amazonaws.com/backups.domain.com/restic"
+export RESTIC_PASSWORD=""
+
+# AWS
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
 "
 
 # Print USAGE if no args
