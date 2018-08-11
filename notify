@@ -19,8 +19,8 @@ fi
 
 lastRun=$(cat "${HOME}/.tw.lastRun")
 sinceLastRun=`expr $(date +%s) - $lastRun`
-if [ $sinceLastRun > 30 ]; then
-	echo $sinceLastRun
+if [ $sinceLastRun -lt 30 ]; then
+	echo "$sinceLastRun is too short"
 	exit 1
 fi
 
