@@ -3,7 +3,6 @@ Version 0.1.3
 Status: Beta
 
 Shell scripts for the centralized management of WordPress.
-Part of a Digitalocean-based platform detailed in the wiki of this project.
 Intended to be kept as simple as possible for maximum legibility.
 These tools provide maintenance and workflow functions.
 
@@ -14,7 +13,11 @@ Dependencies:
 * [wp-cli](https://github.com/wp-cli/wp-cli)
 * [git-auto-deploy](https://github.com/olipo186/Git-Auto-Deploy)
 * [restic](https://github.com/restic/restic)
+
+For twitter notifications:
 * [tweet.sh](https://github.com/piroor/tweet.sh)
+* [markov-sentence-generator](https://github.com/hrs/markov-sentence-generator)
+* [pagres-cli](https://github.com/sindresorhus/pageres-cli)
 
 ## Installation
 Clone this repo and add it to your path.
