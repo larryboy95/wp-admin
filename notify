@@ -41,7 +41,7 @@ function screenshot {
 # Cleanup temp files on exit
     trap "rm -rf ${TEMPDIR}" EXIT	
     URL="$2"
-    PARGS="--crop --delay=2 --format=png"
+    PARGS="--crop --delay=2 --format=jpg"
     curl -s "$URL" \
         | grep -Po '(?<=href=")[^"]*' \
         | grep "$URL" \
@@ -52,22 +52,23 @@ function screenshot {
         | uniq \
         | head -n 2 \
         > ${TEMPURL};
-    pageres "$PARGS" --filename="${TEMPPIC}-0" "$URL" 1600x2100
+    cat "$TEMPURL"
+    pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100
     pageres \
-        "$PARGS" \
+        $PARGS \
         --userAgent 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 6P Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36' \
         --filename="${TEMPPIC}-1" \
         "$URL" \
-        500x1100
+        500x1600
     n=2
     while IFS='' read -r line || [[ -n "$line" ]]; do
-        pageres "$PARGS" --filename="${TEMPPIC}-${n}" "$line" 1600x2100
+        pageres $PARGS --filename="${TEMPPIC}-${n}" "$line" 1600x2100
         ((n++))
     done < "${TEMPURL}"
-    MID[0]=$(tweet.sh upload "${TEMPPIC}-0.png" | jq -r '.media_id_string')
-    MID[1]=$(tweet.sh upload "${TEMPPIC}-1.png" | jq -r '.media_id_string')
-    MID[2]=$(tweet.sh upload "${TEMPPIC}-2.png" | jq -r '.media_id_string')
-    MID[3]=$(tweet.sh upload "${TEMPPIC}-3.png" | jq -r '.media_id_string')
+    MID[0]=$(tweet.sh upload "${TEMPPIC}-0.jpg" | jq -r '.media_id_string')
+    MID[1]=$(tweet.sh upload "${TEMPPIC}-1.jpg" | jq -r '.media_id_string')
+    MID[2]=$(tweet.sh upload "${TEMPPIC}-2.jpg" | jq -r '.media_id_string')
+    MID[3]=$(tweet.sh upload "${TEMPPIC}-3.jpg" | jq -r '.media_id_string')
     echo ${MID[@]}
     tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
 }
@@ -82,7 +83,7 @@ if [ -f /usr/local/bin/tweet.sh ]; then
         . "${HOME}/.tw-critical.conf"
 	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
     else
-        screenshot $@
+        screenshot "$@"
     fi
 	echo $(date +%s) > "$LASTRUNFILE"
 else 
