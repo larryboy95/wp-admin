@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 USAGE="
 $(basename $0) Version 0.1.3
 
@@ -25,18 +25,53 @@ LASTRUNFILE="${HOME}/.tw.lastrun"
 [ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
-TEMPDIR="/tmp/${USER}/"
-[ -d "$TEMPDIR" ] && rm -f "${TEMPDIR}*" || mkdir "$TEMPDIR"
-cd "$TEMPDIR"
-TEMPURL="tw-urls.tmp"
-TEMPPIC="tw-tmp"
-# Cleanup temp files on exit
-trap 'rm -f ${TEMPDIR}*; rmdir $TEMPDIR' EXIT	
 
 if [ $SINCELASTRUN -lt 31 ]; then
 	echo "${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
 	exit 1
 fi
+
+function screenshot {
+    local TEMPDIR TEMPURL TEMPPIC URL PARGS MID
+    TEMPDIR="/tmp/${USER}/"
+    [ -d "$TEMPDIR" ] || mkdir "$TEMPDIR"
+    cd "$TEMPDIR"
+    TEMPURL="tw-urls.tmp"
+    TEMPPIC="tw-tmp"
+# Cleanup temp files on exit
+    trap "rm -rf ${TEMPDIR}" EXIT	
+    URL="$2"
+    PARGS="--crop --delay=2 --format=png"
+    curl -s "$URL" \
+        | grep -Po '(?<=href=")[^"]*' \
+        | grep "$URL" \
+        | grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
+        | awk '{ print length($0) " " $0; }' \
+        | sort -r -n \
+        | cut -d ' ' -f 2- \
+        | uniq \
+        | head -n 2 \
+        > ${TEMPURL};
+    pageres "$PARGS" --filename="${TEMPPIC}-0" "$URL" 1600x2100
+    pageres \
+        "$PARGS" \
+        --userAgent 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 6P Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36' \
+        --filename="${TEMPPIC}-1" \
+        "$URL" \
+        500x1100
+    n=2
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        pageres "$PARGS" --filename="${TEMPPIC}-${n}" "$line" 1600x2100
+        ((n++))
+    done < "${TEMPURL}"
+    MID[0]=$(tweet.sh upload "${TEMPPIC}-0.png" | jq -r '.media_id_string')
+    MID[1]=$(tweet.sh upload "${TEMPPIC}-1.png" | jq -r '.media_id_string')
+    MID[2]=$(tweet.sh upload "${TEMPPIC}-2.png" | jq -r '.media_id_string')
+    MID[3]=$(tweet.sh upload "${TEMPPIC}-3.png" | jq -r '.media_id_string')
+    echo ${MID[@]}
+    tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
+}
+
 if [ -f /usr/local/bin/tweet.sh ]; then
     TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
     MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
@@ -47,40 +82,14 @@ if [ -f /usr/local/bin/tweet.sh ]; then
         . "${HOME}/.tw-critical.conf"
 	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
     else
-        URL="$2"
-        PARGS="--crop --delay=2 --format=png"
-        curl -s "$URL" \
-            | grep -Po '(?<=href=")[^"]*' \
-            | grep "$URL" \
-            | grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
-            | awk '{ print length($0) " " $0; }' $file \
-            | sort -r -n \
-            | cut -d ' ' -f 2- \
-            | uniq \
-            | head -n 2 \
-            > ${TEMPURL};
-        pageres "$PARGS" --filename="${TEMPPIC}-0" "$URL" 1600x2100
-        pageres \
-            "$PARGS" \
-            --userAgent 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 6P Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36' \
-            --filename="${TEMPPIC}-1" \
-            "$URL" \
-            700x2100
-        MID[0]=$(tweet.sh upload "${TEMPPIC}-0.png" | jq -r '.media_id_string')
-        MID[1]=$(tweet.sh upload "${TEMPPIC}-1.png" | jq -r '.media_id_string')
-        n=2
-        while IFS='' read -r line || [[ -n "$line" ]]; do
-            pageres "$PARGS" --filename="${TEMPPIC}-${n}" "$line" 1600x2100
-            ((n++))
-        done < "${TEMPURLs}"
-        MID[2]=$(tweet.sh upload "${TEMPPIC}-2.png" | jq -r '.media_id_string')
-        MID[3]=$(tweet.sh upload "${TEMPPIC}-3.png" | jq -r '.media_id_string')
-        echo ${MID[@]}
-	    tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"  > /dev/null 2>&1
+        screenshot $@
     fi
 	echo $(date +%s) > "$LASTRUNFILE"
 else 
 	echo "Could not find tweet.sh"
 fi
+
+
+
 echo "$MESSAGE"
 exit 0
