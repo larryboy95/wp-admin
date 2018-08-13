@@ -42,13 +42,11 @@ function screenshot {
     trap "rm -rf ${TEMPDIR}" EXIT	
     URL="$2"
     PARGS="--crop --delay=2 --format=jpg"
-    curl -s "$URL" \
+    curl -s "https://${URL}" \
         | grep -Po '(?<=href=")[^"]*' \
-        | grep "$URL" \
+        | grep "//$URL/[a-z]" \
         | grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
-        | awk '{ print length($0) " " $0; }' \
-        | sort -r -n \
-        | cut -d ' ' -f 2- \
+        | sort -R \
         | uniq \
         | head -n 2 \
         > ${TEMPURL};
