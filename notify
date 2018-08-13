@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 USAGE="
 $(basename $0) Version 0.1.3
 
@@ -25,8 +26,16 @@ LASTRUNFILE="${HOME}/.tw.lastrun"
 [ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
-if [ $SINCELASTRUN -lt 30 ]; then
-	echo "${SINCELASTRUN}s since last tweet. Please wait until 29s have passed."
+TEMPDIR="/tmp/${USER}/"
+[ -d "$TEMPDIR" ] && rm -f "${TEMPDIR}*" || mkdir "$TEMPDIR"
+cd "$TEMPDIR"
+TEMPURL="tw-urls.tmp"
+TEMPJPG="tw-tmp"
+# Cleanup temp files on exit
+#trap 'rm -f ${TEMPDIR}*; rmdir $TEMPDIR' EXIT	
+
+if [ $SINCELASTRUN -lt 31 ]; then
+	echo "${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
 	exit 1
 fi
 if [ -f /usr/local/bin/tweet.sh ]; then
@@ -39,13 +48,8 @@ if [ -f /usr/local/bin/tweet.sh ]; then
         . "${HOME}/.tw-critical.conf"
 	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
     else
-        cd /tmp
         URL="$2"
-        TEMPURLs=".tw-urls.tmp"
-        TEMPJPG="tw-tmp"
-        PARGS="--crop --delay=2 --format=jpg"
-        . "${HOME}/.tw.conf"
-        rm ${TEMPJPG}-*.jpg
+        PARGS="--crop --delay=2 --format=png"
         curl -s "$URL" \
             | grep -Po '(?<=href=")[^"]*' \
             | grep "$1" \
@@ -55,27 +59,25 @@ if [ -f /usr/local/bin/tweet.sh ]; then
             | cut -d ' ' -f 2- \
             | uniq \
             | head -n 2 \
-            > ${TEMPURLs};
-        pageres $PARGS --filename="${TEMPJPG}-0" ${URL} 1600x2100
+            > ${TEMPURL};
+        pageres "$PARGS" --filename="${TEMPJPG}-0" "$URL" 1600x2100
         pageres \
-            $PARGS \
+            "$PARGS" \
             --userAgent 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 6P Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.83 Mobile Safari/537.36' \
             --filename="${TEMPJPG}-1" \
-            ${URL} \
+            "$URL" \
             700x2100
-        mid[0]=$(tweet.sh upload ${TEMPJPG}-0.jpg | jq -r '.media_id_string')
-        mid[1]=$(tweet.sh upload ${TEMPJPG}-1.jpg | jq -r '.media_id_string')
+        MID[0]=$(tweet.sh upload "${TEMPJPG}-0.png" | jq -r '.media_id_string')
+        MID[1]=$(tweet.sh upload "${TEMPJPG}-1.png" | jq -r '.media_id_string')
         n=2
         while IFS='' read -r line || [[ -n "$line" ]]; do
-            pageres $PARGS --filename="${TEMPJPG}-${n}" ${line} 1600x2100
+            pageres "$PARGS" --filename="${TEMPJPG}-${n}" "$line" 1600x2100
             ((n++))
         done < "${TEMPURLs}"
-        mid[2]=$(tweet.sh upload ${TEMPJPG}-2.jpg | jq -r '.media_id_string')
-        mid[3]=$(tweet.sh upload ${TEMPJPG}-3.jpg | jq -r '.media_id_string')
-        echo ${mid[@]}
-        rm ${TEMPJPG}-*.jpg
-        rm ${TEMPURLs}
-	    tweet.sh post -m ${mid[0]},${mid[1]},${mid[2]},${mid[3]} "${MESSAGE} ${MARKOV}"  > /dev/null 2>&1
+        MID[2]=$(tweet.sh upload "${TEMPJPG}-2.png" | jq -r '.media_id_string')
+        MID[3]=$(tweet.sh upload "${TEMPJPG}-3.png" | jq -r '.media_id_string')
+        echo ${MID[@]}
+	    tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"  > /dev/null 2>&1
     fi
 	echo $(date +%s) > "$LASTRUNFILE"
 else 
