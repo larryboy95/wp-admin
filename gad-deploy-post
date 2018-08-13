@@ -1,4 +1,23 @@
 #!/bin/bash
+USAGE="
+$(basename $0) Version 0.1.3
+
+Usage: gad-deploy-post HOST [WEBROOT]
+
+HOST must be configured in ~/.ssh/config
+Deploys from /var/repos/HOST to HOST:WEBROOT
+Default WEBROOT is /var/www/html
+Requires a .gitignore file in repo dir to use as file mask.
+.git* is not transferred to WEBROOT.
+Deletes all files in WEBROOT unless they exist:
+    a) in the repo
+    b) in the .gitignore
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    exit 1
+fi
 
 HOSTNAME="$1"
 WEBROOT=${2:-/var/www/html}

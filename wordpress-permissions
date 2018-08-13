@@ -1,19 +1,16 @@
 #!/bin/bash
 
 USAGE="
-$(basename $0) Version 0.1.2
+$(basename $0) Version 0.1.3
 
 Usage: $(basename $0) HOSTNAME [OWNER WEBROOT]
 
-Change primary owner of webroot to OWNER
-while preserving write permissions for
-web server to appropriate directories.
-Sets all files to 640 and all directories
-to 750. wp-config.php is owned by root, 644.
+Change primary owner of webroot to OWNER while preserving write permissions for www-data to appropriate directories.
+Sets all files to 640 and all directories to 750. wp-config.php is owned by root, 644.
 
 Defaults:
-OWNER, dev
-WEBROOT, /var/www/html
+OWNER dev
+WEBROOT /var/www/html
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
