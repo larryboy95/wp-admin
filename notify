@@ -9,11 +9,12 @@ If the second argument is 'critical' then MESSAGE will be sent from the critical
 If the second argument is a URL then screenshots will be taken and tweeted along with the MESSAGE from the regular account.
 
 Configured in ~/.tw.conf
-Account for critical notifications is configured in ~/.tw.conf
+Account for critical notifications is configured in ~/.tw-critical.conf
 
 Depends on:
 - https://github.com/hrs/MARKOV-sentence-generator
 - https://github.com/piroor/tweet.sh
+- https://github.com/sindresorhus/pageres-cli
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
