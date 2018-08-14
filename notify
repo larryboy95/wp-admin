@@ -33,6 +33,7 @@ fi
 
 function screenshot {
     local TEMPDIR TEMPURL TEMPPIC URL PARGS MID
+    local i n p
     TEMPDIR="/tmp/${USER}/"
     [ -d "$TEMPDIR" ] || mkdir "$TEMPDIR"
     cd "$TEMPDIR"
@@ -41,7 +42,7 @@ function screenshot {
 # Cleanup temp files on exit
     trap "rm -rf ${TEMPDIR}" EXIT	
     URL="$2"
-    PARGS="--crop --delay=2 --format=jpg"
+    PARGS="--crop --delay=2 --format=jpg --timeout=20"
     curl -s "https://${URL}" \
         | grep -Po '(?<=href=")[^"]*' \
         | grep "//$URL/[a-z]" \
@@ -52,24 +53,25 @@ function screenshot {
         > ${TEMPURL};
     cat "$TEMPURL"
     pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100
-    [ ! $? -eq 0 ] && rm "${TEMPPIC}-0.jpg"
     pageres \
         $PARGS \
         --userAgent 'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36' \
         --filename="${TEMPPIC}-1" \
         "$URL" \
         500x1600
-    [ ! $? -eq 0 ] && rm "${TEMPPIC}-1.jpg"
     n=2
     while IFS='' read -r line || [[ -n "$line" ]]; do
         pageres $PARGS --filename="${TEMPPIC}-${n}" "$line" 1600x2100
-        [ ! $? -eq 0 ] && rm "${TEMPPIC}-${n}"*
         ((n++))
     done < "${TEMPURL}"
-    MID[0]=$(tweet.sh upload "${TEMPPIC}-0.jpg" | jq -r '.media_id_string')
-    MID[1]=$(tweet.sh upload "${TEMPPIC}-1.jpg" | jq -r '.media_id_string')
-    MID[2]=$(tweet.sh upload "${TEMPPIC}-2.jpg" | jq -r '.media_id_string')
-    MID[3]=$(tweet.sh upload "${TEMPPIC}-3.jpg" | jq -r '.media_id_string')
+    i=0
+    while [ $i -lt 5 ]; do
+        p="${TEMPPIC}-${i}.jpg"
+        if [ -f "$p" ]; then
+            MID[$i]=$(tweet.sh upload "$p" | jq -r '.media_id_string')
+        fi
+        ((i++))
+    done
     echo ${MID[@]}
     tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
 }
