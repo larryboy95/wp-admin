@@ -64,9 +64,7 @@ Deploying from git:
 * [gad-deploy-post](https://gitlab.com/neilscudder/wp-admin/blob/master/gad-deploy-post) - Runs after git-auto-deploy, rsyncs the repo from `/var/repos` to host.
 
 Twitter Notifications:
-* [notify](https://gitlab.com/neilscudder/wp-admin/blob/master/notify) - Send a tweet from the configured account for admin notifications.
-* [notify-screenshot](https://gitlab.com/neilscudder/wp-admin/blob/master/notify-screenshot) - Take screenshots of a website at different resolutions and send a tweet from the configured account for admin notifications.
-* [notify-critical](https://gitlab.com/neilscudder/wp-admin/blob/master/notify-critical) - Send a tweet from the configured account for critical notifications.
+* [notify](https://gitlab.com/neilscudder/wp-admin/blob/master/notify) - Send a tweet notification.
 
 OS-Admin
 * [os-authorize](https://gitlab.com/neilscudder/wp-admin/blob/master/os-authorize) - Authorize ssh keys for user on remote server.

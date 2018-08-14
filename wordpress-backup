@@ -56,8 +56,8 @@ function restic-check {
 	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin" ]; then
 		. "${HOME}/.wp-admin"
 	else
-		notify-critical \
-            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening."
+		notify \
+            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
 	fi
 }
 
@@ -69,8 +69,9 @@ function wp-check {
         core is-installed" \
         < /dev/null
     if [ ! $? -eq 0 ]; then
-        notify-critical "${HOSTNAME} \
-            WP does not appear to be running. What the heck?"
+        notify "${HOSTNAME} \
+            WP does not appear to be running. What the heck?" \
+            critical
         exit 1
     fi
     SITEURL=$(ssh ${HOSTNAME} \
@@ -84,14 +85,14 @@ function check-args {
         || [ "$HOSTNAME" == "db" ] \
         || [ "$HOSTNAME" == "manual" ] \
         || [ "$HOSTNAME" == "tmp" ]; then
-        notify-critical "Error in first argument, ${HOSTNAME} (arg1) ${BACKUPTYPE} (arg 2) backup."
+        notify "Error in first argument, ${HOSTNAME} (arg1) ${BACKUPTYPE} (arg 2) backup." critical
         exit 1
     fi
     if [ "$BACKUPTYPE" != "full" ] \
         && [ "$BACKUPTYPE" != "db" ] \
         && [ "$BACKUPTYPE" != "manual" ] \
         && [ "$BACKUPTYPE" != "tmp" ]; then
-        notify-critical "Error in second argument, ${HOSTNAME} (arg 1) ${BACKUPTYPE} (arg 2) backup."
+        notify "Error in second argument, ${HOSTNAME} (arg 1) ${BACKUPTYPE} (arg 2) backup." critical
         exit 1
     fi
 }
@@ -172,17 +173,17 @@ function dump-db {
     ssh ${HOSTNAME} "wp ${WPARGS} \
         db export ${WEBROOT}/../${DBFNAME}"
     if [ ! $? -eq 0  ]; then
-        notify-critical "Database export failed for ${TEASER}" 
+        notify "Database export failed for ${TEASER}" critical
         exit 1
     fi
     ssh ${HOSTNAME} "gzip -vf ${WEBROOT}/../${DBFNAME}"
     if [ ! $? -eq 0  ]; then
-        notify-critical "Backup gzip failed for ${TEASER}" 
+        notify "Backup gzip failed for ${TEASER}" critical
         exit 1
     fi
     scp ${HOSTNAME}:${WEBROOT}/../${DBFNAME}.gz .
     if [ ! $? -eq 0  ]; then
-        notify-critical "DB scp failed for ${TEASER}" 
+        notify "DB scp failed for ${TEASER}" critical
         exit 1
     fi
 }
@@ -197,18 +198,18 @@ function sync-files {
         ${HOSTNAME}:${WEBROOT} \
         ${FULLBUPDIR}
     if [ ! $? -eq 0  ]; then
-        notify-critical "File sync failed for ${TEASER}" 
+        notify "File sync failed for ${TEASER}" critical
     fi
 }
 
 function backup-full {
 	$RESTIC backup ${FULLBUPDIR}/ --tag ${HOSTNAME}
-    [ ! $? -eq 0  ] && notify-critical "Restic error"
+    [ ! $? -eq 0  ] && notify "Restic error" critical
 }
 
 function backup-db {
 	$RESTIC backup ${DBFNAME}.gz --tag ${HOSTNAME}
-    [ ! $? -eq 0  ] && notify-critical "Restic error"
+    [ ! $? -eq 0  ] && notify "Restic error" critical
 }
 
 check-args 
@@ -241,10 +242,11 @@ else
     sync-files
     backup-full
 fi
-notify-screenshot \
-    "$SITEURL" "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:"
+notify \
+    "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" \
+    "$SITEURL" 
 if [ ! $? -eq 0  ]; then
-    notify-critical "Screenshot tweet failed for ${TEASER}" 
+    notify "Screenshot tweet failed for ${TEASER}" critical
     exit 1
 fi
 

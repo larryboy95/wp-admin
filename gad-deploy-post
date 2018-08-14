@@ -29,14 +29,14 @@ rsync -r \
 	--delete \
  	${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
 if [ ! $? -eq 0 ]; then
-	notify-critical "rsync exited with code $? for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+	notify "rsync exited with code $? for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}" critical 
 fi
 
 wordpress-permissions "$HOSTNAME" dev
 if [  $? -eq 0 ]; then
 	notify "Deploy complete for ${HOSTNAME}:${WEBROOT} by ${LOGNAME}@${HOSTNAME}"
 else
-	notify-critical "wordpress-permissions exited with code $? for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+	notify "wordpress-permissions exited with code $? for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}" critical
 fi
 
 exit 0
