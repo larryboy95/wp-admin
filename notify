@@ -5,8 +5,9 @@ $(basename $0) Version 0.1.4
 Usage: $(basename $0) MESSAGE ['critical' || URL] 
 
 Sends MESSAGE as a tweet.
-If the second argument is 'critical' then MESSAGE will be sent from the critical notification account.
-If the second argument is a URL then screenshots will be taken and tweeted along with the MESSAGE from the regular account.
+If the second argument is:
+- a URL, screenshots will be taken and tweeted along with the MESSAGE
+- 'critical', MESSAGE will be sent from the critical notification account
 
 Configured in ~/.tw.conf
 Account for critical notifications is configured in ~/.tw-critical.conf
