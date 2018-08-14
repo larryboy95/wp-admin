@@ -52,15 +52,18 @@ function screenshot {
         > ${TEMPURL};
     cat "$TEMPURL"
     pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100
+    [ ! $? -eq 0 ] && rm "${TEMPPIC}-0.jpg"
     pageres \
         $PARGS \
         --userAgent 'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36' \
         --filename="${TEMPPIC}-1" \
         "$URL" \
         500x1600
+    [ ! $? -eq 0 ] && rm "${TEMPPIC}-1.jpg"
     n=2
     while IFS='' read -r line || [[ -n "$line" ]]; do
         pageres $PARGS --filename="${TEMPPIC}-${n}" "$line" 1600x2100
+        [ ! $? -eq 0 ] && rm "${TEMPPIC}-${n}"*
         ((n++))
     done < "${TEMPURL}"
     MID[0]=$(tweet.sh upload "${TEMPPIC}-0.jpg" | jq -r '.media_id_string')
