@@ -27,11 +27,11 @@ else
 	OWNER=${2}
 fi
 WEBROOT="${3:-/var/www/html}"
-#ssh "$HOSTNAME" "[ -d ${WEBROOT} ] || exit 1"
+
 ssh "$HOSTNAME" "sudo ls"
 if [ ! $? -eq 0 ]; then
-    echo "No sudo privileges"
-    exit 1
+    echo "No sudo privileges at $HOSTNAME"
+    exit 2
 else
     ssh "$HOSTNAME" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
     if [ ! $? -eq 0 ]; then
