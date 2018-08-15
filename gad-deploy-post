@@ -31,15 +31,19 @@ rsync -r \
  	${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
 RSYNCERR="$?"
 if [ ! "$RSYNCERR" -eq 0 ]; then
-	notify-critical "rsync exited with code $RSYNCERR for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+	notify-critical "rsync exited with code $RSYNCERR for ${USER}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+else
+    echo "rsync completed without error"
 fi
 
 wordpress-permissions "$HOSTNAME" dev
 PERMERR="$?"
-if [  "$PERMERR" -eq 0 ]; then
-	notify "Deploy complete for ${HOSTNAME}:${WEBROOT} by ${LOGNAME}@${HOSTNAME}"
-else
-	notify-critical "wordpress-permissions exited with code $PERMERR for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+if [ ! "$PERMERR" -eq 0 ]; then
+	echo "wordpress-permissions exited with code $PERMERR for ${USER}@${HOSTNAME}"
+fi
+
+if [ "$RSYNCERR" -eq 0 ]; then
+    notify "Deploy complete for ${HOSTNAME}:${WEBROOT} by ${USER}@${HOSTNAME}"
 fi
 
 exit 0
