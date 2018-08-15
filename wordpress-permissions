@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-$(basename $0) Version 0.1.3
+$(basename $0) Version 0.1.4
 
 Usage: $(basename $0) HOSTNAME [OWNER WEBROOT]
 
@@ -35,7 +35,7 @@ if [ ! $? -eq 0 ]; then
 else
     ssh "$HOSTNAME" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
     if [ ! $? -eq 0 ]; then
-        notify-critical "Permissions error on ${HOSTNAME}"
+        notify "Permissions error on ${HOSTNAME}" critical
         exit 1
     fi
     ssh "$HOSTNAME" "sudo chown ${OWNER}:${GROUP} ${WEBROOT}/..;"
@@ -56,7 +56,7 @@ else
     if [ $? -eq 0 ]; then
         echo "Permissions updated on ${HOSTNAME}"
     else
-        notify-critical "Permissions error on ${HOSTNAME}"
+        notify "Permissions error on ${HOSTNAME}" critical
         exit 1
     fi
 fi

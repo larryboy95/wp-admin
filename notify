@@ -1,15 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 USAGE="
-$(basename $0) Version 0.1.3
+$(basename $0) Version 0.1.4
 
-Usage: $(basename $0) MESSAGE 
+Usage: $(basename $0) MESSAGE ['critical' || URL] 
 
-Sends MESSAGE as a tweet from the non-critical account.
+Sends MESSAGE as a tweet.
+If the second argument is:
+- a URL, screenshots will be taken and tweeted along with the MESSAGE
+- 'critical', MESSAGE will be sent from the critical notification account
+
 Configured in ~/.tw.conf
+Account for critical notifications is configured in ~/.tw-critical.conf
 
 Depends on:
 - https://github.com/hrs/MARKOV-sentence-generator
 - https://github.com/piroor/tweet.sh
+- https://github.com/sindresorhus/pageres-cli
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
@@ -21,18 +27,75 @@ LASTRUNFILE="${HOME}/.tw.lastrun"
 [ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
-if [ $SINCELASTRUN -lt 30 ]; then
+
+if [ $SINCELASTRUN -lt 31 ]; then
 	echo "${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
 	exit 1
 fi
-TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
-MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
+
+function screenshot {
+    local TEMPDIR TEMPURL TEMPPIC URL PARGS MID
+    local i n p
+    TEMPDIR="/tmp/${USER}/"
+    [ -d "$TEMPDIR" ] || mkdir "$TEMPDIR"
+    cd "$TEMPDIR"
+    TEMPURL="tw-urls.tmp"
+    TEMPPIC="tw-tmp"
+# Cleanup temp files on exit
+    trap "rm -rf ${TEMPDIR}" EXIT	
+    URL="$2"
+    PARGS="--crop --delay=2 --format=jpg --timeout=20"
+    curl -s "https://${URL}" \
+        | grep -Po '(?<=href=")[^"]*' \
+        | grep "//$URL/[a-z]" \
+        | grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
+        | sort -R \
+        | uniq \
+        | head -n 2 \
+        > ${TEMPURL};
+    cat "$TEMPURL"
+    pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100
+    pageres \
+        $PARGS \
+        --userAgent 'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36' \
+        --filename="${TEMPPIC}-1" \
+        "$URL" \
+        500x1600
+    n=2
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        pageres $PARGS --filename="${TEMPPIC}-${n}" "$line" 1600x2100
+        ((n++))
+    done < "${TEMPURL}"
+    i=0
+    while [ $i -lt 5 ]; do
+        p="${TEMPPIC}-${i}.jpg"
+        if [ -f "$p" ]; then
+            MID[$i]=$(tweet.sh upload "$p" | jq -r '.media_id_string')
+        fi
+        ((i++))
+    done
+    echo ${MID[@]}
+    tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
+}
+
 if [ -f /usr/local/bin/tweet.sh ]; then
-	. "${HOME}/.tw.conf"
-	tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
+    TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
+    MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
+    . "${HOME}/.tw.conf"
+    if [ $# -eq 1 ]; then
+	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
+    elif [ "$2" = "critical" ]; then
+        . "${HOME}/.tw-critical.conf"
+	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
+    else
+        screenshot "$@"
+    fi
 	echo $(date +%s) > "$LASTRUNFILE"
 else 
 	echo "Could not find tweet.sh"
 fi
+
+
+
 echo "$MESSAGE"
 exit 0
