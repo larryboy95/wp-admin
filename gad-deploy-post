@@ -1,10 +1,11 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.1.3
+$(basename $0) Version 0.1.4
 
 Usage: gad-deploy-post HOST [WEBROOT]
 
 HOST must be configured in ~/.ssh/config
+Will clone repo to /var/repos/HOST
 Deploys from /var/repos/HOST to HOST:WEBROOT
 Default WEBROOT is /var/www/html
 Requires a .gitignore file in repo dir to use as file mask.
@@ -28,15 +29,21 @@ rsync -r \
 	--exclude-from="$GITIGNORE" \
 	--delete \
  	${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
-if [ ! $? -eq 0 ]; then
-	notify-critical "rsync exited with code $? for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+RSYNCERR="$?"
+if [ ! "$RSYNCERR" -eq 0 ]; then
+	notify "rsync exited with code $RSYNCERR for ${USER}@${HOSTNAME} while attempting to deploy ${HOSTNAME}" critical
+else
+    echo "rsync completed without error"
 fi
 
 wordpress-permissions "$HOSTNAME" dev
-if [  $? -eq 0 ]; then
-	notify "Deploy complete for ${HOSTNAME}:${WEBROOT} by ${LOGNAME}@${HOSTNAME}"
-else
-	notify-critical "wordpress-permissions exited with code $? for ${LOGNAME}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+PERMERR="$?"
+if [ ! "$PERMERR" -eq 0 ]; then
+	echo "wordpress-permissions exited with code $PERMERR for ${USER}@${HOSTNAME}"
+fi
+
+if [ "$RSYNCERR" -eq 0 ]; then
+    notify "Deploy complete for ${HOSTNAME}:${WEBROOT} by ${USER}@${HOSTNAME}"
 fi
 
 exit 0
