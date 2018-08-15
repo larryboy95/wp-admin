@@ -31,7 +31,7 @@ rsync -r \
  	${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
 RSYNCERR="$?"
 if [ ! "$RSYNCERR" -eq 0 ]; then
-	notify-critical "rsync exited with code $RSYNCERR for ${USER}@${HOSTNAME} while attempting to deploy ${HOSTNAME}"
+	notify "rsync exited with code $RSYNCERR for ${USER}@${HOSTNAME} while attempting to deploy ${HOSTNAME}" critical
 else
     echo "rsync completed without error"
 fi
