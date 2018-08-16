@@ -242,9 +242,7 @@ else
     sync-files
     backup-full
 fi
-notify \
-    "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" \
-    "$SITEURL" 
+notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 if [ ! $? -eq 0  ]; then
     notify "Screenshot tweet failed for ${TEASER}" critical
     exit 1
