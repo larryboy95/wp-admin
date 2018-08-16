@@ -12,6 +12,10 @@ Where:
     - tmp: backup db and webroot to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
 
+Note: if WEBROOT is not supplied then wordpress-permissions 
+will be run to set ownership to the dev user. Add the WEBROOT
+parameter to suppress this action.
+
 Configure Restic for s3
 =======================
 Add the following information to ~/.wp-admin:
