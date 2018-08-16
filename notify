@@ -5,12 +5,13 @@ $(basename $0) Version 0.1.5
 Usage: $(basename $0) MESSAGE ['critical' || URL] 
 
 Sends MESSAGE as a tweet.
+URL should include the protocol, like https://site.com
 If the second argument is:
 - a URL, screenshots will be taken and tweeted along with the MESSAGE
 - 'critical', MESSAGE will be sent from the critical notification account
 
-Configured in ~/.tw.conf
-Account for critical notifications is configured in ~/.tw-critical.conf
+Configured in ~/.wp-admin-config/tw.conf
+Account for critical notifications is configured in ~/.wp-admin-config/tw-critical.conf
 
 Depends on:
 - https://github.com/hrs/MARKOV-sentence-generator
@@ -23,7 +24,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 MESSAGE="$1"
-LASTRUNFILE="${HOME}/.tw.lastrun"
+LASTRUNFILE="${HOME}/.wp-admin-config/tw.lastrun"
 [ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
@@ -81,11 +82,11 @@ function screenshot {
 if [ -f /usr/local/bin/tweet.sh ]; then
     TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
     MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
-    . "${HOME}/.tw.conf"
+    . "${HOME}/.wp-admin-config/tw.conf"
     if [ $# -eq 1 ]; then
 	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
     elif [ "$2" = "critical" ]; then
-        . "${HOME}/.tw-critical.conf"
+        . "${HOME}/.wp-admin-config/tw-critical.conf"
 	    tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
     else
         screenshot "$@"

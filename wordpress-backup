@@ -18,7 +18,7 @@ parameter to suppress this action.
 
 Configure Restic for s3
 =======================
-Add the following information to ~/.wp-admin:
+Add the following information to ~/.wp-admin-config/wp-admin.conf:
 
 export RESTIC_REPOSITORY="s3:https://s3-ca-central-1.amazonaws.com/backups.domain.com/restic"
 export RESTIC_PASSWORD=""
@@ -57,11 +57,11 @@ SITEURL=""
 WPARGS="--path=${WEBROOT} --allow-root"
 
 function restic-check {
-	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin" ]; then
-		. "${HOME}/.wp-admin"
+	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin-config/wp-admin.conf" ]; then
+		. "${HOME}/.wp-admin-config/wp-admin.conf"
 	else
 		notify \
-            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
+            "Restic or ~/.wp-admin-config/wp-admin.conf file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
 	fi
 }
 
