@@ -45,9 +45,9 @@ function screenshot {
     trap "rm -rf ${TEMPDIR}" EXIT	
     URL="$2"
     PARGS="--crop --delay=2 --format=jpg --timeout=20"
-    curl -s "https://${URL}" \
+    curl -s "${URL}" \
         | grep -Po '(?<=href=")[^"]*' \
-        | grep "//$URL/[a-z]" \
+        | grep "$URL/[a-z]" \
         | grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
         | sort -R \
         | uniq \
