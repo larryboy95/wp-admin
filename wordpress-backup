@@ -20,8 +20,10 @@ Configure Restic for s3
 =======================
 Add the following information to ~/.wp-admin-config/wp-admin.conf:
 
-export RESTIC_REPOSITORY="s3:https://s3-ca-central-1.amazonaws.com/backups.domain.com/restic"
-export RESTIC_PASSWORD=""
+RESTIC_REPO_FULL="s3:https://s3-ca-central-1.amazonaws.com/backups.domain.com/restic"
+RESTIC_PASSWORD_FULL=""
+RESTIC_REPO_MANUAL="s3:https://s3-ca-central-1.amazonaws.com/backups-manual.domain.com/restic"
+RESTIC_PASSWORD_MANUAL=""
 
 # AWS
 export AWS_ACCESS_KEY_ID=""
@@ -55,13 +57,22 @@ RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
 WPARGS="--path=${WEBROOT} --allow-root"
+RESTIC_REPOSITORY=""
+RESTIC_PASSWORD=""
 
 function restic-check {
 	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin-config/wp-admin.conf" ]; then
 		. "${HOME}/.wp-admin-config/wp-admin.conf"
+        if [ "$BACKUPTYPE" == "full" ]; then
+            export RESTIC_REPOSITORY="$RESTIC_REPO_FULL"
+            export RESTIC_PASSWORD="$RESTIC_PASSWORD_FULL"
+        elif [ "$BACKUPTYPE" == "manual" ]; then 
+            export RESTIC_REPOSITORY="$RESTIC_REPO_MANUAL"
+            export RESTIC_PASSWORD="$RESTIC_PASSWORD_MANUAL"
+        fi
 	else
 		notify \
-            "Restic or ~/.wp-admin-config/wp-admin.conf file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
+            "Restic or wp-admin.conf file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
 	fi
 }
 
@@ -234,10 +245,10 @@ elif [ ${BACKUPTYPE} = "tmp" ]; then
     dump-db
     sync-files
 elif [ ${BACKUPTYPE} = "manual" ]; then
-	echo "Skipping restic."
-    echo "This backup will not be written to s3."
+    restic-check
     dump-db
     sync-files
+    backup-full
 else
     restic-check
     rotate-db-backups
