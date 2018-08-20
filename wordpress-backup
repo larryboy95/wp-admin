@@ -7,7 +7,7 @@ Where:
 - HOSTNAME must be available in ssh config
 - BACKUPTYPE can be one of:
     - full: backup webroot and db to s3, rotated
-    - manual: full backup to BUPDIR/manual, not rotated
+    - manual: full backup to BUPDIR/manual and s3, not rotated
     - db: backup db to admin server
     - tmp: backup db and webroot to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
@@ -18,7 +18,15 @@ parameter to suppress this action.
 
 Configure Restic for s3
 =======================
-TBD
+Create two buckets on s3 with an IAM user for each.
+Create two files in ~/.wp-admin-config/:
+    - restic-full.conf
+    - restic-manual.conf
+Each file needs the followong vars:
+    - RESTIC_REPOSITORY
+    - RESTIC_PASSWORD
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
 "
 
 # Print USAGE if no args
