@@ -18,16 +18,7 @@ parameter to suppress this action.
 
 Configure Restic for s3
 =======================
-Add the following information to ~/.wp-admin-config/wp-admin.conf:
-
-RESTIC_REPO_FULL="s3:https://s3-ca-central-1.amazonaws.com/backups.domain.com/restic"
-RESTIC_PASSWORD_FULL=""
-RESTIC_REPO_MANUAL="s3:https://s3-ca-central-1.amazonaws.com/backups-manual.domain.com/restic"
-RESTIC_PASSWORD_MANUAL=""
-
-# AWS
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
+TBD
 "
 
 # Print USAGE if no args
@@ -61,14 +52,12 @@ RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
 function restic-check {
-	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin-config/wp-admin.conf" ]; then
-		. "${HOME}/.wp-admin-config/wp-admin.conf"
+	if [ -f "$RESTIC" ]; then
         if [ "$BACKUPTYPE" == "full" ]; then
-            export RESTIC_REPOSITORY="$RESTIC_REPO_FULL"
-            export RESTIC_PASSWORD="$RESTIC_PASSWORD_FULL"
+		    . "${HOME}/.wp-admin-config/restic-full.conf"
+# TODO error checking here
         elif [ "$BACKUPTYPE" == "manual" ]; then 
-            export RESTIC_REPOSITORY="$RESTIC_REPO_MANUAL"
-            export RESTIC_PASSWORD="$RESTIC_PASSWORD_MANUAL"
+		    . "${HOME}/.wp-admin-config/restic-manual.conf"
         fi
 	else
 		notify \
