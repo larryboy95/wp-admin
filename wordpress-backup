@@ -236,6 +236,7 @@ elif [ ${BACKUPTYPE} = "tmp" ]; then
 elif [ ${BACKUPTYPE} = "manual" ]; then
     restic-check
     dump-db
+    backup-db
     sync-files
     backup-full
 else
