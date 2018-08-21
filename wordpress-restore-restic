@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-$(basename $0) Version 0.1.4
+$(basename $0) Version 0.2.0
 
 Usage: wordpress-restore-restic HOST FQDN RESTICDB [RESTICCODEBASE CONFIGFILE WEBROOT]
 For DigitalOcean only.
@@ -13,7 +13,7 @@ RESTICDB hash of target db to restore
 
 # Optional arguments and their defaults
 RESTICCODEBASE hash of target snapshot to restore
-CONFIGFILE defaults to ~/.wp-admin
+CONFIGFILE defaults to ~/.wp-admin-config/wp-admin.conf
 WEBROOT is not yet implemented
 
 # Optional environmental variables
@@ -32,7 +32,7 @@ function main {
     FQDN="$2"
     RESTICDB="$3"
     [ ! -z "$4" ] && RESTICCODEBASE="$4"
-    CONFIGFILE="${5:-${HOME}/.wp-admin}"
+    CONFIGFILE="${5:-${HOME}/.wp-admin-config/wp-admin.conf}"
     echo "$CONFIGFILE"
     SCRIPTDIR=$(dirname "${0}")
     WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root"

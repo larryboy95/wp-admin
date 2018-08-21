@@ -1,27 +1,32 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.1.4
+$(basename $0) Version 0.2.0
 
 Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
 - HOSTNAME must be available in ssh config
 - BACKUPTYPE can be one of:
     - full: backup webroot and db to s3, rotated
-    - manual: full backup to BUPDIR/manual, not rotated
+    - manual: full backup to BUPDIR/manual and s3, not rotated
     - db: backup db to admin server
     - tmp: backup db and webroot to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
 
+Note: if WEBROOT is not supplied then wordpress-permissions 
+will be run to set ownership to the dev user. Add the WEBROOT
+parameter to suppress this action.
+
 Configure Restic for s3
 =======================
-Add the following information to ~/.wp-admin:
-
-export RESTIC_REPOSITORY="s3:https://s3-ca-central-1.amazonaws.com/backups.domain.com/restic"
-export RESTIC_PASSWORD=""
-
-# AWS
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
+Create two buckets on s3 with an IAM user for each.
+Create two files in ~/.wp-admin-config/:
+    - restic-full.conf
+    - restic-manual.conf
+Each file needs the following vars:
+    - export RESTIC_REPOSITORY
+    - export RESTIC_PASSWORD
+    - export AWS_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY
 "
 
 # Print USAGE if no args
@@ -51,13 +56,21 @@ RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
 WPARGS="--path=${WEBROOT} --allow-root"
+RESTIC_REPOSITORY=""
+RESTIC_PASSWORD=""
 
 function restic-check {
-	if [ -f "$RESTIC" ] && [ -f "${HOME}/.wp-admin" ]; then
-		. "${HOME}/.wp-admin"
+	if [ -f "$RESTIC" ]; then
+        if [ "$BACKUPTYPE" == "full" ]; then
+		    . "${HOME}/.wp-admin-config/restic-full.conf"
+            [ $? -eq 0 ] || {echo "Missing configuration"; exit 1;}
+        elif [ "$BACKUPTYPE" == "manual" ]; then 
+		    . "${HOME}/.wp-admin-config/restic-manual.conf"
+            [ $? -eq 0 ] || {echo "Missing configuration"; exit 1;}
+        fi
 	else
 		notify \
-            "Restic or ~/.wp-admin config file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
+            "Restic or wp-admin.conf file not found for ${USER}@${HOSTNAME}, backup to s3 for ${HOSTNAME} is not happening." critical
 	fi
 }
 
@@ -230,10 +243,11 @@ elif [ ${BACKUPTYPE} = "tmp" ]; then
     dump-db
     sync-files
 elif [ ${BACKUPTYPE} = "manual" ]; then
-	echo "Skipping restic."
-    echo "This backup will not be written to s3."
+    restic-check
     dump-db
+    backup-db
     sync-files
+    backup-full
 else
     restic-check
     rotate-db-backups

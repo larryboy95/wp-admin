@@ -1,6 +1,6 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.1.4
+$(basename $0) Version 0.2.0
 
 Usage: gad-deploy-post HOST [WEBROOT]
 
