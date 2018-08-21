@@ -63,10 +63,10 @@ function restic-check {
 	if [ -f "$RESTIC" ]; then
         if [ "$BACKUPTYPE" == "full" ]; then
 		    . "${HOME}/.wp-admin-config/restic-full.conf"
-            [ $? -eq 0 ] || {echo "Missing configuration"; exit 1;}
+            [ $? -eq 0 ] || { echo "Missing configuration"; exit 1; }
         elif [ "$BACKUPTYPE" == "manual" ]; then 
 		    . "${HOME}/.wp-admin-config/restic-manual.conf"
-            [ $? -eq 0 ] || {echo "Missing configuration"; exit 1;}
+            [ $? -eq 0 ] || { echo "Missing configuration"; exit 1; }
         fi
 	else
 		notify \
