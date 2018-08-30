@@ -210,6 +210,10 @@ function sync-files {
         --delete \
         ${HOSTNAME}:${WEBROOT} \
         ${FULLBUPDIR}
+    chown "$USER" -R "$FULLBUPDIR"
+    find "$FULLBUPDIR" -type f -exec chmod 660 {} +; \
+    find "$FULLBUPDIR" -type d -exec chmod 770 {} +;
+
     if [ ! $? -eq 0  ]; then
         notify "File sync failed for ${TEASER}" critical
     fi
