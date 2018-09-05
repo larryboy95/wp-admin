@@ -210,7 +210,7 @@ function sync-files {
         --delete \
         ${HOSTNAME}:${WEBROOT} \
         ${FULLBUPDIR}
-    chown "$USER" -R "$FULLBUPDIR"
+    chown "$USER:developers" -R "$FULLBUPDIR"
     find "$FULLBUPDIR" -type f -exec chmod 660 {} +; \
     find "$FULLBUPDIR" -type d -exec chmod 770 {} +;
 
@@ -229,12 +229,16 @@ function backup-db {
     [ ! $? -eq 0  ] && notify "Restic error" critical
 }
 
+function set-permissions {
+    if [ -z "$3" ]; then
+        wordpress-permissions "$HOSTNAME" dev
+    fi
+}
+
+set-permissions "$@"
 check-args 
 set-backup-dir
 wp-check
-if [ -z "$3" ]; then
-    wordpress-permissions "$HOSTNAME" dev
-fi
 echo "Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
