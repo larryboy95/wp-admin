@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-$(basename $0) Version 0.2.0
+$(basename $0) Version 0.2.1
 
 Usage:
 os-update HOST
