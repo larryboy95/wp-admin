@@ -252,6 +252,7 @@ elif [ ${BACKUPTYPE} = "manual" ]; then
     backup-db
     sync-files
     backup-full
+    notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 else
     restic-check
     rotate-db-backups
@@ -259,8 +260,8 @@ else
     backup-db
     sync-files
     backup-full
+    notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 fi
-notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 if [ ! $? -eq 0  ]; then
     notify "Screenshot tweet failed for ${TEASER}" critical
     exit 1
