@@ -1,6 +1,6 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.2.0
+$(basename $0) Version 0.2.1
 
 Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
@@ -210,6 +210,10 @@ function sync-files {
         --delete \
         ${HOSTNAME}:${WEBROOT} \
         ${FULLBUPDIR}
+    chown "$USER:developers" -R "$FULLBUPDIR"
+    find "$FULLBUPDIR" -type f -exec chmod 660 {} +; \
+    find "$FULLBUPDIR" -type d -exec chmod 770 {} +;
+
     if [ ! $? -eq 0  ]; then
         notify "File sync failed for ${TEASER}" critical
     fi
@@ -225,12 +229,16 @@ function backup-db {
     [ ! $? -eq 0  ] && notify "Restic error" critical
 }
 
+function set-permissions {
+    if [ -z "$3" ]; then
+        wordpress-permissions "$HOSTNAME" dev
+    fi
+}
+
+set-permissions "$@"
 check-args 
 set-backup-dir
 wp-check
-if [ -z "$3" ]; then
-    wordpress-permissions "$HOSTNAME" dev
-fi
 echo "Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
@@ -248,6 +256,7 @@ elif [ ${BACKUPTYPE} = "manual" ]; then
     backup-db
     sync-files
     backup-full
+    notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 else
     restic-check
     rotate-db-backups
@@ -255,8 +264,8 @@ else
     backup-db
     sync-files
     backup-full
+    notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 fi
-notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}. Post-backup screenshot:" "$SITEURL" 
 if [ ! $? -eq 0  ]; then
     notify "Screenshot tweet failed for ${TEASER}" critical
     exit 1
