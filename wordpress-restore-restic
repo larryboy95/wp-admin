@@ -118,6 +118,7 @@ function main {
     gunzip "$SQLGZ"
     SQL=$(find ${BIGTMP}/ -name "*.sql")
     scp "$SQL" "${FQDN}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
+    wp $WPARGS db reset
     wp $WPARGS db import /var/www/restore.sql
     SITEURL=$(wp $WPARGS option get siteurl)
     wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
