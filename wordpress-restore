@@ -107,6 +107,7 @@ function main {
     DB="${DB%.*}"
     scp "$DB" "${FQDN}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     trap "rm ${DB}" EXIT
+    wp $WPARGS db reset
     wp $WPARGS db import /var/www/restore.sql
     [ ! $? -eq 0 ] && { echo "Db import error"; exit 1; }
     SITEURL=$(wp $WPARGS option get siteurl)
