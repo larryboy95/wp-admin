@@ -95,8 +95,6 @@ function main {
         ssh "$FQDN" "git clone ${CODEBASE} ${WEBROOT}" || exit 1
         ssh "$FQDN" "cp ${OLDROOT}/wp-config.php ${WEBROOT}/wp-config.php" || exit 1
         wordpress-permissions "$FQDN" dev
-        wp ${WPARGS} plugin install debug-bar || echo "Error installing plugin"
-        wp ${WPARGS} plugin activate debug-bar || echo "Error installing plugin"
     else
         echo "CODEBASE not supplied, restoring database only."
     fi
