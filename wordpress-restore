@@ -92,7 +92,7 @@ function main {
         WEBROOT="/var/www/html"
         OLDROOT="${WEBROOT}-old"
         [ -f "$GITKEY" ] || { echo "GITKEY not found ${GITKEY}"; exit 1; }
-        ssh "$FQDN" "sudo apt-get install git"
+        ssh "$FQDN" "DEBIAN_FRONTEND=noninteractive apt-get -y -q install git"
         ssh "$FQDN" -t "[ -d ${WEBROOT} ] && rm -rf ${OLDROOT}"
         ssh "$FQDN" -t "[ -d ${WEBROOT} ] && mv -f ${WEBROOT} ${OLDROOT}"
         scp "$GITKEY" "${FQDN}:.ssh/id_git" || { echo "scp error"; exit 1; }
