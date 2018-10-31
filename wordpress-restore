@@ -79,12 +79,14 @@ function main {
         echo "$PREFIX"
         ssh "$FQDN" "sed -i '/table_prefix/c ${PREFIX}' /var/www/html/wp-config.php" || exit 1
         echo "Table prefix replaced in wp-config.php"
+# TODO figure out why this doesn't work:
 # Set the wp environment
-        read -p "Specify the WP environment (development): " -n 1 -r
-        REPLY=${REPLY:-development}
-        ENVSTR="define(\"WP_ENV\", \"$REPLY\")"
-        ssh "$FQDN" "echo $ENVSTR >> /var/www/html/wp-config.php" || exit 1
-        echo "$ENVSTR has been appended to wp-config.php"
+        #read -p "Specify the WP environment (development): " -n 1 -r
+        #REPLY=${REPLY:-development}
+        #ENVSTR="define(\"WP_ENV\", \"$REPLY\")"
+        #ssh "$FQDN" "echo $ENVSTR >> /var/www/html/wp-config.php" || exit 1
+        #echo "$ENVSTR has been appended to wp-config.php"
+# Restart nginx
         ssh "$FQDN" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
         echo "Nginx restarted"
 # If CODEBASE is a git repo:
