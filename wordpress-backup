@@ -136,52 +136,28 @@ function set-backup-dir {
 }
 
 function rotate-db-backups {
-    local I N 
-	echo "Rotate db backups"
+    local I N FNAME
+    # Trim off the file extension
+    FNAME="${DBFNAME%'.sql'}"
+	echo "Rotate db backups ($FNAME)."
 	I=$KEEP
 	while [ $I -gt 0 ]
 	do
 		if [ $I -gt 1 ]; then
 			H=$[I-1]
-			if [ -f ${HOSTNAME}.${H}.sql.gz ]; then
-				mv ${HOSTNAME}.${H}.sql.gz \
-                ${HOSTNAME}.${I}.sql.gz \
+			if [ -f ${FNAME}.${H}.sql.gz ]; then
+				mv ${FNAME}.${H}.sql.gz \
+                ${FNAME}.${I}.sql.gz \
                 >/dev/null 2>&1
 			fi
 		else
-			if [ -f ${HOSTNAME}.sql.gz ]; then
-				mv ${HOSTNAME}.sql.gz \
-                ${HOSTNAME}.1.sql.gz \
+			if [ -f ${FNAME}.sql.gz ]; then
+				mv ${FNAME}.sql.gz \
+                ${FNAME}.1.sql.gz \
                 >/dev/null 2>&1
 			fi
 		fi
 		(( I-- ))
-	done
-}
-
-# TODO merge this function with the one above
-# maybe take the filename as an argument?
-function rotate-dbonly-backups {
-    local h i
-	echo "Rotate dbonly backups"
-	i=$KEEP
-	while [ $i -gt 0 ]
-	do
-		if [ $i -gt 1 ]; then
-			h=$[i-1]
-			if [ -f ${HOSTNAME}-dbonly.${h}.sql.gz ]; then
-				mv ${HOSTNAME}-dbonly.${h}.sql.gz \
-                ${HOSTNAME}-dbonly.${i}.sql.gz \
-                >/dev/null 2>&1
-			fi
-		else
-			if [ -f ${HOSTNAME}-dbonly.sql.gz ]; then
-				mv ${HOSTNAME}-dbonly.sql.gz \
-                ${HOSTNAME}-dbonly.1.sql.gz \
-                >/dev/null 2>&1
-			fi
-		fi
-		(( i-- ))
 	done
 }
 
@@ -246,7 +222,7 @@ echo "Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
 	echo "Database backup, skipping full sync."
-    rotate-dbonly-backups
+    rotate-db-backups
     dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
 	echo "Backup db to /tmp, skipping restic."
