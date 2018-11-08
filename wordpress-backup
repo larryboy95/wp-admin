@@ -74,7 +74,6 @@ function restic-check {
 	fi
 }
 
-# Look for the wp-cli binary, if found then run test to see if wp installed
 function wp-check {
     ssh -q ${HOSTNAME} \
         "wp --quiet \
