@@ -36,7 +36,7 @@ if [ $# -eq 0 ]; then
 fi
 # Check if already running
 if ! mkdir -p ~/tmp/wordpress-backup.lock; then
-	printf "Failed to acquire lock. (Script already running?)\n" >&2
+	echo "Failed to acquire lock. (Script already running?)"
 	exit 1
 fi
 # Remove the lockdir on exit
