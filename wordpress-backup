@@ -136,16 +136,16 @@ function set-backup-dir {
 }
 
 function rotate-db-backups {
-    local h i
+    local I N 
 	echo "Rotate db backups"
-	i=$KEEP
-	while [ $i -gt 0 ]
+	I=$KEEP
+	while [ $I -gt 0 ]
 	do
-		if [ $i -gt 1 ]; then
-			h=$[i-1]
-			if [ -f ${HOSTNAME}.${h}.sql.gz ]; then
-				mv ${HOSTNAME}.${h}.sql.gz \
-                ${HOSTNAME}.${i}.sql.gz \
+		if [ $I -gt 1 ]; then
+			H=$[I-1]
+			if [ -f ${HOSTNAME}.${H}.sql.gz ]; then
+				mv ${HOSTNAME}.${H}.sql.gz \
+                ${HOSTNAME}.${I}.sql.gz \
                 >/dev/null 2>&1
 			fi
 		else
@@ -155,10 +155,12 @@ function rotate-db-backups {
                 >/dev/null 2>&1
 			fi
 		fi
-		(( i-- ))
+		(( I-- ))
 	done
 }
 
+# TODO merge this function with the one above
+# maybe take the filename as an argument?
 function rotate-dbonly-backups {
     local h i
 	echo "Rotate dbonly backups"
