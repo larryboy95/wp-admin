@@ -55,7 +55,7 @@ KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
-WPARGS="--path=${WEBROOT} --allow-root"
+WPARGS="--path=${WEBROOT} --allow-root --skip-themes"
 RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
