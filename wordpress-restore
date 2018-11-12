@@ -29,7 +29,7 @@ function main {
     [ ! -z "$4" ] && CODEBASE="$4"
     [ ! -z "$5" ] && GITKEY="$5"
     SCRIPTDIR=$(dirname "${0}")
-    WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root"
+    WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root --skip-themes"
 # Check for required values and binaries
     [ ! -f "$DB" ] && { echo "${DB} is not a file"; exit 1; }
 
