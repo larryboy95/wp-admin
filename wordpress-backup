@@ -1,6 +1,6 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.2.1
+$(basename $0) Version 0.2.2
 
 Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
@@ -36,7 +36,7 @@ if [ $# -eq 0 ]; then
 fi
 # Check if already running
 if ! mkdir -p ~/tmp/wordpress-backup.lock; then
-	printf "Failed to acquire lock. (Script already running?)\n" >&2
+	echo "Failed to acquire lock. (Script already running?)"
 	exit 1
 fi
 # Remove the lockdir on exit
@@ -55,7 +55,7 @@ KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
-WPARGS="--path=${WEBROOT} --allow-root"
+WPARGS="--path=${WEBROOT} --allow-root --skip-themes"
 RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
@@ -74,8 +74,9 @@ function restic-check {
 	fi
 }
 
-# Look for the wp-cli binary, if found then run test to see if wp installed
 function wp-check {
+# TODO check host is accessible over ssh
+# TODO look for the wp-cli binary on the remote host
     ssh -q ${HOSTNAME} \
         "wp --quiet \
         ${WPARGS} \
@@ -135,50 +136,28 @@ function set-backup-dir {
 }
 
 function rotate-db-backups {
-    local h i
-	echo "Rotate db backups"
-	i=$KEEP
-	while [ $i -gt 0 ]
+    local I N FNAME
+    # Trim off the file extension
+    FNAME="${DBFNAME%'.sql'}"
+	echo "Rotate db backups ($FNAME)."
+	I=$KEEP
+	while [ $I -gt 0 ]
 	do
-		if [ $i -gt 1 ]; then
-			h=$[i-1]
-			if [ -f ${HOSTNAME}.${h}.sql.gz ]; then
-				mv ${HOSTNAME}.${h}.sql.gz \
-                ${HOSTNAME}.${i}.sql.gz \
+		if [ $I -gt 1 ]; then
+			H=$[I-1]
+			if [ -f ${FNAME}.${H}.sql.gz ]; then
+				mv ${FNAME}.${H}.sql.gz \
+                ${FNAME}.${I}.sql.gz \
                 >/dev/null 2>&1
 			fi
 		else
-			if [ -f ${HOSTNAME}.sql.gz ]; then
-				mv ${HOSTNAME}.sql.gz \
-                ${HOSTNAME}.1.sql.gz \
+			if [ -f ${FNAME}.sql.gz ]; then
+				mv ${FNAME}.sql.gz \
+                ${FNAME}.1.sql.gz \
                 >/dev/null 2>&1
 			fi
 		fi
-		(( i-- ))
-	done
-}
-
-function rotate-dbonly-backups {
-    local h i
-	echo "Rotate dbonly backups"
-	i=$KEEP
-	while [ $i -gt 0 ]
-	do
-		if [ $i -gt 1 ]; then
-			h=$[i-1]
-			if [ -f ${HOSTNAME}-dbonly.${h}.sql.gz ]; then
-				mv ${HOSTNAME}-dbonly.${h}.sql.gz \
-                ${HOSTNAME}-dbonly.${i}.sql.gz \
-                >/dev/null 2>&1
-			fi
-		else
-			if [ -f ${HOSTNAME}-dbonly.sql.gz ]; then
-				mv ${HOSTNAME}-dbonly.sql.gz \
-                ${HOSTNAME}-dbonly.1.sql.gz \
-                >/dev/null 2>&1
-			fi
-		fi
-		(( i-- ))
+		(( I-- ))
 	done
 }
 
@@ -243,7 +222,7 @@ echo "Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
 	echo "Database backup, skipping full sync."
-    rotate-dbonly-backups
+    rotate-db-backups
     dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
 	echo "Backup db to /tmp, skipping restic."
