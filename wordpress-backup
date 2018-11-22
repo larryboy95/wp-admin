@@ -91,6 +91,12 @@ function wp-check {
     SITEURL=$(ssh ${HOSTNAME} \
         "wp ${WPARGS} \
         option get siteurl")
+    if [ ! $? -eq 0 ]; then
+        notify "${HOSTNAME} \
+            Error getting siteurl." \
+            critical
+        exit 1
+    fi
     [ -z "$SITEURL" ] && { echo "$(date) SITEURL is empty."; exit 1; }
 }
 
