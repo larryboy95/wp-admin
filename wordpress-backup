@@ -200,12 +200,12 @@ function sync-files {
 
 function backup-full {
 	$RESTIC backup ${FULLBUPDIR}/ --tag ${HOSTNAME}
-    [ ! $? -eq 0  ] && notify "Restic error" critical
+    [ ! $? -eq 0  ] && notify "Restic error for ${HOSTNAME}" critical
 }
 
 function backup-db {
 	$RESTIC backup ${DBFNAME}.gz --tag ${HOSTNAME}
-    [ ! $? -eq 0  ] && notify "Restic error" critical
+    [ ! $? -eq 0  ] && notify "Restic error ${HOSTNAME}" critical
 }
 
 function set-permissions {
