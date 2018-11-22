@@ -184,7 +184,7 @@ function sync-files {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
     echo "$(date) Sync from ${HOSTNAME}"
 	rsync \
-        -vptLr \
+        -ptLr \
         --exclude=${EXCLUDE} \
         --delete \
         ${HOSTNAME}:${WEBROOT} \
