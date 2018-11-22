@@ -36,7 +36,7 @@ if [ $# -eq 0 ]; then
 fi
 # Check if already running
 if ! mkdir -p ~/tmp/wordpress-backup.lock; then
-	echo "Failed to acquire lock. (Script already running?)"
+	echo "$(date) Failed to acquire lock. (Script already running?)"
 	exit 1
 fi
 # Remove the lockdir on exit
@@ -63,10 +63,10 @@ function restic-check {
 	if [ -f "$RESTIC" ]; then
         if [ "$BACKUPTYPE" == "full" ]; then
 		    . "${HOME}/.wp-admin-config/restic-full.conf"
-            [ $? -eq 0 ] || { echo "Missing configuration"; exit 1; }
+            [ $? -eq 0 ] || { echo "$(date) Missing configuration"; exit 1; }
         elif [ "$BACKUPTYPE" == "manual" ]; then 
 		    . "${HOME}/.wp-admin-config/restic-manual.conf"
-            [ $? -eq 0 ] || { echo "Missing configuration"; exit 1; }
+            [ $? -eq 0 ] || { echo "$(date) Missing configuration"; exit 1; }
         fi
 	else
 		notify \
@@ -91,7 +91,7 @@ function wp-check {
     SITEURL=$(ssh ${HOSTNAME} \
         "wp ${WPARGS} \
         option get siteurl")
-    [ -z "$SITEURL" ] && { echo "SITEURL is empty."; exit 1; }
+    [ -z "$SITEURL" ] && { echo "$(date) SITEURL is empty."; exit 1; }
 }
 
 function check-args {
@@ -139,7 +139,7 @@ function rotate-db-backups {
     local I N FNAME
     # Trim off the file extension
     FNAME="${DBFNAME%'.sql'}"
-	echo "Rotate db backups ($FNAME)."
+	echo "$(date) Rotate db backups ($FNAME)."
 	I=$KEEP
 	while [ $I -gt 0 ]
 	do
@@ -182,7 +182,7 @@ function dump-db {
 
 function sync-files {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
-    echo "Sync from ${HOSTNAME}"
+    echo "$(date) Sync from ${HOSTNAME}"
 	rsync \
         -vptLr \
         --exclude=${EXCLUDE} \
@@ -218,15 +218,15 @@ set-permissions "$@"
 check-args 
 set-backup-dir
 wp-check
-echo "Proceeding with backup for ${HOSTNAME}."
+echo "$(date) Proceeding with backup for ${HOSTNAME}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
-	echo "Database backup, skipping full sync."
+	echo "$(date) Database backup, skipping full sync."
     rotate-db-backups
     dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
-	echo "Backup db to /tmp, skipping restic."
-    echo "This backup will not be written to s3."
+	echo "$(date) Backup db to /tmp, skipping restic."
+    echo "$(date) This backup will not be written to s3."
     dump-db
     sync-files
 elif [ ${BACKUPTYPE} = "manual" ]; then
