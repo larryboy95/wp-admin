@@ -103,6 +103,7 @@ function main {
         ssh "$FQDN" "git clone ${CODEBASE} ${WEBROOT}" || exit 1
         ssh "$FQDN" "cp ${OLDROOT}/wp-config.php ${WEBROOT}/wp-config.php" || exit 1
         wordpress-permissions "$FQDN" dev
+        wp $WPARGS 'option set blog_public 0'
     else
         echo "CODEBASE not supplied, restoring database only."
     fi
