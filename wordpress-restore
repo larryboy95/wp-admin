@@ -100,7 +100,7 @@ function main {
 		scp "$GITKEY" "${FQDN}:.ssh/id_git" || { echo "scp error"; exit 1; }
 		ssh "$FQDN" "echo 'IdentityFile ~/.ssh/id_git' >> .ssh/config"
 		ssh "$FQDN" "echo 'StrictHostkeyChecking no' >> .ssh/config"
-		ssh "$FQDN" "git clone ${CODEBASE} ${WEBROOT}" || exit 1
+		ssh "$FQDN" "git clone --quiet ${CODEBASE} ${WEBROOT}" || exit 1
 		ssh "$FQDN" "cp ${OLDROOT}/wp-config.php ${WEBROOT}/wp-config.php" || exit 1
 		wordpress-permissions "$FQDN" dev
 	else

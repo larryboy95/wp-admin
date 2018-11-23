@@ -86,7 +86,7 @@ function wp-check {
 			critical
 		exit 1
 	fi
-	SITEURL=$(wp ${WPARGS} option get siteurl)
+	SITEURL=$(wp ${WPARGS} --quiet option get siteurl)
 	if [ ! $? -eq 0 ]; then
 		notify "${HOSTNAME} \
 			Error getting siteurl." \
