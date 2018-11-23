@@ -65,7 +65,7 @@ fi
 RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
-function restic-check {
+restic-check() {
 	if [ -f "$RESTIC" ]; then
 		if [ "$BACKUPTYPE" == "full" ]; then
 			. "${HOME}/.wp-admin-config/restic-full.conf"
@@ -80,7 +80,7 @@ function restic-check {
 	fi
 }
 
-function wp-check {
+wp-check() {
 # TODO check host is accessible over ssh
 # TODO look for the wp-cli binary on the remote host
 	${WP} \
@@ -102,7 +102,7 @@ function wp-check {
 	[ -z "$SITEURL" ] && { echo "$(date) SITEURL is empty."; exit 1; }
 }
 
-function check-args {
+check-args() {
 	if [ "$HOSTNAME" == "full" ] \
 		|| [ "$HOSTNAME" == "db" ] \
 		|| [ "$HOSTNAME" == "manual" ] \
@@ -119,7 +119,7 @@ function check-args {
 	fi
 }
 
-function set-backup-dir {
+set-backup-dir() {
 	case "$BACKUPTYPE" in
 	"db") 
 		DBFNAME=${HOSTNAME}-dbonly.sql
@@ -143,7 +143,7 @@ function set-backup-dir {
 	pwd
 }
 
-function rotate-db-backups {
+rotate-db-backups() {
 	local I N FNAME
 	# Trim off the file extension
 	FNAME="${DBFNAME%'.sql'}"
@@ -169,7 +169,7 @@ function rotate-db-backups {
 	done
 }
 
-function dump-db {
+dump-db() {
 	${WP} db export ${WEBROOT}/../${DBFNAME}
 	if [ ! $? -eq 0  ]; then
 		notify "Database export failed for ${TEASER}" critical
@@ -187,7 +187,7 @@ function dump-db {
 	fi
 }
 
-function sync-files {
+sync-files() {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
 	echo "$(date) Sync from ${HOSTNAME}"
 	rsync \
@@ -205,17 +205,17 @@ function sync-files {
 	fi
 }
 
-function backup-full {
+backup-full() {
 	$RESTIC backup ${FULLBUPDIR}/ --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error for ${HOSTNAME}" critical
 }
 
-function backup-db {
+backup-db() {
 	$RESTIC backup ${DBFNAME}.gz --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error ${HOSTNAME}" critical
 }
 
-function set-permissions {
+set-permissions() {
 	if [ -z "$3" ]; then
 		wordpress-permissions "$HOSTNAME" dev
 	fi
