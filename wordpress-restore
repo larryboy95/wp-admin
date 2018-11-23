@@ -115,7 +115,7 @@ function main {
     scp "$DB" "${FQDN}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
     trap "rm ${DB}" EXIT
     wp $WPARGS db reset
-    read -p "Import the database? (y/n) " -n 1 -r
+    read -p "Import the database? (y/n) " -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         wp $WPARGS db import /var/www/restore.sql
         [ ! $? -eq 0 ] && { echo "Db import error"; exit 1; }
@@ -123,7 +123,7 @@ function main {
     SITEURL=$(wp $WPARGS option get siteurl)
     [ ! $? -eq 0 ] && { echo "Siteurl error"; exit 1; }
 
-    read -p "Search and replace the site url to https://${FQDN}? (y/n) " -n 1 -r
+    read -p "Search and replace the site url to https://${FQDN}? (y/n) " -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
     fi
