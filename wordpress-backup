@@ -55,7 +55,7 @@ KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
-WPARGS="--path=${WEBROOT} --allow-root --skip-themes"
+WPARGS="--path=${WEBROOT} --allow-root --skip-themes --ssh=${HOSTNAME}"
 RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
@@ -77,20 +77,16 @@ function restic-check {
 function wp-check {
 # TODO check host is accessible over ssh
 # TODO look for the wp-cli binary on the remote host
-	ssh -q ${HOSTNAME} \
-		"wp --quiet \
+	wp --quiet \
 		${WPARGS} \
-		core is-installed" \
-		< /dev/null
+		core is-installed
 	if [ ! $? -eq 0 ]; then
 		notify "${HOSTNAME} \
 			WP does not appear to be running. What the heck?" \
 			critical
 		exit 1
 	fi
-	SITEURL=$(ssh ${HOSTNAME} \
-		"wp ${WPARGS} \
-		option get siteurl")
+	SITEURL=$(wp ${WPARGS} option get siteurl)
 	if [ ! $? -eq 0 ]; then
 		notify "${HOSTNAME} \
 			Error getting siteurl." \
@@ -168,8 +164,7 @@ function rotate-db-backups {
 }
 
 function dump-db {
-	ssh ${HOSTNAME} "wp ${WPARGS} \
-		db export ${WEBROOT}/../${DBFNAME}"
+	wp ${WPARGS} db export ${WEBROOT}/../${DBFNAME}
 	if [ ! $? -eq 0  ]; then
 		notify "Database export failed for ${TEASER}" critical
 		exit 1
