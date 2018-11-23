@@ -192,6 +192,7 @@ sync-files() {
 	echo "$(date) Sync from ${HOSTNAME}"
 	rsync \
 		-ptLr \
+		--info=progress2 \
 		--exclude=${EXCLUDE} \
 		--delete \
 		${HOSTNAME}:${WEBROOT} \
