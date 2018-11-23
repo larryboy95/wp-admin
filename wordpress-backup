@@ -55,7 +55,13 @@ KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
-WPARGS="--path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
+WPBIN=$(which wp)
+if [ $? -eq 0 ]; then
+	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
+else
+	echo "$(date) wp-cli not found on admin server"
+	exit 1
+fi
 RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
@@ -77,8 +83,8 @@ function restic-check {
 function wp-check {
 # TODO check host is accessible over ssh
 # TODO look for the wp-cli binary on the remote host
-	wp --quiet \
-		${WPARGS} \
+	${WP} \
+		--quiet \
 		core is-installed
 	if [ ! $? -eq 0 ]; then
 		notify "${HOSTNAME} \
@@ -86,7 +92,7 @@ function wp-check {
 			critical
 		exit 1
 	fi
-	SITEURL=$(wp ${WPARGS} --quiet option get siteurl)
+	SITEURL=$(${WP} --quiet option get siteurl)
 	if [ ! $? -eq 0 ]; then
 		notify "${HOSTNAME} \
 			Error getting siteurl." \
@@ -164,7 +170,7 @@ function rotate-db-backups {
 }
 
 function dump-db {
-	wp ${WPARGS} db export ${WEBROOT}/../${DBFNAME}
+	${WP} db export ${WEBROOT}/../${DBFNAME}
 	if [ ! $? -eq 0  ]; then
 		notify "Database export failed for ${TEASER}" critical
 		exit 1
