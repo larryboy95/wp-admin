@@ -74,11 +74,9 @@ function main {
 # Extract the db table prefix from old config
 # Find the old line, remove the trailing newline, escape single quotes
 		PREFIX=$(grep "table_prefix" "$WPCONFIG")
-		echo "a"
 		PREFIX=$(echo -n "$PREFIX" | sed "s/'/\"/g")
-		echo "$PREFIX"
 		ssh "$FQDN" "sed -i '/table_prefix/c ${PREFIX}' /var/www/html/wp-config.php" || exit 1
-		echo "Table prefix replaced in wp-config.php"
+		echo "Table prefix (${PREFIX}) replaced in wp-config.php"
 # TODO figure out why this doesn't work:
 # Set the wp environment
 		#read -p "Specify the WP environment (development): " -n 1 -r
