@@ -75,7 +75,6 @@ screenshot() {
 		fi
 		((i++))
 	done
-#	echo ${MID[@]}
 	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
 }
 
