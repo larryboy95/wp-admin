@@ -30,7 +30,7 @@ LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
 
 if [ $SINCELASTRUN -lt 31 ]; then
-	echo "${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
+	echo "$(date) ${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
 	exit 1
 fi
 
@@ -75,7 +75,7 @@ screenshot() {
 		fi
 		((i++))
 	done
-	echo ${MID[@]}
+#	echo ${MID[@]}
 	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
 }
 
@@ -93,10 +93,9 @@ if [ -f /usr/local/bin/tweet.sh ]; then
 	fi
 	echo $(date +%s) > "$LASTRUNFILE"
 else 
-	echo "Could not find tweet.sh"
+	echo "$(date) Could not find tweet.sh"
 fi
 
+echo "$(date) ${MESSAGE}"
 
-
-echo "$MESSAGE"
 exit 0
