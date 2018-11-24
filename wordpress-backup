@@ -35,12 +35,12 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 # Check if already running
-if ! mkdir -p ~/tmp/wordpress-backup.lock; then
+if ! mkdir -p /tmp/wordpress-backup.lock; then
 	echo "$(date) Failed to acquire lock. (Script already running?)"
 	exit 1
 fi
 # Remove the lockdir on exit
-trap 'rm -rf ~/tmp/wordpress-backup.lock' EXIT	
+trap 'rm -rf /tmp/wordpress-backup.lock' EXIT	
 
 HOSTNAME="$1"
 # Set defaults if arguments absent
@@ -140,7 +140,6 @@ set-backup-dir() {
 	esac
 	[ ! -d $BUPDIR ] && mkdir $BUPDIR
 	cd ${BUPDIR}
-	pwd
 }
 
 rotate-db-backups() {
