@@ -34,7 +34,7 @@ if [ $SINCELASTRUN -lt 31 ]; then
 	exit 1
 fi
 
-function screenshot {
+screenshot() {
 	local TEMPDIR TEMPURL TEMPPIC URL PARGS MID
 	local i n p
 	TEMPDIR="/tmp/wordpress-backup-script/"
