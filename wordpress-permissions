@@ -28,9 +28,9 @@ else
 fi
 WEBROOT="${3:-/var/www/html}"
 
-ssh "$HOSTNAME" "sudo ls"
+ssh "$HOSTNAME" "sudo ls >/dev/null 2>&1"
 if [ ! $? -eq 0 ]; then
-	echo "No sudo privileges at $HOSTNAME"
+	echo "$(date) No sudo privileges at $HOSTNAME"
 	exit 2
 else
 	ssh "$HOSTNAME" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
@@ -54,7 +54,7 @@ else
 		sudo chmod 644 ${WEBROOT}/wp-config.php;
 	"
 	if [ $? -eq 0 ]; then
-		echo "Permissions updated on ${HOSTNAME}"
+		echo "$(date) Permissions updated on ${HOSTNAME}"
 	else
 		notify "Permissions error on ${HOSTNAME}" critical
 		exit 1
