@@ -188,21 +188,22 @@ dump-db() {
 
 sync-files() {
 	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
-	echo "$(date) Sync from ${HOSTNAME}"
+	echo "$(date) Sync codebase from ${HOSTNAME}"
 	rsync \
-		-ptLr \
-		--info=progress2 \
+		-qptLr \
 		--exclude=${EXCLUDE} \
 		--delete \
 		${HOSTNAME}:${WEBROOT} \
 		${FULLBUPDIR}
-	chown "$USER:developers" -R "$FULLBUPDIR"
-	find "$FULLBUPDIR" -type f -exec chmod 660 {} +; \
-	find "$FULLBUPDIR" -type d -exec chmod 770 {} +;
-
-	if [ ! $? -eq 0  ]; then
+	if [ $? -eq 0 ]; then
+		echo "$(date) Sync from ${HOSTNAME} was completed without error"
+	else
 		notify "File sync failed for ${TEASER}" critical
 	fi
+	echo "$(date) Updating permissions on local backup copy"
+	chown "$USER:developers" -R "$FULLBUPDIR" || echo "$(date) ERROR"
+	find "$FULLBUPDIR" -type f -exec chmod 660 {} + || echo "$(date) ERROR"
+	find "$FULLBUPDIR" -type d -exec chmod 770 {} + || echo "$(date) ERROR"
 }
 
 backup-full() {
