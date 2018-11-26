@@ -1,6 +1,6 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.2.3
+$(basename $0) Version 0.2.4
 
 Usage: $(basename $0) MESSAGE ['critical' || URL] 
 
