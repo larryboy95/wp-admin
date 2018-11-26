@@ -75,7 +75,7 @@ screenshot() {
 		fi
 		((i++))
 	done
-	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}"
+	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}" > /dev/null
 }
 
 if [ -f /usr/local/bin/tweet.sh ]; then
