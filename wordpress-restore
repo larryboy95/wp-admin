@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="
-$(basename $0) Version 0.2.4
+$(basename $0) Version 0.2.5
 
 Usage: wordpress-restore HOST FQDN DB [CODEBASE]
 For DigitalOcean only.

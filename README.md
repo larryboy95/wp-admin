@@ -1,5 +1,5 @@
 # wp-admin
-Version 0.2.4  
+Version 0.2.5  
 Status: Beta
 
 Shell scripts for the centralized management of WordPress.
