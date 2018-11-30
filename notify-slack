@@ -78,6 +78,7 @@ screenshot() {
 		((n++))
 	done < "${TEMPURL}"
 	i=0
+	slack chat send "${MESSAGE}" admin --color good > /dev/null
 	while [ $i -lt 5 ]; do
 		p="${TEMPPIC}-${i}.jpg"
 		if [ -f "$p" ]; then
@@ -85,7 +86,6 @@ screenshot() {
 		fi
 		((i++))
 	done
-	slack chat send "${MESSAGE}" admin --color good > /dev/null
 }
 
 echo "$(date) Tweet notification system."
