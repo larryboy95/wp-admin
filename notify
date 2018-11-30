@@ -4,19 +4,18 @@ $(basename $0) Version 0.2.5
 
 Usage: $(basename $0) MESSAGE ['critical' || URL] 
 
-Sends MESSAGE as a tweet.
+Sends MESSAGE as a slackbot.
 URL should include the protocol, like https://site.com
 If the second argument is:
-- a URL, screenshots will be taken and tweeted along with the MESSAGE
-- 'critical', MESSAGE will be sent from the critical notification account
+- a URL, screenshots will be taken and posted along with the MESSAGE
+- 'critical', MESSAGE will be tagged critical
 
-Configured in ~/.wp-admin-config/tw.conf
-Account for critical notifications is configured in ~/.wp-admin-config/tw-critical.conf
+Configured in ~/.wp-admin-config/slack.conf
 
 Depends on:
 - https://github.com/hrs/MARKOV-sentence-generator
-- https://github.com/piroor/tweet.sh
 - https://github.com/sindresorhus/pageres-cli
+- https://github.com/rockymadden/slack-cli
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
@@ -24,78 +23,53 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 MESSAGE="$1"
-LASTRUNFILE="${HOME}/.wp-admin-config/tw.lastrun"
+LASTRUNFILE="${HOME}/.wp-admin-config/slack.lastrun"
 [ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
 
-if [ $SINCELASTRUN -lt 31 ]; then
-	echo "$(date) ${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
+SLACK=$(which slack)
+if [ ! $? -eq 0 ]; then
+	echo "$(date) Could not find slack cli (https://github.com/rockymadden/slack-cli)"
+	echo "$(date) ${MESSAGE}"
 	exit 1
+fi
+if [ $SINCELASTRUN -lt 11 ]; then
+	echo "$(date) ${SINCELASTRUN}s since last post. Please wait until 10s have passed. Aborting."
+	echo "$(date) ${MESSAGE}"
+	exit 1
+else
+	echo $(date +%s) > "$LASTRUNFILE"
 fi
 
 screenshot() {
 	local TEMPDIR TEMPURL TEMPPIC URL PARGS MID
 	local i n p
-	TEMPDIR="/tmp/wordpress-backup-script/"
+	TEMPDIR="/tmp/wordpress-notify-script/"
 	[ -d "$TEMPDIR" ] || mkdir "$TEMPDIR"
 	cd "$TEMPDIR"
-	TEMPURL="tw-urls.tmp"
-	TEMPPIC="tw-tmp"
+	TEMPURL="slack-urls.tmp"
+	TEMPPIC="slack-tmp"
 # Cleanup temp files on exit
 	trap "rm -rf ${TEMPDIR}" EXIT	
 	URL="$2"
 	PARGS="--crop --delay=2 --format=jpg --timeout=20"
-	curl -s "${URL}" \
-		| grep -Po '(?<=href=")[^"]*' \
-		| grep "$URL/[a-z]" \
-		| grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
-		| sort -R \
-		| uniq \
-		| head -n 2 \
-		> ${TEMPURL};
-	echo "$(date) Taking screenshots of these URLs:"
-	cat "$TEMPURL"
+	echo "$(date) Taking screenshot:"
 	pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100 > /dev/null 2>&1
-	pageres \
-		$PARGS \
-		--userAgent 'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36' \
-		--filename="${TEMPPIC}-1" \
-		"$URL" \
-		500x1600 \
-		> /dev/null 2>&1
-	n=2
-	while IFS='' read -r line || [[ -n "$line" ]]; do
-		pageres $PARGS --filename="${TEMPPIC}-${n}" "$line" 1600x2100 > /dev/null 2>&1
-		((n++))
-	done < "${TEMPURL}"
-	i=0
-	while [ $i -lt 5 ]; do
-		p="${TEMPPIC}-${i}.jpg"
-		if [ -f "$p" ]; then
-			MID[$i]=$(tweet.sh upload "$p" | jq -r '.media_id_string')
-		fi
-		((i++))
-	done
-	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}" > /dev/null
+	slack chat send "${MESSAGE}" admin --color good > /dev/null
+	p="${TEMPPIC}-0.jpg"
+	if [ -f "$p" ]; then
+		slack file upload "$p" admin
+	fi
 }
 
 echo "$(date) Tweet notification system."
-if [ -f /usr/local/bin/tweet.sh ]; then
-	TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
-	MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
-	. "${HOME}/.wp-admin-config/tw.conf"
-	if [ $# -eq 1 ]; then
-		tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
-	elif [ "$2" = "critical" ]; then
-		. "${HOME}/.wp-admin-config/tw-critical.conf"
-		tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
-	else
-		screenshot "$@"
-	fi
-	echo $(date +%s) > "$LASTRUNFILE"
-else 
-	echo "$(date) Could not find tweet.sh"
+if [ $# -eq 1 ]; then
+	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
+elif [ "$2" = "critical" ]; then
+	slack chat send "@channel ${MESSAGE}" admin --color danger > /dev/null 2>&1
+else
+	screenshot "$@"
 fi
 
 echo "$(date) ${MESSAGE}"
