@@ -34,8 +34,9 @@ if [ ! $? -eq 0 ]; then
 	echo "$(date) ${MESSAGE}"
 	exit 1
 fi
-if [ $SINCELASTRUN -lt 31 ]; then
-	echo "$(date) ${SINCELASTRUN}s since last post. Please wait until 30s have passed."
+if [ $SINCELASTRUN -lt 11 ]; then
+	echo "$(date) ${SINCELASTRUN}s since last post. Please wait until 10s have passed. Aborting."
+	echo "$(date) ${MESSAGE}"
 	exit 1
 else
 	echo $(date +%s) > "$LASTRUNFILE"
