@@ -80,6 +80,7 @@ screenshot() {
 	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}" > /dev/null
 }
 
+echo "$(date) Tweet notification system."
 if [ -f /usr/local/bin/tweet.sh ]; then
 	TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
 	MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
