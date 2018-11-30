@@ -23,24 +23,32 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 MESSAGE="$1"
-LASTRUNFILE="${HOME}/.wp-admin-config/tw.lastrun"
+LASTRUNFILE="${HOME}/.wp-admin-config/slack.lastrun"
 [ -f "$LASTRUNFILE" ] || echo $(date +%s) > "$LASTRUNFILE"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
 
-if [ $SINCELASTRUN -lt 31 ]; then
-	echo "$(date) ${SINCELASTRUN}s since last tweet. Please wait until 30s have passed."
+SLACK=$(which slack)
+if [ ! $? -eq 0 ]; then
+	echo "$(date) Could not find slack cli (https://github.com/rockymadden/slack-cli)"
+	echo "$(date) ${MESSAGE}"
 	exit 1
+fi
+if [ $SINCELASTRUN -lt 31 ]; then
+	echo "$(date) ${SINCELASTRUN}s since last post. Please wait until 30s have passed."
+	exit 1
+else
+	echo $(date +%s) > "$LASTRUNFILE"
 fi
 
 screenshot() {
 	local TEMPDIR TEMPURL TEMPPIC URL PARGS MID
 	local i n p
-	TEMPDIR="/tmp/wordpress-backup-script/"
+	TEMPDIR="/tmp/wordpress-notify-script/"
 	[ -d "$TEMPDIR" ] || mkdir "$TEMPDIR"
 	cd "$TEMPDIR"
-	TEMPURL="tw-urls.tmp"
-	TEMPPIC="tw-tmp"
+	TEMPURL="slack-urls.tmp"
+	TEMPPIC="slack-tmp"
 # Cleanup temp files on exit
 	trap "rm -rf ${TEMPDIR}" EXIT	
 	URL="$2"
@@ -72,29 +80,22 @@ screenshot() {
 	while [ $i -lt 5 ]; do
 		p="${TEMPPIC}-${i}.jpg"
 		if [ -f "$p" ]; then
-			MID[$i]=$(tweet.sh upload "$p" | jq -r '.media_id_string')
+			MID[$i]=$(slack upload "$p" | jq -r '.media_id_string')
 		fi
 		((i++))
 	done
-	tweet.sh post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}" > /dev/null
+	slack post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}" > /dev/null
 }
 
 echo "$(date) Tweet notification system."
-if [ -f /usr/local/bin/tweet.sh ]; then
-	TEXTVOL="/opt/markov-sentence-generator/360.txt.utf-8"
-	MARKOV=$(/opt/markov-sentence-generator/sentence-generator.py "$TEXTVOL" 5 | cut -d " " -f 1-20)
-	. "${HOME}/.wp-admin-config/tw.conf"
-	if [ $# -eq 1 ]; then
-		tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
-	elif [ "$2" = "critical" ]; then
-		. "${HOME}/.wp-admin-config/tw-critical.conf"
-		tweet.sh post "${MESSAGE} ${MARKOV}" > /dev/null 2>&1
-	else
-		screenshot "$@"
-	fi
-	echo $(date +%s) > "$LASTRUNFILE"
-else 
-	echo "$(date) Could not find tweet.sh"
+. "${HOME}/.wp-admin-config/tw.conf"
+if [ $# -eq 1 ]; then
+	slack post "${MESSAGE}" > /dev/null 2>&1
+elif [ "$2" = "critical" ]; then
+	. "${HOME}/.wp-admin-config/slack-critical.conf"
+	slack post "${MESSAGE}" > /dev/null 2>&1
+else
+	screenshot "$@"
 fi
 
 echo "$(date) ${MESSAGE}"
