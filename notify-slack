@@ -54,38 +54,13 @@ screenshot() {
 	trap "rm -rf ${TEMPDIR}" EXIT	
 	URL="$2"
 	PARGS="--crop --delay=2 --format=jpg --timeout=20"
-	curl -s "${URL}" \
-		| grep -Po '(?<=href=")[^"]*' \
-		| grep "$URL/[a-z]" \
-		| grep -v '.css\|rss\|xml\|json\|feed\|.ico\|.jpg\|.png\|.js\|.svg\|?' \
-		| sort -R \
-		| uniq \
-		| head -n 2 \
-		> ${TEMPURL};
-	echo "$(date) Taking screenshots of these URLs:"
-	cat "$TEMPURL"
+	echo "$(date) Taking screenshot:"
 	pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100 > /dev/null 2>&1
-	pageres \
-		$PARGS \
-		--userAgent 'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36' \
-		--filename="${TEMPPIC}-1" \
-		"$URL" \
-		500x1600 \
-		> /dev/null 2>&1
-	n=2
-	while IFS='' read -r line || [[ -n "$line" ]]; do
-		pageres $PARGS --filename="${TEMPPIC}-${n}" "$line" 1600x2100 > /dev/null 2>&1
-		((n++))
-	done < "${TEMPURL}"
-	i=0
 	slack chat send "${MESSAGE}" admin --color good > /dev/null
-	while [ $i -lt 5 ]; do
-		p="${TEMPPIC}-${i}.jpg"
-		if [ -f "$p" ]; then
-			slack file upload "$p" admin
-		fi
-		((i++))
-	done
+	p="${TEMPPIC}-0.jpg"
+	if [ -f "$p" ]; then
+		slack file upload "$p" admin
+	fi
 }
 
 echo "$(date) Tweet notification system."
