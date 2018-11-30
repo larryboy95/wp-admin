@@ -92,7 +92,7 @@ echo "$(date) Tweet notification system."
 if [ $# -eq 1 ]; then
 	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
 elif [ "$2" = "critical" ]; then
-	slack chat send "${MESSAGE}" admin --color bad > /dev/null 2>&1
+	slack chat send "@channel ${MESSAGE}" admin --color bad > /dev/null 2>&1
 else
 	screenshot "$@"
 fi
