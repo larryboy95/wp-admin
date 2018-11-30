@@ -80,20 +80,18 @@ screenshot() {
 	while [ $i -lt 5 ]; do
 		p="${TEMPPIC}-${i}.jpg"
 		if [ -f "$p" ]; then
-			MID[$i]=$(slack upload "$p" | jq -r '.media_id_string')
+			slack file upload "$p" admin
 		fi
 		((i++))
 	done
-	slack post -m ${MID[0]},${MID[1]},${MID[2]},${MID[3]} "${MESSAGE} ${MARKOV}" > /dev/null
+	slack chat send "${MESSAGE}" admin --color good > /dev/null
 }
 
 echo "$(date) Tweet notification system."
-. "${HOME}/.wp-admin-config/tw.conf"
 if [ $# -eq 1 ]; then
-	slack post "${MESSAGE}" > /dev/null 2>&1
+	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
 elif [ "$2" = "critical" ]; then
-	. "${HOME}/.wp-admin-config/slack-critical.conf"
-	slack post "${MESSAGE}" > /dev/null 2>&1
+	slack chat send "${MESSAGE}" admin --color bad > /dev/null 2>&1
 else
 	screenshot "$@"
 fi
