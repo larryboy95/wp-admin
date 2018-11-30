@@ -82,7 +82,6 @@ restic-check() {
 
 wp-check() {
 # TODO check host is accessible over ssh
-# TODO look for the wp-cli binary on the remote host
 	${WP} \
 		--quiet \
 		core is-installed
