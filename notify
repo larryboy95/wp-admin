@@ -4,11 +4,11 @@ $(basename $0) Version 0.2.5
 
 Usage: $(basename $0) MESSAGE ['critical' || URL] 
 
-Sends MESSAGE as a slackbot.
+Sends MESSAGE as a slackbot to #admin channel.
 URL should include the protocol, like https://site.com
 If the second argument is:
 - a URL, screenshots will be taken and posted along with the MESSAGE
-- 'critical', MESSAGE will be tagged critical
+- 'critical', MESSAGE will be posted to channel #admin-critical
 
 Configured in ~/.wp-admin-config/slack.conf
 
@@ -67,7 +67,7 @@ echo "$(date) Tweet notification system."
 if [ $# -eq 1 ]; then
 	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
 elif [ "$2" = "critical" ]; then
-	slack chat send "@channel ${MESSAGE}" admin --color danger > /dev/null 2>&1
+	slack chat send "@channel ${MESSAGE}" admin-critical --color danger > /dev/null 2>&1
 else
 	screenshot "$@"
 fi
