@@ -63,7 +63,7 @@ screenshot() {
 	fi
 }
 
-echo "$(date) Tweet notification system."
+echo "$(date) Slack notification system."
 if [ $# -eq 1 ]; then
 	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
 elif [ "$2" = "critical" ]; then
