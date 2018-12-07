@@ -1,6 +1,6 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version 0.2.5
+$(basename $0) Version 0.2.6
 
 Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
