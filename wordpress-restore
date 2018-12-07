@@ -129,7 +129,7 @@ function main {
 	wp $WPARGS cache flush
 	[ ! $? -eq 0 ] && { echo "Cache flush error wtf"; exit 1; }
 	wordpress-permissions "$FQDN" dev || echo "Permissions error"
-	notify "Site has been restored to https://${FQDN}."
+	notify "Site has been restored to https://${FQDN}. Post-restore screenshot:" "https://${FQDN}"
 }
 
 main "$@"
