@@ -10,8 +10,6 @@ If the second argument is:
 - a URL, screenshots will be taken and posted along with the MESSAGE
 - 'critical', MESSAGE will be posted to channel #admin-critical
 
-Configured in ~/.wp-admin-config/slack.conf
-
 Depends on:
 - https://github.com/hrs/MARKOV-sentence-generator
 - https://github.com/sindresorhus/pageres-cli
@@ -59,7 +57,7 @@ screenshot() {
 	slack chat send "${MESSAGE}" admin --color good > /dev/null
 	p="${TEMPPIC}-0.jpg"
 	if [ -f "$p" ]; then
-		slack file upload "$p" admin
+		slack file upload "$p" admin > /dev/null 2>&1
 	fi
 }
 
