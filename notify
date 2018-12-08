@@ -54,7 +54,7 @@ screenshot() {
 	PARGS="--crop --delay=2 --format=jpg --timeout=20"
 	echo "$(date) Taking screenshot:"
 	pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100 > /dev/null 2>&1
-	slack chat send "${MESSAGE}" admin --color good > /dev/null
+	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
 	p="${TEMPPIC}-0.jpg"
 	if [ -f "$p" ]; then
 		slack file upload "$p" admin > /dev/null 2>&1
