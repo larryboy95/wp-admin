@@ -20,19 +20,33 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
-function main {
-	local HOSTNAME CODEBASE DB SCRIPTDIR
-	local SITEURL PREFIX WPCONFIG
-	HOSTNAME="$1"
-	FQDN="$2"
-	DB="$3"
-	[ ! -z "$4" ] && CODEBASE="$4"
-	[ ! -z "$5" ] && GITKEY="$5"
-	SCRIPTDIR=$(dirname "${0}")
-	WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root --skip-themes"
-# Check for required values and binaries
-	[ ! -f "$DB" ] && { echo "${DB} is not a file"; exit 1; }
+HOSTNAME="$1"
+FQDN="$2"
+DB="$3"
+[ ! -z "$4" ] && CODEBASE="$4"
+[ ! -z "$5" ] && GITKEY="$5"
+SCRIPTDIR=$(dirname "${0}")
+WPARGS="--path=/var/www/html --ssh=${FQDN} --allow-root --skip-themes --skip-plugins"
+WEBROOT="/var/www/html"
+OLDROOT="${WEBROOT}-old"
+OLDCONFIG="${WEBROOT}/../wp-config.php.old"
+LIVECONFIG="${WEBROOT}/wp-config.php"
+FRESHCONFIG="${WEBROOT}/../wp-config.php.fresh"
+# Strip trailing .gz from DB file path
+DB="${DB%.*}"
+SITEURL=""
+SSHBIN=$(which ssh) || { echo "ssh not found"; exit 1;}
+SSH="$SSHBIN $FQDN"
 
+# Trap ctrl-c. Does not work as expected.
+trap 'exit 2' INT
+
+# Check for required values and binaries
+check_values() {
+	[ ! -f "$DB" ] && { echo "${DB} is not a file"; exit 1; }
+}
+
+wait_boot_finish() {
 	echo "Test connection"
 	while true; do
 		ssh -o ConnectTimeout=3 -q "$FQDN" \
@@ -46,91 +60,187 @@ function main {
 			sleep 1
 		fi
 	done
+}
 
-	if [ -d "$CODEBASE" ]; then 
-# Find the wordpress webroot and copy to server
-		WPCONFIG="${CODEBASE}/wp-config.php"
-		[ ! -f "$WPCONFIG" ] && { echo "wp-config.php not found"; exit 1; }
-		ssh "$FQDN" "[ ! -d /var/www/new ] && mkdir /var/www/new"
-		echo "Syncing files...please wait."
-		rsync \
-			--quiet \
-			--archive \
-			--compress \
-			--protect-args \
-			--delete \
-			--exclude=".git*" \
-			--exclude="wp-content/updraft" \
-			--progress \
-			"${CODEBASE}/" \
-			"${FQDN}:/var/www/new/"
 # Replace the webroot with the new files
-		ssh "$FQDN" 'rm -rf /var/www/html-vanilla'
-		ssh "$FQDN" "mv -f /var/www/html /var/www/html-vanilla" || exit 1
-		ssh "$FQDN" "mv -f /var/www/new /var/www/html" || { echo "new dir not found"; exit 1; }
-		ssh "$FQDN" "cp /var/www/html/wp-config.php /var/www/wp-config.php.old" || exit 1
-		ssh "$FQDN" "cp /var/www/wp-config.php.fresh /var/www/html/wp-config.php" || exit 1
-		echo "${CODEBASE} restored"
+rename_webroot(){
+	$SSH "[ -d ${OLDROOT} ]"
+	if [ $? -eq 0 ]; then
+		echo "Delete old backup webroot."
+		$SSH "rm -rf ${OLDROOT}"
+	else
+		echo "Old backup of webroot not found at $OLDROOT."
+	fi	
+
+	$SSH "[ -d ${WEBROOT} ]"
+	if [ $? -eq 0 ]; then
+		echo "Backup the current webroot by renaming to $OLDROOT"
+		$SSH "mv -f ${WEBROOT} ${OLDROOT}"
+	else
+		echo "Live webroot not found."
+		$SSH "mkdir $WEBROOT"
+	fi
+}
+
+# Find the wordpress webroot and copy to server
+sync_codebase() {
+	echo "Syncing files...please wait."
+	rsync \
+		--archive \
+		--compress \
+		--protect-args \
+		--delete \
+		--exclude=".git*" \
+		--exclude="wp-content/updraft" \
+		--info=progress2 \
+		"${CODEBASE}/" \
+		"${FQDN}:${WEBROOT}"
+}
+
+setup_git(){
+	[ -f "$GITKEY" ] || { echo "GITKEY not found ${GITKEY}"; exit 1; }
+	$SSH "DEBIAN_FRONTEND=noninteractive apt-get -y -q install git"
+	scp "$GITKEY" "${FQDN}:.ssh/id_git" || { echo "scp error"; exit 1; }
+	$SSH "echo 'IdentityFile ~/.ssh/id_git' >> .ssh/config"
+	$SSH "echo 'StrictHostkeyChecking no' >> .ssh/config"
+}
+
+clone_repo(){
+	echo "Cloning into $WEBROOT please wait..."
+	$SSH "git clone --quiet ${CODEBASE} ${WEBROOT}"
+	if [ ! $? -eq 0 ]; then
+		echo "Git cloning error."
+	fi
+}
+
+# Backup the restored site config
+# Copy config from old webroot
+shift_config(){
+	$SSH "[ -f $OLDCONFIG ]"
+	if [ $? -eq 0 ]; then
+		echo "Delete stale config file $OLDCONFIG"
+		$SSH "rm $OLDCONFIG"
+	else
+		echo "Stale config file $OLDCONFIG not found."
+	fi
+	$SSH "[ -f $LIVECONFIG ]"
+	if [ $? -eq 0 ]; then
+		$SSH "cp $LIVECONFIG $OLDCONFIG"
+	else
+		echo "Restored CODEBASE did not include a wp-config.php"
+	fi
+	$SSH "[ -f $FRESHCONFIG ]"
+	if [ $? -eq 0 ]; then
+		echo "Replace the restored config file with a freshly generated one."
+		$SSH "cp $FRESHCONFIG $LIVECONFIG"
+	else 
+		echo "Fresh config not found."
+	fi
+}
+
 # Extract the db table prefix from old config
 # Find the old line, remove the trailing newline, escape single quotes
-		PREFIX=$(grep "table_prefix" "$WPCONFIG")
+tweak_config(){
+	$SSH "[ -f $OLDCONFIG ]"
+	if [ $? -eq 0 ]; then
+		PREFIX=$($SSH "grep table_prefix $OLDCONFIG")
 		PREFIX=$(echo -n "$PREFIX" | sed "s/'/\"/g")
-		ssh "$FQDN" "sed -i '/table_prefix/c ${PREFIX}' /var/www/html/wp-config.php" || exit 1
+		$SSH "sed -i '/table_prefix/c $PREFIX' $LIVECONFIG" || exit 1
 		echo "Table prefix (${PREFIX}) replaced in wp-config.php"
+	else
+		echo "$OLDCONFIG not found, skipping config tweak."
+	fi
+}
+
 # TODO figure out why this doesn't work:
 # Set the wp environment
-		#read -p "Specify the WP environment (development): " -n 1 -r
-		#REPLY=${REPLY:-development}
-		#ENVSTR="define(\"WP_ENV\", \"$REPLY\")"
-		#ssh "$FQDN" "echo $ENVSTR >> /var/www/html/wp-config.php" || exit 1
-		#echo "$ENVSTR has been appended to wp-config.php"
-# Restart nginx
-		ssh "$FQDN" "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
+set_environment(){
+	read -p "Specify the WP environment (development): " -n 1 -r
+	REPLY=${REPLY:-development}
+	ENVSTR="define(\"WP_ENV\", \"$REPLY\")"
+	$SSH "echo $ENVSTR >> /var/www/html/wp-config.php" || exit 1
+	echo "$ENVSTR has been appended to wp-config.php"
+}
+
+restart_nginx(){
+	#$SSH "rm /etc/nginx/sites-enabled/default; service nginx restart" || exit 1
+	$SSH "service nginx restart"
+	if [ $? -eq 0 ]; then
 		echo "Nginx restarted"
-# If CODEBASE is a git repo:
-	elif [[ "$CODEBASE" =~ ^git* ]]; then
-		WEBROOT="/var/www/html"
-		OLDROOT="${WEBROOT}-old"
-		[ -f "$GITKEY" ] || { echo "GITKEY not found ${GITKEY}"; exit 1; }
-		ssh "$FQDN" "DEBIAN_FRONTEND=noninteractive apt-get -y -q install git"
-		ssh "$FQDN" -t "[ -d ${WEBROOT} ] && rm -rf ${OLDROOT}"
-		ssh "$FQDN" -t "[ -d ${WEBROOT} ] && mv -f ${WEBROOT} ${OLDROOT}"
-		scp "$GITKEY" "${FQDN}:.ssh/id_git" || { echo "scp error"; exit 1; }
-		ssh "$FQDN" "echo 'IdentityFile ~/.ssh/id_git' >> .ssh/config"
-		ssh "$FQDN" "echo 'StrictHostkeyChecking no' >> .ssh/config"
-		ssh "$FQDN" "git clone --quiet ${CODEBASE} ${WEBROOT}" || exit 1
-		ssh "$FQDN" "cp ${OLDROOT}/wp-config.php ${WEBROOT}/wp-config.php" || exit 1
-		wordpress-permissions "$FQDN" dev
 	else
-		echo "CODEBASE not supplied, restoring database only."
+		notify "nginx failed to restart on $FQDN" critical
 	fi
+}
+
 # Find, extract and import the db
-# Replace the siteurl
+# gunzip automatically infers the .gz file extension
+extract_db(){
 	gunzip -k "$DB" || { echo "gunzip failed"; exit 1; }
 	echo "Database dump extracted"
-	DB="${DB%.*}"
+}
+
+copy_db(){
 	scp "$DB" "${FQDN}:/var/www/restore.sql" || { echo "scp error"; exit 1; }
 	trap "rm ${DB}" EXIT
-	wp $WPARGS db reset
+}
+
+import_db(){
 	read -p "Import the database? (y/n) " -r
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
 		wp $WPARGS db import /var/www/restore.sql
 		[ ! $? -eq 0 ] && { echo "Db import error"; exit 1; }
 	fi
+}
+
+get_siteurl(){
 	SITEURL=$(wp $WPARGS option get siteurl)
 	[ ! $? -eq 0 ] && { echo "Siteurl error"; exit 1; }
+}
 
+wp_search_replace(){
 	read -p "Search and replace the site url to https://${FQDN}? (y/n) " -r
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
 		wp $WPARGS search-replace "$SITEURL" "https://${FQDN}" --skip-columns=guid
 	fi
-
 	[ ! $? -eq 0 ] && { echo "Search replace error"; exit 1; }
-	wp $WPARGS cache flush
-	[ ! $? -eq 0 ] && { echo "Cache flush error wtf"; exit 1; }
-	wordpress-permissions "$FQDN" dev || echo "Permissions error"
-	notify "Site has been restored to https://${FQDN}. Post-restore screenshot:" "https://${FQDN}"
 }
 
-main "$@"
+wp_flush_cache(){
+	wp $WPARGS cache flush
+	[ ! $? -eq 0 ] && { echo "Cache flush error wtf"; exit 1; }
+}
+
+wait_boot_finish
+# Offer to reset the db before we change the wp-config
+wp $WPARGS db reset
+# Is CODEBASE a directory on the local filesystem?
+if [ -d "$CODEBASE" ]; then 
+	rename_webroot
+	sync_codebase
+# Does CODEBASE string begin with 'git*'?
+elif [[ "$CODEBASE" =~ ^git* ]]; then
+	setup_git
+	rename_webroot
+	clone_repo
+fi
+# If any kind of CODEBASE was supplied:
+if [ -d "$CODEBASE" ] || [[ "$CODEBASE" =~ ^git* ]]; then
+	shift_config
+	tweak_config
+	wordpress-permissions "$FQDN" dev
+	restart_nginx
+	echo "${CODEBASE} was restored"
+else
+	echo "CODEBASE not supplied, restoring database only."
+fi
+
+extract_db
+copy_db
+import_db
+get_siteurl
+wp_search_replace
+wp_flush_cache
+
+notify "Site has been restored to https://${FQDN}. Post-restore screenshot:" "https://${FQDN}"
+
 exit 0
