@@ -207,10 +207,11 @@ sync-files() {
 
 compress_codebase() {
 	local BASENAME="${FULLBUPDIR##*/}"
-	echo "$BASENAME"
+	local DIR="${FULLBUPDIR%/*}"
+	echo "$BASENAME in $DIR"
 # note: above will break with trailing slash
 	echo "$(date) Compressing local codebase backup."
-	tar -czvf "$BASENAME.tgz" "$FULLBUPDIR" --remove-files
+	tar -czvf "$BASENAME.tgz" -C "$DIR" "$BASENAME" --remove-files
 	[ ! $? -eq 0  ] && notify "File compression error for ${HOSTNAME}" critical
 }
 
