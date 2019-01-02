@@ -1,6 +1,6 @@
 #!/bin/bash
 USAGE="
-$(basename $0) Version  0.2.7
+$(basename $0) Version  0.2.8
 
 Usage: wordpress-backup HOSTNAME BACKUPTYPE [WEBROOT]
 Where:
@@ -205,6 +205,16 @@ sync-files() {
 	find "$FULLBUPDIR" -type d -exec chmod 770 {} + || echo "$(date) ERROR"
 }
 
+compress_codebase() {
+	local BASENAME="${FULLBUPDIR##*/}"
+	local DIR="${FULLBUPDIR%/*}"
+	echo "$BASENAME in $DIR"
+# note: above will break with trailing slash
+	echo "$(date) Compressing local codebase backup."
+	tar -czvf "$BASENAME.tgz" -C "$DIR" "$BASENAME" --remove-files
+	[ ! $? -eq 0  ] && notify "File compression error for ${HOSTNAME}" critical
+}
+
 backup-full() {
 	$RESTIC backup ${FULLBUPDIR}/ --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error for ${HOSTNAME}" critical
@@ -242,6 +252,7 @@ elif [ ${BACKUPTYPE} = "manual" ]; then
 	backup-db
 	sync-files
 	backup-full
+	compress_codebase
 	notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}."
 else
 	restic-check
