@@ -43,6 +43,7 @@ fi
 trap 'rm -rf /tmp/wordpress-backup.lock' EXIT	
 
 HOSTNAME="$1"
+GROUP="mribackup"
 # Set defaults if arguments absent
 BACKUPTYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
@@ -200,7 +201,7 @@ sync-files() {
 		notify "File sync failed for ${TEASER}" critical
 	fi
 	echo "$(date) Updating permissions on local backup copy"
-	chown "$USER:developers" -R "$FULLBUPDIR" || echo "$(date) ERROR"
+	chown "$USER:$GROUP" -R "$FULLBUPDIR" || echo "$(date) ERROR"
 	find "$FULLBUPDIR" -type f -exec chmod 660 {} + || echo "$(date) ERROR"
 	find "$FULLBUPDIR" -type d -exec chmod 770 {} + || echo "$(date) ERROR"
 }
