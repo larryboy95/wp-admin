@@ -217,12 +217,12 @@ compress_codebase() {
 }
 
 backup-full() {
-	$RESTIC backup ${FULLBUPDIR}/ --tag ${HOSTNAME}
+	$RESTIC backup --no-cache ${FULLBUPDIR}/ --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error for ${HOSTNAME}" critical
 }
 
 backup-db() {
-	$RESTIC backup ${DBFNAME}.gz --tag ${HOSTNAME}
+	$RESTIC backup --no-cache ${DBFNAME}.gz --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error ${HOSTNAME}" critical
 }
 
