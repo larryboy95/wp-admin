@@ -49,11 +49,12 @@ BACKUPTYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
 DBFNAME="${HOSTNAME}.sql"
 EXCLUDE="sites/default/files/legacy"
-# Below can be set as environment variables
+# Below can optionally be set as environment variables
 BUPDIR="${BUPDIR:-/var/backups/wordpress}"
 FULLBUPDIR=""
 KEEP=${KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
+RESTIC_CACHE=${RESTIC_CACHE:-~/.cache/restic}
 TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
 SITEURL=""
 WPBIN=$(which wp)
@@ -217,12 +218,12 @@ compress_codebase() {
 }
 
 backup-full() {
-	$RESTIC backup --no-cache ${FULLBUPDIR}/ --tag ${HOSTNAME}
+	$RESTIC backup --cache-dir ${RESTIC_CACHE} ${FULLBUPDIR}/ --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error for ${HOSTNAME}" critical
 }
 
 backup-db() {
-	$RESTIC backup --no-cache ${DBFNAME}.gz --tag ${HOSTNAME}
+	$RESTIC backup --cache-dir ${RESTIC_CACHE} ${DBFNAME}.gz --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error ${HOSTNAME}" critical
 }
 
