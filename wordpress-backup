@@ -7,7 +7,7 @@ Where:
 - HOSTNAME must be available in ssh config
 - BACKUPTYPE can be one of:
 	- full: backup webroot and db to s3, rotated
-	- manual: full backup to BUPDIR/manual and s3, not rotated
+	- manual: full backup to BACKUP_DIRECTORY_LOCAL/manual and s3, not rotated
 	- db: backup db to admin server
 	- tmp: backup db and webroot to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
@@ -22,11 +22,16 @@ Create two buckets on s3 with an IAM user for each.
 Create two files in ~/.wp-admin-config/:
 	- restic-full.conf
 	- restic-manual.conf
-Each file needs the following vars:
+Each file needs the following environment variables:
 	- export RESTIC_REPOSITORY
 	- export RESTIC_PASSWORD
 	- export AWS_ACCESS_KEY_ID
 	- export AWS_SECRET_ACCESS_KEY
+Optional environment variables and their default values:
+	- export RESTIC_CACHE='~/.cache/restic'
+	- export BUP_DIR='/var/backups/wordpress'
+	- export BACKUPS_TO_KEEP=28
+	- export RESTIC='/usr/local/bin/restic'
 "
 
 # Print USAGE if no args
@@ -49,18 +54,22 @@ BACKUPTYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
 DBFNAME="${HOSTNAME}.sql"
 EXCLUDE="sites/default/files/legacy"
-# Below can be set as environment variables
-BUPDIR="${BUPDIR:-/var/backups/wordpress}"
-FULLBUPDIR=""
-KEEP=${KEEP:-28}
+# Below can optionally be set as environment variables
+BACKUP_DIRECTORY_LOCAL="${BACKUP_DIRECTORY_LOCAL:-/var/backups/wordpress}"
+BACKUPS_TO_KEEP=${BACKUPS_TO_KEEP:-28}
 RESTIC=${RESTIC:-/usr/local/bin/restic}
-TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
+RESTIC_CACHE=${RESTIC_CACHE:-~/.cache/restic}
+# Initialize other variables
+FULLBUPDIR=""
 SITEURL=""
+TEASER="${HOSTNAME} (${BACKUPTYPE}) at ${SITEURL}"
+# Find the wp-cli binary
 WPBIN=$(which wp)
+# Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
 	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
 else
-	echo "$(date) wp-cli not found on admin server"
+	notify "wp-cli not found on admin server" critical
 	exit 1
 fi
 RESTIC_REPOSITORY=""
@@ -127,19 +136,19 @@ set-backup-dir() {
 	"manual") 
 		local DATESTAMP=$(date +%F)
 		DBFNAME="${HOSTNAME}-${DATESTAMP}.sql"
-		BUPDIR="${BUPDIR}/manual"
-		FULLBUPDIR="${BUPDIR}/${HOSTNAME}-${DATESTAMP}"
+		BACKUP_DIRECTORY_LOCAL="${BACKUP_DIRECTORY_LOCAL}/manual"
+		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${HOSTNAME}-${DATESTAMP}"
 		;;
 	"full") 
-		FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
+		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${HOSTNAME}"
 		;;
 	"tmp") 
-		BUPDIR="/tmp"
-		FULLBUPDIR="${BUPDIR}/${HOSTNAME}"
+		BACKUP_DIRECTORY_LOCAL="/tmp"
+		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${HOSTNAME}"
 		;;
 	esac
-	[ ! -d $BUPDIR ] && mkdir $BUPDIR
-	cd ${BUPDIR}
+	[ ! -d $BACKUP_DIRECTORY_LOCAL ] && mkdir $BACKUP_DIRECTORY_LOCAL
+	cd ${BACKUP_DIRECTORY_LOCAL}
 }
 
 rotate-db-backups() {
@@ -147,7 +156,7 @@ rotate-db-backups() {
 	# Trim off the file extension
 	FNAME="${DBFNAME%'.sql'}"
 	echo "$(date) Rotate db backups ($FNAME)."
-	I=$KEEP
+	I=$BACKUPS_TO_KEEP
 	while [ $I -gt 0 ]
 	do
 		if [ $I -gt 1 ]; then
@@ -217,12 +226,12 @@ compress_codebase() {
 }
 
 backup-full() {
-	$RESTIC backup --no-cache ${FULLBUPDIR}/ --tag ${HOSTNAME}
+	$RESTIC backup --cache-dir ${RESTIC_CACHE} ${FULLBUPDIR}/ --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error for ${HOSTNAME}" critical
 }
 
 backup-db() {
-	$RESTIC backup --no-cache ${DBFNAME}.gz --tag ${HOSTNAME}
+	$RESTIC backup --cache-dir ${RESTIC_CACHE} ${DBFNAME}.gz --tag ${HOSTNAME}
 	[ ! $? -eq 0  ] && notify "Restic error ${HOSTNAME}" critical
 }
 
