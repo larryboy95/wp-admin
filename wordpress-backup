@@ -10,6 +10,7 @@ Where:
 	- manual: full backup to BACKUP_DIRECTORY_LOCAL/manual and s3, not rotated
 	- db: backup db to admin server
 	- tmp: backup db and webroot to /tmp on admin server
+	- dbtmp: backup db to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
 
 Note: if WEBROOT is not supplied then wordpress-permissions 
@@ -122,7 +123,8 @@ check-args() {
 	if [ "$BACKUPTYPE" != "full" ] \
 		&& [ "$BACKUPTYPE" != "db" ] \
 		&& [ "$BACKUPTYPE" != "manual" ] \
-		&& [ "$BACKUPTYPE" != "tmp" ]; then
+		&& [ "$BACKUPTYPE" != "tmp" ] \
+		&& [ "$BACKUPTYPE" != "dbtmp" ]; then
 		notify "Error in second argument, ${HOSTNAME} (arg 1) ${BACKUPTYPE} (arg 2) backup." critical
 		exit 1
 	fi
@@ -145,6 +147,9 @@ set-backup-dir() {
 	"tmp") 
 		BACKUP_DIRECTORY_LOCAL="/tmp"
 		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${HOSTNAME}"
+		;;
+	"dbtmp")
+		BACKUP_DIRECTORY_LOCAL="/tmp"
 		;;
 	esac
 	[ ! -d $BACKUP_DIRECTORY_LOCAL ] && mkdir $BACKUP_DIRECTORY_LOCAL
@@ -252,10 +257,14 @@ if [ ${BACKUPTYPE} = "db" ]; then
 	rotate-db-backups
 	dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
-	echo "$(date) Backup db to /tmp, skipping restic."
+	echo "$(date) Backup db and codebase to /tmp, skipping restic."
 	echo "$(date) This backup will not be written to s3."
 	dump-db
 	sync-files
+elif [ ${BACKUPTYPE} = "dbtmp" ]; then
+	echo "$(date) Backup db to /tmp, skipping restic."
+	echo "$(date) This backup will not be written to s3."
+	dump-db
 elif [ ${BACKUPTYPE} = "manual" ]; then
 	restic-check
 	dump-db
