@@ -48,7 +48,7 @@ else
 		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
 	"
 	ssh "$HOSTNAME" "[ -d ${WEBROOT}/wp-content/uploads ] && \
-		sudo chmod g+s -R ${WEBROOT}/wp-content;"
+		sudo chmod g+ws -R ${WEBROOT}/wp-content;"
 	ssh "$HOSTNAME" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
 		sudo find ${WEBROOT} -type d -exec chmod 750 {} +;
 		sudo chmod 644 ${WEBROOT}/wp-config.php;
