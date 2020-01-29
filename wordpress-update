@@ -1,0 +1,71 @@
+#!/bin/bash
+USAGE="
+$(basename $0) Version  0.2.8
+
+Usage: wordpress-update HOSTNAME UUUUUPDATE_TYPE [WEBROOT]
+Where:
+- HOSTNAME must be available in ssh config
+- WEBROOT is optional, defaults to /var/www/html
+
+Note: if WEBROOT is not supplied then wordpress-permissions 
+will be run to set ownership to the dev user. Add the WEBROOT
+parameter to suppress this action.
+"
+
+failure(){
+    notify "Update failed for $HOSTNAME" critical
+    exit 1
+}
+
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+	echo "$USAGE"
+	failure
+fi
+HOSTNAME="$1"
+WEBROOT="${3:-/var/www/html}"
+# Find the wp-cli binary
+WPBIN=$(which wp)
+# Set global options for wp-cli or report missing binary
+if [ $? -eq 0 ]; then
+	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --ssh=${HOSTNAME} "
+else
+	notify "wp-cli not found on admin server" critical
+	failure
+fi
+# Make a tempprary backup of the db
+if [ -z "$3" ]; then
+    wordpress-backup "$HOSTNAME" dbtmp
+else
+    wordpress-backup "$HOSTNAME" dbtmp "$WEBROOT"
+fi
+#wordpress-permissions $HOSTNAME dev
+$WP "core is-installed"
+if [ ! $? -eq 0 ]; then
+	notify "wp core is not installed at ${HOSTNAME}??? Oh no!" critical 
+    failure
+fi
+SITEURL=$($WP "option get siteurl")
+if [ ! $? -eq 0 ]; then
+	notify "siteurl failure for ${HOSTNAME}" critical 
+    failure
+fi
+$WP "core update"
+if [ ! $? -eq 0 ]; then
+	notify "core update error for $HOSTNAME" critical 
+    failure
+fi
+$WP "core update-db"
+if [ ! $? -eq 0 ]; then
+	notify "db update error for $HOSTNAME" critical 
+    failure
+fi
+sleep 1
+notify "Core update completed for ${SITEURL}. Post-upgrade, pre-commit screenshot:" "$SITEURL"
+read -p "Commit and push changes. Are you sure? " -n 1 -r  
+echo    # (optional) move to a new line  
+if [[ $REPLY =~ ^[Yy]$ ]] ; then 
+	wordpress-commit $HOSTNAME
+fi
+wordpress-permissions $HOSTNAME www-data
+exit 0
