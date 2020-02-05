@@ -25,10 +25,10 @@ fi
 HOSTNAME="$1"
 WEBROOT="${3:-/var/www/html}"
 # Find the wp-cli binary
-WPBIN=$(which wp)
+WP_CLI_LOCAL=$(which wp)
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
-	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --ssh=${HOSTNAME} "
+	WP="${WP_CLI_LOCAL} --path=${WEBROOT} --allow-root --skip-themes --ssh=${HOSTNAME} "
 else
 	notify "wp-cli not found on admin server" critical
 	failure
@@ -40,22 +40,22 @@ else
     wordpress-backup "$HOSTNAME" dbtmp "$WEBROOT"
 fi
 #wordpress-permissions $HOSTNAME dev
-$WP "core is-installed"
+$WP core is-installed
 if [ ! $? -eq 0 ]; then
 	notify "wp core is not installed at ${HOSTNAME}??? Oh no!" critical 
     failure
 fi
-SITEURL=$($WP "option get siteurl")
+SITEURL=$($WP option get siteurl)
 if [ ! $? -eq 0 ]; then
 	notify "siteurl failure for ${HOSTNAME}" critical 
     failure
 fi
-$WP "core update"
+$WP core update
 if [ ! $? -eq 0 ]; then
 	notify "core update error for $HOSTNAME" critical 
     failure
 fi
-$WP "core update-db"
+$WP core update-db
 if [ ! $? -eq 0 ]; then
 	notify "db update error for $HOSTNAME" critical 
     failure
