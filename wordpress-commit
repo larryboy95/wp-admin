@@ -32,34 +32,45 @@ else
     failure "$MOUNTPOINT does not exist"
 fi
 TIMESTAMP="$(date +%s)"
+echo "Timestamp is $TIMESTAMP"
 BRANCH="auto_updates_${TIMESTAMP}"
+echo "Branch name is $BRANCH"
 
-# Find binaries
+echo "Finding binaries"
 SSHFS=`which sshfs`
 [ $? -eq 0 ] || failure "sshfs"
 GIT=`which git`
 [ $? -eq 0 ] || failure "git"
 
+echo "Mount remote webroot"
 $SSHFS ${HOSTNAME}:${WEBROOT} $MOUNTPOINT
 [ $? -eq 0 ] || failure "sshfs"
 
+echo "Change directories"
 cd $MOUNTPOINT 
 [ $? -eq 0 ] || failure "cd $MOUNTPOINT"
+echo "Checkout new branch"
 $GIT checkout -b $TIMESTAMP
 [ $? -eq 0 ] || failure "checkout $BRANCH"
+echo "Add all new files to commit"
 $GIT add -A
 [ $? -eq 0 ] || failure "git add -A"
 #$GIT add -A
+echo "Create test file"
 touch nhcs.test
 [ $? -eq 0 ] || failure "test file creation"
+echo "git commit"
 $GIT commit -am 'Automatic update.'
 [ $? -eq 0 ] || failure "commit"
+echo "git config"
 $GIT config --global push.default simple
 [ $? -eq 0 ] || failure "config"
+echo "push $BRANCH"
 $GIT push -u origin $BRANCH
 [ $? -eq 0 ] || failure "push"
 
-umount "$MOUNTPOINT"
+echo "Dismount $MOUNTPOINT"
+sudo umount "$MOUNTPOINT"
 [ $? -eq 0 ] || failure "umount"
 notify "Automatic git commit script completed without error for ${HOSTNAME}. See branch ${BRANCH}"
 
