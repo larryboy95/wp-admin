@@ -1,0 +1,66 @@
+#!/bin/bash
+
+USAGE="
+$(basename $0) Version  0.2.8
+
+$(basename $0) HOSTNAME WEBROOT MOUNTPOINT
+Mounts a remote webroot locally with sshfs and commits to a new branch in the git repo.
+Branch is named auto_updates_timestamp, where timestamp is seconds since the Unix epoch.
+Commits will be made in the name of the user that executes this script.
+"
+
+failure(){
+    NOTE="$1"
+    notify "Git commit failed for $HOSTNAME (${NOTE})" critical
+    exit 1
+}
+
+# Print USAGE if no args
+if [ $# -lt 3 ]; then
+	echo "$USAGE"
+	exit 1
+fi
+HOSTNAME="$1"
+WEBROOT="$2"
+MOUNTPOINT="$3"
+if [ -d "$MOUNTPOINT" ]; then
+    MOUNTPOINT_CONTENTS="$(ls $MOUNTPOINT)"
+    if [ ! -z $MOUNTPOINT_CONTENTS ]; then
+        failure "Mount point $MOUNTPOINT is not empty."
+    fi
+else
+    failure "$MOUNTPOINT does not exist"
+fi
+TIMESTAMP="$(date +%s)"
+BRANCH="auto_updates_${TIMESTAMP}"
+
+# Find binaries
+SSHFS=`which sshfs`
+[ $? -eq 0 ] || failure "sshfs"
+GIT=`which git`
+[ $? -eq 0 ] || failure "git"
+
+$SSHFS ${HOSTNAME}:${WEBROOT} $MOUNTPOINT
+[ $? -eq 0 ] || failure "sshfs"
+
+cd $MOUNTPOINT 
+[ $? -eq 0 ] || failure "cd $MOUNTPOINT"
+$GIT checkout -b $TIMESTAMP
+[ $? -eq 0 ] || failure "checkout $BRANCH"
+$GIT add -A
+[ $? -eq 0 ] || failure "git add -A"
+#$GIT add -A
+touch nhcs.test
+[ $? -eq 0 ] || failure "test file creation"
+$GIT commit -am 'Automatic update.'
+[ $? -eq 0 ] || failure "commit"
+$GIT config --global push.default simple
+[ $? -eq 0 ] || failure "config"
+$GIT push -u origin $BRANCH
+[ $? -eq 0 ] || failure "push"
+
+umount "$MOUNTPOINT"
+[ $? -eq 0 ] || failure "umount"
+notify "Automatic git commit script completed without error for ${HOSTNAME}. See branch ${BRANCH}"
+
+exit 0
