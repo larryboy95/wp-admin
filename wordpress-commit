@@ -36,12 +36,20 @@ echo "Timestamp is $TIMESTAMP"
 BRANCH="auto_updates_${TIMESTAMP}"
 echo "Branch name is $BRANCH"
 
+
 echo "Finding binaries"
 SSHFS=`which sshfs`
 [ $? -eq 0 ] || failure "sshfs"
 GIT=`which git`
 [ $? -eq 0 ] || failure "git"
 
+function dismount()
+{
+        notify "Script exited abnormally. Dismounting $MOUNTPOINT"
+        sudo umount "$MOUNTPOINT"
+        exit 1
+}
+trap dismount EXIT
 echo "Mount remote webroot"
 $SSHFS ${HOSTNAME}:${WEBROOT} $MOUNTPOINT
 [ $? -eq 0 ] || failure "sshfs"
@@ -49,8 +57,8 @@ $SSHFS ${HOSTNAME}:${WEBROOT} $MOUNTPOINT
 echo "Change directories"
 cd $MOUNTPOINT 
 [ $? -eq 0 ] || failure "cd $MOUNTPOINT"
-echo "Checkout new branch"
-$GIT checkout -b $TIMESTAMP
+echo "Checkout new branch $BRANCH"
+$GIT checkout -b "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
 echo "Add all new files to commit"
 $GIT add -A
@@ -69,9 +77,9 @@ echo "push $BRANCH"
 $GIT push -u origin $BRANCH
 [ $? -eq 0 ] || failure "push"
 
-echo "Dismount $MOUNTPOINT"
-sudo umount "$MOUNTPOINT"
-[ $? -eq 0 ] || failure "umount"
+#echo "Dismount $MOUNTPOINT"
+#sudo umount "$MOUNTPOINT"
+#[ $? -eq 0 ] || failure "umount"
 notify "Automatic git commit script completed without error for ${HOSTNAME}. See branch ${BRANCH}"
 
 exit 0
