@@ -3,10 +3,11 @@
 USAGE="
 $(basename $0) Version  0.2.8
 
-$(basename $0) HOSTNAME WEBROOT MOUNTPOINT
-Mounts a remote webroot locally with sshfs and commits to a new branch in the git repo.
+$(basename $0) HOSTNAME WEBROOT
+Clones a git repo from a remote webroot locally and commits all changes to a new branch.
 Branch is named auto_updates_timestamp, where timestamp is seconds since the Unix epoch.
 Commits will be made in the name of the user that executes this script.
+This script tested only with root login to lsws web servers.
 "
 
 failure(){
@@ -15,71 +16,80 @@ failure(){
     exit 1
 }
 
-# Print USAGE if no args
-if [ $# -lt 3 ]; then
+# Print USAGE if not enough args
+if [ $# -lt 2 ]; then
 	echo "$USAGE"
 	exit 1
-fi
-HOSTNAME="$1"
-WEBROOT="$2"
-MOUNTPOINT="$3"
-if [ -d "$MOUNTPOINT" ]; then
-    MOUNTPOINT_CONTENTS="$(ls $MOUNTPOINT)"
-    if [ ! -z $MOUNTPOINT_CONTENTS ]; then
-        failure "Mount point $MOUNTPOINT is not empty."
-    fi
-else
-    failure "$MOUNTPOINT does not exist"
 fi
 TIMESTAMP="$(date +%s)"
 echo "Timestamp is $TIMESTAMP"
 BRANCH="auto_updates_${TIMESTAMP}"
 echo "Branch name is $BRANCH"
-
+HOSTNAME="$1"
+WEBROOT="$2"
+WORKING_DIR="$(pwd)"
+REPO_LOCAL="/tmp/${BRANCH}"
+mkdir "$REPO_LOCAL"
+[ $? -eq 0 ] || failure "mkdir"
+if [ -d "$REPO_LOCAL" ]; then
+    REPO_LOCAL_CONTENTS="$(ls $REPO_LOCAL)"
+    if [ ! -z $REPO_LOCAL_CONTENTS ]; then
+        failure "Repo dir $REPO_LOCAL is not empty."
+    fi
+else
+    failure "$REPO_LOCAL does not exist"
+fi
 
 echo "Finding binaries"
-SSHFS=`which sshfs`
-[ $? -eq 0 ] || failure "sshfs"
 GIT=`which git`
 [ $? -eq 0 ] || failure "git"
+#GIT_TRACE=2
 
 function dismount()
 {
-        notify "Script exited abnormally. Dismounting $MOUNTPOINT"
-        sudo umount "$MOUNTPOINT"
-        exit 1
+    notify "Script exited. Deleting $REPO_LOCAL" critical
+    rm -rf "$REPO_LOCAL"
+    [ $? -eq 0 ] || echo "rm -rf failed"
+    exit 1
 }
 trap dismount EXIT
-echo "Mount remote webroot"
-$SSHFS ${HOSTNAME}:${WEBROOT} $MOUNTPOINT
-[ $? -eq 0 ] || failure "sshfs"
+echo "Clone the repp"
+$GIT clone ${HOSTNAME}:${WEBROOT} $REPO_LOCAL
+[ $? -eq 0 ] || failure "git clone"
+
+#echo "Change file ownership"
+#sudo chown $USER -R "$REPO_LOCAL/*"
 
 echo "Change directories"
-cd $MOUNTPOINT 
-[ $? -eq 0 ] || failure "cd $MOUNTPOINT"
+cd $REPO_LOCAL 
+[ $? -eq 0 ] || failure "cd $REPO_LOCAL"
+
+pwd
 echo "Checkout new branch $BRANCH"
+pwd
 $GIT checkout -b "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
-echo "Add all new files to commit"
-$GIT add -A
-[ $? -eq 0 ] || failure "git add -A"
-#$GIT add -A
+
 echo "Create test file"
 touch nhcs.test
 [ $? -eq 0 ] || failure "test file creation"
+
+echo "Add all new files to commit"
+$GIT add -A
+[ $? -eq 0 ] || failure "git add -A"
+
 echo "git commit"
 $GIT commit -am 'Automatic update.'
 [ $? -eq 0 ] || failure "commit"
+
 echo "git config"
 $GIT config --global push.default simple
 [ $? -eq 0 ] || failure "config"
+
 echo "push $BRANCH"
 $GIT push -u origin $BRANCH
 [ $? -eq 0 ] || failure "push"
 
-#echo "Dismount $MOUNTPOINT"
-#sudo umount "$MOUNTPOINT"
-#[ $? -eq 0 ] || failure "umount"
 notify "Automatic git commit script completed without error for ${HOSTNAME}. See branch ${BRANCH}"
 
 exit 0
