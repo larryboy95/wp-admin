@@ -65,7 +65,7 @@ notify "Core update completed for ${SITEURL}. Post-upgrade, pre-commit screensho
 read -p "Commit and push changes. Are you sure? " -n 1 -r  
 echo    # (optional) move to a new line  
 if [[ $REPLY =~ ^[Yy]$ ]] ; then 
-	wordpress-commit $HOSTNAME
+	wordpress-commit $HOSTNAME $WEBROOT
 fi
 wordpress-permissions $HOSTNAME www-data
 exit 0
