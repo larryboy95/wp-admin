@@ -4,7 +4,9 @@ USAGE="
 $(basename $0) Version  0.2.8
 
 $(basename $0) HOSTNAME WEBROOT
-Clones a git repo from a remote webroot locally and commits all changes to a new branch.
+Clones a git repo from a remote webroot to the local tmp dir and commits 
+all changes to a new branch.
+It clones, it branches, it commits, it pushes, it notifies, it cleans up.
 Branch is named auto_updates_timestamp, where timestamp is seconds since the Unix epoch.
 Commits will be made in the name of the user that executes this script.
 This script tested only with root login to lsws web servers.
@@ -12,7 +14,7 @@ This script tested only with root login to lsws web servers.
 
 failure(){
     NOTE="$1"
-    notify "Git commit failed for $HOSTNAME (${NOTE})" critical
+    notify "$(basename $0) failed for $HOSTNAME (${NOTE})" critical
     exit 1
 }
 
@@ -29,8 +31,17 @@ HOSTNAME="$1"
 WEBROOT="$2"
 WORKING_DIR="$(pwd)"
 REPO_LOCAL="/tmp/${BRANCH}"
+
 mkdir "$REPO_LOCAL"
 [ $? -eq 0 ] || failure "mkdir"
+function cleanup()
+{
+    notify "Routine cleanup. Deleting $REPO_LOCAL"
+    rm -rf "$REPO_LOCAL"
+    [ $? -eq 0 ] || echo "rm -rf failed"
+}
+trap cleanup EXIT
+
 if [ -d "$REPO_LOCAL" ]; then
     REPO_LOCAL_CONTENTS="$(ls $REPO_LOCAL)"
     if [ ! -z $REPO_LOCAL_CONTENTS ]; then
@@ -43,36 +54,22 @@ fi
 echo "Finding binaries"
 GIT=`which git`
 [ $? -eq 0 ] || failure "git"
-#GIT_TRACE=2
 
-function dismount()
-{
-    notify "Script exited. Deleting $REPO_LOCAL" critical
-    rm -rf "$REPO_LOCAL"
-    [ $? -eq 0 ] || echo "rm -rf failed"
-    exit 1
-}
-trap dismount EXIT
 echo "Clone the repp"
 $GIT clone ${HOSTNAME}:${WEBROOT} $REPO_LOCAL
 [ $? -eq 0 ] || failure "git clone"
-
-#echo "Change file ownership"
-#sudo chown $USER -R "$REPO_LOCAL/*"
 
 echo "Change directories"
 cd $REPO_LOCAL 
 [ $? -eq 0 ] || failure "cd $REPO_LOCAL"
 
-pwd
 echo "Checkout new branch $BRANCH"
-pwd
 $GIT checkout -b "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
 
-echo "Create test file"
-touch nhcs.test
-[ $? -eq 0 ] || failure "test file creation"
+#echo "Create test file"
+#touch test.file
+#[ $? -eq 0 ] || failure "test file creation"
 
 echo "Add all new files to commit"
 $GIT add -A
@@ -82,9 +79,9 @@ echo "git commit"
 $GIT commit -am 'Automatic update.'
 [ $? -eq 0 ] || failure "commit"
 
-echo "git config"
-$GIT config --global push.default simple
-[ $? -eq 0 ] || failure "config"
+#echo "git config"
+#$GIT config --global push.default simple
+#[ $? -eq 0 ] || failure "config"
 
 echo "push $BRANCH"
 $GIT push -u origin $BRANCH
