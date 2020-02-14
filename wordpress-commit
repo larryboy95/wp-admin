@@ -4,9 +4,9 @@ USAGE="
 $(basename $0) Version  0.2.8
 
 $(basename $0) HOSTNAME WEBROOT
-Clones a git repo from a remote webroot to the local tmp dir and commits 
+Syncs a git repo from a remote webroot to the local tmp dir and commits 
 all changes to a new branch.
-It clones, it branches, it commits, it pushes, it notifies, it cleans up.
+It syncs, it branches, it commits, it pushes, it notifies, it cleans up.
 Branch is named auto_updates_timestamp, where timestamp is seconds since the Unix epoch.
 Commits will be made in the name of the user that executes this script.
 This script tested only with root login to lsws web servers.
@@ -31,6 +31,7 @@ HOSTNAME="$1"
 WEBROOT="$2"
 WORKING_DIR="$(pwd)"
 REPO_LOCAL="/tmp/${BRANCH}"
+GITIGNORE="${REPO_LOCAL}/.gitignore"
 
 mkdir "$REPO_LOCAL"
 [ $? -eq 0 ] || failure "mkdir"
@@ -55,9 +56,17 @@ echo "Finding binaries"
 GIT=`which git`
 [ $? -eq 0 ] || failure "git"
 
-echo "Clone the repp"
-$GIT clone ${HOSTNAME}:${WEBROOT} $REPO_LOCAL
-[ $? -eq 0 ] || failure "git clone"
+RSYNC=`which rsync`
+[ $? -eq 0 ] || failure "rsync"
+RSYNC="$RSYNC -a"
+
+echo "Sync .git* from remote to local"
+$RSYNC ${HOSTNAME}:${WEBROOT}/.git* $REPO_LOCAL/
+[ $? -eq 0 ] || failure "rsync error"
+
+echo "Sync files from remote to local"
+$RSYNC --exclude-from=$GITIGNORE ${HOSTNAME}:${WEBROOT}/* ${REPO_LOCAL}/
+[ $? -eq 0 ] || failure "rsync error"
 
 echo "Change directories"
 cd $REPO_LOCAL 
@@ -67,10 +76,6 @@ echo "Checkout new branch $BRANCH"
 $GIT checkout -b "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
 
-#echo "Create test file"
-#touch test.file
-#[ $? -eq 0 ] || failure "test file creation"
-
 echo "Add all new files to commit"
 $GIT add -A
 [ $? -eq 0 ] || failure "git add -A"
@@ -78,10 +83,6 @@ $GIT add -A
 echo "git commit"
 $GIT commit -am 'Automatic update.'
 [ $? -eq 0 ] || failure "commit"
-
-#echo "git config"
-#$GIT config --global push.default simple
-#[ $? -eq 0 ] || failure "config"
 
 echo "push $BRANCH"
 $GIT push -u origin $BRANCH
