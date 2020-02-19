@@ -26,6 +26,7 @@ HOSTNAME="$1"
 WEBROOT="${3:-/var/www/html}"
 # Find the wp-cli binary
 WP_CLI_LOCAL=$(which wp)
+PLUGIN_UPDATE_EXCLUSIONS="woocommerce,advanced-custom-fields-pro"
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
 	WP="${WP_CLI_LOCAL} --path=${WEBROOT} --allow-root --skip-themes --ssh=${HOSTNAME} "
@@ -62,6 +63,17 @@ if [ ! $? -eq 0 ]; then
 fi
 sleep 1
 notify "Core update completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
+
+# Update plugins
+PLUGIN_UPDATES_AVAILABLE=$($WP plugin list --update=available --status=active | wc -l)
+[ $? -eq 0 ] || failure "plugin updates info 1"
+PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
+[ $? -eq 0 ] || failure "plugin updates info 2"
+notify "$PLUGIN_UPDATES_AVAILABLE plugin updates are available for ${SITEURL}. The plugins are: $PLUGIN_NAMES"
+$WP plugin update --all --exclude=$PLUGIN_UPDATE_EXCLUSIONS
+[ $? -eq 0 ] || failure "plugin updates"
+notify "Plugin updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
+
 # read -p "Commit and push changes. Are you sure? " -n 1 -r  
 # echo    # (optional) move to a new line  
 # if [[ $REPLY =~ ^[Yy]$ ]] ; then 
