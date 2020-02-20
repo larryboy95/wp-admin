@@ -21,7 +21,7 @@ if [ $# -lt 2 ]; then
 fi
 HOSTNAME="$1"
 WEBROOT="$2"
-if [-z "$WEBROOT" ]; then
+if [ -z "$WEBROOT" ]; then
     failure "webroot empty"
 fi
 
@@ -30,5 +30,9 @@ ssh $HOSTNAME "cd $WEBROOT ; git add . ; git reset --hard"
 [ $? -eq 0 ] || failure "git reset"
 
 notify "git repo was reset --hard on ${HOSTNAME}."
+
+ssh "$HOSTNAME" "ls -la $WEBROOT"
+echo "Fix permissions on $HOSTNAME or CTRL-C to leave as-is"
+wordpress-permissions "$HOSTNAME"
 
 exit 0
