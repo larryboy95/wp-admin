@@ -1,0 +1,34 @@
+#!/bin/bash
+
+USAGE="
+$(basename $0) Version  0.2.8
+
+$(basename $0) HOSTNAME WEBROOT
+Resets s git repo in a remote webroot
+This script tested only with root login to lsws web servers.
+"
+
+failure(){
+    NOTE="$1"
+    notify "$(basename $0) failed for $HOSTNAME (${NOTE})" critical
+    exit 1
+}
+
+# Print USAGE if not enough args
+if [ $# -lt 2 ]; then
+	echo "$USAGE"
+	exit 1
+fi
+HOSTNAME="$1"
+WEBROOT="$2"
+if [-z "$WEBROOT" ]; then
+    failure "webroot empty"
+fi
+
+echo "git reset --hard on $HOSTNAME"
+ssh $HOSTNAME "cd $WEBROOT ; git add . ; git reset --hard"
+[ $? -eq 0 ] || failure "git reset"
+
+notify "git repo was reset --hard on ${HOSTNAME}."
+
+exit 0
