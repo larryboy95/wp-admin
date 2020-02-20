@@ -23,7 +23,7 @@ if [ $# -eq 0 ]; then
 	failure
 fi
 HOSTNAME="$1"
-WEBROOT="${3:-/var/www/html}"
+WEBROOT="${2:-/var/www/html}"
 # Find the wp-cli binary
 WP_CLI_LOCAL=$(which wp)
 PLUGIN_UPDATE_EXCLUSIONS="woocommerce,advanced-custom-fields-pro"
@@ -73,7 +73,7 @@ notify "$PLUGIN_UPDATES_AVAILABLE plugin updates are available for ${SITEURL}. T
 
 # If there is no webroot argument supplied we assume this is a 
 # legacy server at DO with login user dev
-if [ -z $3 ]; then
+if [ -z $2 ]; then
     wordpress-permissions $HOSTNAME dev
 fi
 
