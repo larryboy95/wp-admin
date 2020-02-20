@@ -13,7 +13,7 @@ parameter to suppress this action.
 "
 
 failure(){
-    notify "Update failed for $HOSTNAME" critical
+    notify "Update failed for $SITEURL  " critical
     exit 1
 }
 
@@ -38,27 +38,27 @@ wordpress-backup "$HOSTNAME" dbtmp "$WEBROOT"
 
 $WP core is-installed
 if [ ! $? -eq 0 ]; then
-	notify "wp core is not installed at ${HOSTNAME}??? Oh no!" critical 
+	notify "wp core is not installed at ${SITEURL}??? Oh no!" critical 
     failure
 fi
 SITEURL=$($WP option get siteurl)
 if [ ! $? -eq 0 ]; then
-	notify "siteurl failure for ${HOSTNAME}" critical 
+	notify "siteurl failure for ${SITEURL}" critical 
     failure
 fi
 UPDATES_AVAILABLE=$($WP core check-update --format=count)
 if [ -z $UPDATES_AVAILABLE ]; then
-	notify "Core update is not available for ${HOSTNAME}, exiting…"
+	notify "Core update is not available for ${SITEURL}, exiting…"
     exit 0
 fi
 $WP core update
 if [ ! $? -eq 0 ]; then
-	notify "core update error for $HOSTNAME" critical 
+	notify "core update error for $SITEURL" critical 
     failure
 fi
 $WP core update-db
 if [ ! $? -eq 0 ]; then
-	notify "db update error for $HOSTNAME" critical 
+	notify "db update error for $SITEURL" critical 
     failure
 fi
 sleep 1
@@ -78,7 +78,10 @@ if [ -z $3 ]; then
 fi
 
 $WP plugin update --all --exclude=$PLUGIN_UPDATE_EXCLUSIONS
-[ $? -eq 0 ] || failure "plugin updates"
+[ $? -eq 0 ] || notify "Some plugin updates failed for $SITEURL" critical
+PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
+[ $? -eq 0 ] || failure "plugin updates info 3"
+notify "Plugins not updated: $PLUGIN_NAMES"
 notify "Plugin updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
 wordpress-permissions $HOSTNAME www-data
