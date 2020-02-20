@@ -1,8 +1,8 @@
-Wed Feb 19 14:44:24 PST 2020 Proceeding with backup for root@wp-auto-2c.do.kitestrings.io.
-Wed Feb 19 14:44:24 PST 2020 Backup db to /tmp, skipping restic.
-Wed Feb 19 14:44:24 PST 2020 This backup will not be written to s3.
+Thu Feb 20 12:53:45 PST 2020 Proceeding with backup for root@wp-auto-2c.do.kitestrings.io.
+Thu Feb 20 12:53:45 PST 2020 Backup db to /tmp, skipping restic.
+Thu Feb 20 12:53:45 PST 2020 This backup will not be written to s3.
 Success: Exported to '/var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql'.
-/var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql:	 84.4% -- replaced with /var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql.gz
+/var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql:	 84.5% -- replaced with /var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql.gz
 Updating to version 5.3.2 (en_US)...
 Using cached file '/root/.wp-cli/cache/core/wordpress-5.3.2-new-bundled-en_US.zip'...
 Unpacking the update...
@@ -10,11 +10,11 @@ Cleaning up files...
 No files found that need cleaning up.
 Success: WordPress updated successfully.
 Success: WordPress database already at latest db version 45805.
-Wed Feb 19 14:44:48 PST 2020 Slack notification system.
-Wed Feb 19 14:44:48 PST 2020 Taking screenshot:
-Wed Feb 19 14:44:59 PST 2020 Core update completed for https://wp-auto-2c.do.kitestrings.io. Post-upgrade screenshot:
-Wed Feb 19 14:45:04 PST 2020 Slack notification system.
-Wed Feb 19 14:45:04 PST 2020 6 plugin updates are available for https://wp-auto-2c.do.kitestrings.io. The plugins are: advanced-custom-fields-pro
+Thu Feb 20 12:54:09 PST 2020 Slack notification system.
+Thu Feb 20 12:54:09 PST 2020 Taking screenshot:
+Thu Feb 20 12:54:19 PST 2020 Core update completed for https://wp-auto-2c.do.kitestrings.io. Post-upgrade screenshot:
+Thu Feb 20 12:54:23 PST 2020 Slack notification system.
+Thu Feb 20 12:54:24 PST 2020 6 plugin updates are available for https://wp-auto-2c.do.kitestrings.io. The plugins are: advanced-custom-fields-pro
 better-wp-security
 simple-custom-post-order
 wp-pagenavi
@@ -59,16 +59,19 @@ wp-pagenavi	2.93	2.93.1	Updated
 wordpress-seo	11.5	13.1	Updated
 Success: Updated 5 of 5 plugins.
 Skipped updates for: woocommerce,advanced-custom-fields-pro
-Wed Feb 19 14:45:09 PST 2020 Slack notification system.
-Wed Feb 19 14:45:09 PST 2020 Taking screenshot:
-Wed Feb 19 14:45:20 PST 2020 Plugin updates completed for https://wp-auto-2c.do.kitestrings.io. Post-upgrade screenshot:
-Timestamp is 1582152320
-Branch name is auto_updates_1582152320
+Thu Feb 20 12:54:33 PST 2020 Slack notification system.
+Thu Feb 20 12:54:33 PST 2020 Plugins not updated: advanced-custom-fields-pro
+Thu Feb 20 12:54:33 PST 2020 Slack notification system.
+Thu Feb 20 12:54:33 PST 2020 Taking screenshot:
+Thu Feb 20 12:54:42 PST 2020 Plugin updates completed for https://wp-auto-2c.do.kitestrings.io. Post-upgrade screenshot:
+Thu Feb 20 12:54:54 PST 2020 Permissions updated on root@wp-auto-2c.do.kitestrings.io
+Timestamp is 1582232094
+Branch name is auto_updates_1582232094
 Finding binaries
 Sync .git* from remote to local
 Sync files from remote to local
 Change directories
-Checkout new branch auto_updates_1582152320
+Checkout new branch auto_updates_1582232094
 M	readme.html
 M	wp-activate.php
 M	wp-admin/about.php
@@ -475,6 +478,92 @@ M	wp-content/plugins/better-wp-security/core/response.php
 M	wp-content/plugins/better-wp-security/history.txt
 M	wp-content/plugins/better-wp-security/package.json
 M	wp-content/plugins/better-wp-security/readme.txt
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Authentication/AccessToken.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Authentication/AccessTokenMetadata.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Authentication/OAuth2Client.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookAuthenticationException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookAuthorizationException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookClientException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookOtherException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookResponseException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookResumableUploadException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookSDKException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookServerException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookThrottleException.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Facebook.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FacebookApp.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FacebookBatchRequest.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FacebookBatchResponse.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FacebookClient.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FacebookRequest.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FacebookResponse.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookFile.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookResumableUploader.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookTransferChunk.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookVideo.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/Mimetypes.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/Birthday.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/Collection.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphAchievement.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphAlbum.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphApplication.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphCoverPhoto.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphEdge.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphEvent.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphGroup.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphList.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphLocation.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphNode.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphNodeFactory.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphObject.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphObjectFactory.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphPage.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphPicture.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphSessionInfo.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphUser.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookCanvasHelper.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookJavaScriptHelper.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookPageTabHelper.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookRedirectLoginHelper.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookSignedRequestFromInputHelper.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Http/GraphRawResponse.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Http/RequestBodyInterface.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Http/RequestBodyMultipart.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Http/RequestBodyUrlEncoded.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookCurl.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookCurlHttpClient.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookGuzzleHttpClient.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookHttpClientInterface.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookStream.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookStreamHttpClient.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/HttpClientsFactory.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/certs/DigiCertHighAssuranceEVRootCA.pem
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/FacebookMemoryPersistentDataHandler.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/FacebookSessionPersistentDataHandler.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/PersistentDataFactory.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/PersistentDataInterface.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/McryptPseudoRandomStringGenerator.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/OpenSslPseudoRandomStringGenerator.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/PseudoRandomStringGeneratorFactory.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/PseudoRandomStringGeneratorInterface.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/PseudoRandomStringGeneratorTrait.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/UrandomPseudoRandomStringGenerator.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/SignedRequest.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Url/FacebookUrlDetectionHandler.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Url/FacebookUrlManipulator.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/Url/UrlDetectionInterface.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/autoload.php
+M	wp-content/plugins/mri-social-feed/includes/Facebook/polyfills.php
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/.gitignore
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/.travis.yml
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/LICENSE.md
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/README.md
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/TwitterAPIExchange.php
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/composer.json
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/index.php
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/phpunit.xml
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/test/TwitterAPIExchangeTest.php
+M	wp-content/plugins/mri-social-feed/includes/twitter-api-php/test/img.png
 M	wp-content/plugins/really-simple-ssl/class-admin.php
 M	wp-content/plugins/really-simple-ssl/class-front-end.php
 M	wp-content/plugins/really-simple-ssl/class-multisite.php
@@ -1706,8 +1795,7 @@ M	wp-includes/rest-api/fields/class-wp-rest-meta-fields.php
 M	wp-includes/rest-api/search/class-wp-rest-post-search-handler.php
 M	wp-includes/revision.php
 M	wp-includes/rewrite.php
-M	wp-includeSwitched to a new branch 'auto_updates_1582152320'
-s/rss-functions.php
+M	wp-includes/rss-functions.php
 M	wp-includes/script-loader.php
 M	wp-includes/session.php
 M	wp-includes/shortcodes.php
@@ -1722,1805 +1810,8 @@ M	wp-includes/sodium_compat/src/Compat.php
 M	wp-includes/sodium_compat/src/Core/BLAKE2b.php
 M	wp-includes/sodium_compat/src/Core/Ed25519.php
 M	wp-includes/sodium_compat/src/Core/Poly1305/State.php
-M	wp-includes/sodium_compat/src/Core/XChaCha20.php
-M	wp-includes/sodium_compat/src/Core32/BLAKE2b.php
-M	wp-includes/sodium_compat/src/Core32/Ed25519.php
-M	wp-includes/sodium_compat/src/Core32/Poly1305/State.php
-M	wp-includes/sodium_compat/src/Core32/X25519.php
-M	wp-includes/sodium_compat/src/Crypto.php
-M	wp-includes/sodium_compat/src/Crypto32.php
-M	wp-includes/sodium_compat/src/File.php
-M	wp-includes/spl-autoload-compat.php
-M	wp-includes/taxonomy.php
-M	wp-includes/template-loader.php
-M	wp-includes/template.php
-M	wp-includes/theme-compat/comments.php
-M	wp-includes/theme-compat/embed-404.php
-M	wp-includes/theme-compat/footer.php
-M	wp-includes/theme-compat/header.php
-M	wp-includes/theme-compat/sidebar.php
-M	wp-includes/theme.php
-M	wp-includes/update.php
-M	wp-includes/user.php
-M	wp-includes/vars.php
-M	wp-includes/version.php
-M	wp-includes/widgets.php
-M	wp-includes/widgets/class-wp-nav-menu-widget.php
-M	wp-includes/widgets/class-wp-widget-archives.php
-M	wp-includes/widgets/class-wp-widget-calendar.php
-M	wp-includes/widgets/class-wp-widget-categories.php
-M	wp-includes/widgets/class-wp-widget-custom-html.php
-M	wp-includes/widgets/class-wp-widget-links.php
-M	wp-includes/widgets/class-wp-widget-media-audio.php
-M	wp-includes/widgets/class-wp-widget-media-gallery.php
-M	wp-includes/widgets/class-wp-widget-media-image.php
-M	wp-includes/widgets/class-wp-widget-media-video.php
-M	wp-includes/widgets/class-wp-widget-media.php
-M	wp-includes/widgets/class-wp-widget-meta.php
-M	wp-includes/widgets/class-wp-widget-pages.php
-M	wp-includes/widgets/class-wp-widget-recent-comments.php
-M	wp-includes/widgets/class-wp-widget-recent-posts.php
-M	wp-includes/widgets/class-wp-widget-rss.php
-M	wp-includes/widgets/class-wp-widget-text.php
-M	wp-includes/wp-db.php
-M	wp-links-opml.php
-M	wp-load.php
-M	wp-login.php
-M	wp-mail.php
-M	wp-settings.php
-M	wp-signup.php
-M	xmlrpc.php
-Add all new files to commit
-error: unknown switch `q'
-usage: git add [<options>] [--] <pathspec>...
-
-    -n, --dry-run         dry run
-    -v, --verbose         be verbose
-
-    -i, --interactive     interactive picking
-    -p, --patch           select hunks interactively
-    -e, --edit            edit current diff and apply
-    -f, --force           allow adding otherwise ignored files
-    -u, --update          update tracked files
-    --renormalize         renormalize EOL of tracked files (implies -u)
-    -N, --intent-to-add   record only the fact that the path will be added later
-    -A, --all             add changes from all tracked and untracked files
-    --ignore-removal      ignore paths removed in the working tree (same as --no-all)
-    --refresh             don't add, only refresh the index
-    --ignore-errors       just skip files which cannot be added because of errors
-    --ignore-missing      check if - even missing - files are ignored in dry run
-    --chmod <(+/-)x>      override the executable bit of the listed files
-
-Wed Feb 19 14:45:34 PST 2020 Slack notification system.
-Wed Feb 19 14:45:34 PST 2020 wordpress-commit failed for root@wp-auto-2c.do.kitestrings.io (git add -A)
-Wed Feb 19 14:45:34 PST 2020 Slack notification system.
-Wed Feb 19 14:45:34 PST 2020 Routine cleanup. Deleting /tmp/auto_updates_1582152320
-Wed Feb 19 14:45:46 PST 2020 Permissions updated on root@wp-auto-2c.do.kitestrings.io
-Wed Feb 19 17:04:36 PST 2020 Proceeding with backup for root@wp-auto-2c.do.kitestrings.io.
-Wed Feb 19 17:04:36 PST 2020 Backup db to /tmp, skipping restic.
-Wed Feb 19 17:04:36 PST 2020 This backup will not be written to s3.
-Success: Exported to '/var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql'.
-/var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql:	 84.4% -- replaced with /var/www/html/../root@wp-auto-2c.do.kitestrings.io.sql.gz
-Updating to version 5.3.2 (en_US)...
-Using cached file '/root/.wp-cli/cache/core/wordpress-5.3.2-new-bundled-en_US.zip'...
-Unpacking the update...
-Cleaning up files...
-No files found that need cleaning up.
-Success: WordPress updated successfully.
-Success: WordPress database already at latest db version 45805.
-Wed Feb 19 17:05:01 PST 2020 Slack notification system.
-Wed Feb 19 17:05:01 PST 2020 Taking screenshot:
-Wed Feb 19 17:05:12 PST 2020 Core update completed for https://wp-auto-2c.do.kitestrings.io. Post-upgrade screenshot:
-Wed Feb 19 17:05:16 PST 2020 Slack notification system.
-Wed Feb 19 17:05:17 PST 2020 6 plugin updates are available for https://wp-auto-2c.do.kitestrings.io. The plugins are: advanced-custom-fields-pro
-better-wp-security
-simple-custom-post-order
-wp-pagenavi
-wordpress-seo
-Enabling Maintenance mode...
-Downloading update from https://downloads.wordpress.org/plugin/better-wp-security.7.6.1.zip...
-Using cached file '/root/.wp-cli/cache/plugin/better-wp-security-7.6.1.zip'...
-Unpacking the update...
-Installing the latest version...
-Removing the old version of the plugin...
-Plugin updated successfully.
-Downloading update from https://downloads.wordpress.org/plugin/really-simple-ssl.3.2.9.zip...
-Using cached file '/root/.wp-cli/cache/plugin/really-simple-ssl-3.2.9.zip'...
-Unpacking the update...
-Installing the latest version...
-Removing the old version of the plugin...
-Plugin updated successfully.
-Downloading update from https://downloads.wordpress.org/plugin/simple-custom-post-order.2.4.9.zip...
-Using cached file '/root/.wp-cli/cache/plugin/simple-custom-post-order-2.4.9.zip'...
-Unpacking the update...
-Installing the latest version...
-Removing the old version of the plugin...
-Plugin updated successfully.
-Downloading update from https://downloads.wordpress.org/plugin/wp-pagenavi.2.93.1.zip...
-Using cached file '/root/.wp-cli/cache/plugin/wp-pagenavi-2.93.1.zip'...
-Unpacking the update...
-Installing the latest version...
-Removing the old version of the plugin...
-Plugin updated successfully.
-Downloading update from https://downloads.wordpress.org/plugin/wordpress-seo.13.1.zip...
-Using cached file '/root/.wp-cli/cache/plugin/wordpress-seo-13.1.zip'...
-Unpacking the update...
-Installing the latest version...
-Removing the old version of the plugin...
-Plugin updated successfully.
-Disabling Maintenance mode...
-name	old_version	new_version	status
-better-wp-security	7.4.0	7.6.1	Updated
-really-simple-ssl	3.2.2	3.2.9	Updated
-simple-custom-post-order	2.4.4	2.4.9	Updated
-wp-pagenavi	2.93	2.93.1	Updated
-wordpress-seo	11.5	13.1	Updated
-Success: Updated 5 of 5 plugins.
-Skipped updates for: woocommerce,advanced-custom-fields-pro
-Wed Feb 19 17:05:24 PST 2020 Slack notification system.
-Wed Feb 19 17:05:25 PST 2020 Taking screenshot:
-Wed Feb 19 17:05:35 PST 2020 Plugin updates completed for https://wp-auto-2c.do.kitestrings.io. Post-upgrade screenshot:
-Timestamp is 1582160735
-Branch name is auto_updates_1582160735
-Finding binaries
-Sync .git* from remote to local
-Sync files from remote to local
-Change directories
-Checkout new branch auto_updates_1582160735
-M	readme.html
-M	wp-activate.php
-M	wp-admin/about.php
-M	wp-admin/admin-ajax.php
-M	wp-admin/admin-footer.php
-M	wp-admin/admin-header.php
-M	wp-admin/admin.php
-M	wp-admin/async-upload.php
-M	wp-admin/comment.php
-M	wp-admin/credits.php
-M	wp-admin/css/about-rtl.css
-M	wp-admin/css/about-rtl.min.css
-M	wp-admin/css/about.css
-M	wp-admin/css/about.min.css
-M	wp-admin/css/admin-menu-rtl.css
-M	wp-admin/css/admin-menu-rtl.min.css
-M	wp-admin/css/admin-menu.css
-M	wp-admin/css/admin-menu.min.css
-M	wp-admin/css/color-picker-rtl.css
-M	wp-admin/css/color-picker-rtl.min.css
-M	wp-admin/css/color-picker.css
-M	wp-admin/css/color-picker.min.css
-M	wp-admin/css/colors/_admin.scss
-M	wp-admin/css/colors/_mixins.scss
-M	wp-admin/css/colors/_variables.scss
-M	wp-admin/css/colors/blue/colors-rtl.css
-M	wp-admin/css/colors/blue/colors-rtl.min.css
-M	wp-admin/css/colors/blue/colors.css
-M	wp-admin/css/colors/blue/colors.min.css
-M	wp-admin/css/colors/coffee/colors-rtl.css
-M	wp-admin/css/colors/coffee/colors-rtl.min.css
-M	wp-admin/css/colors/coffee/colors.css
-M	wp-admin/css/colors/coffee/colors.min.css
-M	wp-admin/css/colors/ectoplasm/colors-rtl.css
-M	wp-admin/css/colors/ectoplasm/colors-rtl.min.css
-M	wp-admin/css/colors/ectoplasm/colors.css
-M	wp-admin/css/colors/ectoplasm/colors.min.css
-M	wp-admin/css/colors/light/colors-rtl.css
-M	wp-admin/css/colors/light/colors-rtl.min.css
-M	wp-admin/css/colors/light/colors.css
-M	wp-admin/css/colors/light/colors.min.css
-M	wp-admin/css/colors/midnight/colors-rtl.css
-M	wp-admin/css/colors/midnight/colors-rtl.min.css
-M	wp-admin/css/colors/midnight/colors.css
-M	wp-admin/css/colors/midnight/colors.min.css
-M	wp-admin/css/colors/ocean/colors-rtl.css
-M	wp-admin/css/colors/ocean/colors-rtl.min.css
-M	wp-admin/css/colors/ocean/colors.css
-M	wp-admin/css/colors/ocean/colors.min.css
-M	wp-admin/css/colors/sunrise/colors-rtl.css
-M	wp-admin/css/colors/sunrise/colors-rtl.min.css
-M	wp-admin/css/colors/sunrise/colors.css
-M	wp-admin/css/colors/sunrise/colors.min.css
-M	wp-admin/css/common-rtl.css
-M	wp-admin/css/common-rtl.min.css
-M	wp-admin/css/common.css
-M	wp-admin/css/common.min.css
-M	wp-admin/css/customize-controls-rtl.css
-M	wp-admin/css/customize-controls-rtl.min.css
-M	wp-admin/css/customize-controls.css
-M	wp-admin/css/customize-controls.min.css
-M	wp-admin/css/customize-widgets-rtl.css
-M	wp-admin/css/customize-widgets-rtl.min.css
-M	wp-admin/css/customize-widgets.css
-M	wp-admin/css/customize-widgets.min.css
-M	wp-admin/css/dashboard-rtl.css
-M	wp-admin/css/dashboard-rtl.min.css
-M	wp-admin/css/dashboard.css
-M	wp-admin/css/dashboard.min.css
-M	wp-admin/css/edit-rtl.css
-M	wp-admin/css/edit-rtl.min.css
-M	wp-admin/css/edit.css
-M	wp-admin/css/edit.min.css
-M	wp-admin/css/forms-rtl.css
-M	wp-admin/css/forms-rtl.min.css
-M	wp-admin/css/forms.css
-M	wp-admin/css/forms.min.css
-M	wp-admin/css/install-rtl.css
-M	wp-admin/css/install-rtl.min.css
-M	wp-admin/css/install.css
-M	wp-admin/css/install.min.css
-M	wp-admin/css/list-tables-rtl.css
-M	wp-admin/css/list-tables-rtl.min.css
-M	wp-admin/css/list-tables.css
-M	wp-admin/css/list-tables.min.css
-M	wp-admin/css/login-rtl.css
-M	wp-admin/css/login-rtl.min.css
-M	wp-admin/css/login.css
-M	wp-admin/css/login.min.css
-M	wp-admin/css/media-rtl.css
-M	wp-admin/css/media-rtl.min.css
-M	wp-admin/css/media.css
-M	wp-admin/css/media.min.css
-M	wp-admin/css/nav-menus-rtl.css
-M	wp-admin/css/nav-menus-rtl.min.css
-M	wp-admin/css/nav-menus.css
-M	wp-admin/css/nav-menus.min.css
-M	wp-admin/css/revisions-rtl.css
-M	wp-admin/css/revisions-rtl.min.css
-M	wp-admin/css/revisions.css
-M	wp-admin/css/revisions.min.css
-M	wp-admin/css/site-health-rtl.css
-M	wp-admin/css/site-health-rtl.min.css
-M	wp-admin/css/site-health.css
-M	wp-admin/css/site-health.min.css
-M	wp-admin/css/themes-rtl.css
-M	wp-admin/css/themes-rtl.min.css
-M	wp-admin/css/themes.css
-M	wp-admin/css/themes.min.css
-M	wp-admin/css/widgets-rtl.css
-M	wp-admin/css/widgets-rtl.min.css
-M	wp-admin/css/widgets.css
-M	wp-admin/css/widgets.min.css
-M	wp-admin/custom-background.php
-M	wp-admin/custom-header.php
-M	wp-admin/customize.php
-M	wp-admin/edit-comments.php
-M	wp-admin/edit-form-advanced.php
-M	wp-admin/edit-form-blocks.php
-M	wp-admin/edit-form-comment.php
-M	wp-admin/edit-link-form.php
-M	wp-admin/edit-tag-form.php
-M	wp-admin/edit-tags.php
-M	wp-admin/edit.php
-M	wp-admin/export.php
-M	wp-admin/freedoms.php
-M	wp-admin/images/bubble_bg-2x.gif
-M	wp-admin/images/bubble_bg.gif
-M	wp-admin/images/date-button-2x.gif
-M	wp-admin/images/date-button.gif
-M	wp-admin/images/loading.gif
-M	wp-admin/images/media-button-image.gif
-M	wp-admin/images/media-button-music.gif
-M	wp-admin/images/media-button-other.gif
-M	wp-admin/images/media-button-video.gif
-M	wp-admin/images/sort-2x.gif
-M	wp-admin/images/sort.gif
-M	wp-admin/images/wpspin_light-2x.gif
-M	wp-admin/images/wpspin_light.gif
-M	wp-admin/images/xit-2x.gif
-M	wp-admin/images/xit.gif
-M	wp-admin/import.php
-M	wp-admin/includes/admin-filters.php
-M	wp-admin/includes/admin.php
-M	wp-admin/includes/ajax-actions.php
-M	wp-admin/includes/bookmark.php
-M	wp-admin/includes/class-automatic-upgrader-skin.php
-M	wp-admin/includes/class-bulk-plugin-upgrader-skin.php
-M	wp-admin/includes/class-bulk-theme-upgrader-skin.php
-M	wp-admin/includes/class-bulk-upgrader-skin.php
-M	wp-admin/includes/class-core-upgrader.php
-M	wp-admin/includes/class-file-upload-upgrader.php
-M	wp-admin/includes/class-ftp.php
-M	wp-admin/includes/class-language-pack-upgrader-skin.php
-M	wp-admin/includes/class-language-pack-upgrader.php
-M	wp-admin/includes/class-pclzip.php
-M	wp-admin/includes/class-plugin-installer-skin.php
-M	wp-admin/includes/class-plugin-upgrader-skin.php
-M	wp-admin/includes/class-plugin-upgrader.php
-M	wp-admin/includes/class-theme-installer-skin.php
-M	wp-admin/includes/class-theme-upgrader-skin.php
-M	wp-admin/includes/class-theme-upgrader.php
-M	wp-admin/includes/class-walker-category-checklist.php
-M	wp-admin/includes/class-walker-nav-menu-checklist.php
-M	wp-admin/includes/class-walker-nav-menu-edit.php
-M	wp-admin/includes/class-wp-ajax-upgrader-skin.php
-M	wp-admin/includes/class-wp-automatic-updater.php
-M	wp-admin/includes/class-wp-comments-list-table.php
-M	wp-admin/includes/class-wp-community-events.php
-M	wp-admin/includes/class-wp-debug-data.php
-M	wp-admin/includes/class-wp-filesystem-base.php
-M	wp-admin/includes/class-wp-filesystem-direct.php
-M	wp-admin/includes/class-wp-filesystem-ftpext.php
-M	wp-admin/includes/class-wp-filesystem-ftpsockets.php
-M	wp-admin/includes/class-wp-filesystem-ssh2.php
-M	wp-admin/includes/class-wp-importer.php
-M	wp-admin/includes/class-wp-internal-pointers.php
-M	wp-admin/includes/class-wp-links-list-table.php
-M	wp-admin/includes/class-wp-list-table.php
-M	wp-admin/includes/class-wp-media-list-table.php
-M	wp-admin/includes/class-wp-ms-sites-list-table.php
-M	wp-admin/includes/class-wp-ms-themes-list-table.php
-M	wp-admin/includes/class-wp-ms-users-list-table.php
-M	wp-admin/includes/class-wp-plugin-install-list-table.php
-M	wp-admin/includes/class-wp-plugins-list-table.php
-M	wp-admin/includes/class-wp-posts-list-table.php
-M	wp-admin/includes/class-wp-screen.php
-M	wp-admin/includes/class-wp-site-health-auto-updates.php
-M	wp-admin/includes/class-wp-site-health.php
-M	wp-admin/includes/class-wp-terms-list-table.php
-M	wp-admin/includes/class-wp-theme-install-list-table.php
-M	wp-admin/includes/class-wp-themes-list-table.php
-M	wp-admin/includes/class-wp-upgrader-skin.php
-M	wp-admin/includes/class-wp-upgrader-skins.php
-M	wp-admin/includes/class-wp-upgrader.php
-M	wp-admin/includes/class-wp-users-list-table.php
-M	wp-admin/includes/comment.php
-M	wp-admin/includes/credits.php
-M	wp-admin/includes/dashboard.php
-M	wp-admin/includes/deprecated.php
-M	wp-admin/includes/edit-tag-messages.php
-M	wp-admin/includes/export.php
-M	wp-admin/includes/file.php
-M	wp-admin/includes/image-edit.php
-M	wp-admin/includes/image.php
-M	wp-admin/includes/list-table.php
-M	wp-admin/includes/media.php
-M	wp-admin/includes/menu.php
-M	wp-admin/includes/meta-boxes.php
-M	wp-admin/includes/misc.php
-M	wp-admin/includes/ms-deprecated.php
-M	wp-admin/includes/ms.php
-M	wp-admin/includes/nav-menu.php
-M	wp-admin/includes/network.php
-M	wp-admin/includes/noop.php
-M	wp-admin/includes/options.php
-M	wp-admin/includes/plugin-install.php
-M	wp-admin/includes/plugin.php
-M	wp-admin/includes/post.php
-M	wp-admin/includes/revision.php
-M	wp-admin/includes/schema.php
-M	wp-admin/includes/screen.php
-M	wp-admin/includes/taxonomy.php
-M	wp-admin/includes/template.php
-M	wp-admin/includes/theme-install.php
-M	wp-admin/includes/theme.php
-M	wp-admin/includes/translation-install.php
-M	wp-admin/includes/update-core.php
-M	wp-admin/includes/update.php
-M	wp-admin/includes/upgrade.php
-M	wp-admin/includes/user.php
-M	wp-admin/includes/widgets.php
-M	wp-admin/index.php
-M	wp-admin/install.php
-M	wp-admin/js/accordion.min.js
-M	wp-admin/js/code-editor.js
-M	wp-admin/js/code-editor.min.js
-M	wp-admin/js/color-picker.min.js
-M	wp-admin/js/comment.min.js
-M	wp-admin/js/common.js
-M	wp-admin/js/common.min.js
-M	wp-admin/js/custom-background.min.js
-M	wp-admin/js/customize-controls.min.js
-M	wp-admin/js/customize-nav-menus.js
-M	wp-admin/js/customize-nav-menus.min.js
-M	wp-admin/js/customize-widgets.js
-M	wp-admin/js/customize-widgets.min.js
-M	wp-admin/js/dashboard.min.js
-M	wp-admin/js/edit-comments.js
-M	wp-admin/js/edit-comments.min.js
-M	wp-admin/js/editor-expand.min.js
-M	wp-admin/js/editor.min.js
-M	wp-admin/js/gallery.min.js
-M	wp-admin/js/image-edit.min.js
-M	wp-admin/js/inline-edit-post.js
-M	wp-admin/js/inline-edit-post.min.js
-M	wp-admin/js/inline-edit-tax.min.js
-M	wp-admin/js/language-chooser.min.js
-M	wp-admin/js/link.min.js
-M	wp-admin/js/media-gallery.min.js
-M	wp-admin/js/media-upload.min.js
-M	wp-admin/js/media.min.js
-M	wp-admin/js/nav-menu.js
-M	wp-admin/js/nav-menu.min.js
-M	wp-admin/js/password-strength-meter.min.js
-M	wp-admin/js/plugin-install.min.js
-M	wp-admin/js/post.js
-M	wp-admin/js/post.min.js
-M	wp-admin/js/postbox.min.js
-M	wp-admin/js/revisions.min.js
-M	wp-admin/js/set-post-thumbnail.min.js
-M	wp-admin/js/site-health.js
-M	wp-admin/js/site-health.min.js
-M	wp-admin/js/svg-painter.min.js
-M	wp-admin/js/tags-box.min.js
-M	wp-admin/js/tags-suggest.min.js
-M	wp-admin/js/tags.js
-M	wp-admin/js/tags.min.js
-M	wp-admin/js/theme-plugin-editor.min.js
-M	wp-admin/js/theme.js
-M	wp-admin/js/theme.min.js
-M	wp-admin/js/updates.js
-M	wp-admin/js/updates.min.js
-M	wp-admin/js/user-profile.js
-M	wp-admin/js/user-profile.min.js
-M	wp-admin/js/user-suggest.min.js
-M	wp-admin/js/widgets.min.js
-M	wp-admin/js/widgets/custom-html-widgets.min.js
-M	wp-admin/js/widgets/media-audio-widget.min.js
-M	wp-admin/js/widgets/media-gallery-widget.min.js
-M	wp-admin/js/widgets/media-image-widget.min.js
-M	wp-admin/js/widgets/media-video-widget.min.js
-M	wp-admin/js/widgets/media-widgets.js
-M	wp-admin/js/widgets/media-widgets.min.js
-M	wp-admin/js/widgets/text-widgets.min.js
-M	wp-admin/js/word-count.min.js
-M	wp-admin/js/wp-fullscreen-stub.min.js
-M	wp-admin/js/xfn.js
-M	wp-admin/js/xfn.min.js
-M	wp-admin/link-manager.php
-M	wp-admin/link-parse-opml.php
-M	wp-admin/link.php
-M	wp-admin/load-scripts.php
-M	wp-admin/load-styles.php
-M	wp-admin/maint/repair.php
-M	wp-admin/media-new.php
-M	wp-admin/media-upload.php
-M	wp-admin/media.php
-M	wp-admin/menu-header.php
-M	wp-admin/menu.php
-M	wp-admin/ms-delete-site.php
-M	wp-admin/nav-menus.php
-M	wp-admin/network.php
-M	wp-admin/network/index.php
-M	wp-admin/network/menu.php
-M	wp-admin/network/settings.php
-M	wp-admin/network/site-info.php
-M	wp-admin/network/site-new.php
-M	wp-admin/network/site-settings.php
-M	wp-admin/network/site-themes.php
-M	wp-admin/network/site-users.php
-M	wp-admin/network/sites.php
-M	wp-admin/network/themes.php
-M	wp-admin/network/upgrade.php
-M	wp-admin/network/user-new.php
-M	wp-admin/network/users.php
-M	wp-admin/options-discussion.php
-M	wp-admin/options-general.php
-M	wp-admin/options-head.php
-M	wp-admin/options-media.php
-M	wp-admin/options-permalink.php
-M	wp-admin/options-reading.php
-M	wp-admin/options-writing.php
-M	wp-admin/options.php
-M	wp-admin/plugin-editor.php
-M	wp-admin/plugin-install.php
-M	wp-admin/plugins.php
-M	wp-admin/post-new.php
-M	wp-admin/post.php
-M	wp-admin/press-this.php
-M	wp-admin/privacy.php
-M	wp-admin/revision.php
-M	wp-admin/setup-config.php
-M	wp-admin/site-health-info.php
-M	wp-admin/site-health.php
-M	wp-admin/term.php
-M	wp-admin/theme-editor.php
-M	wp-admin/theme-install.php
-M	wp-admin/themes.php
-M	wp-admin/tools.php
-M	wp-admin/update-core.php
-M	wp-admin/update.php
-M	wp-admin/upgrade.php
-M	wp-admin/upload.php
-M	wp-admin/user-edit.php
-M	wp-admin/user-new.php
-M	wp-admin/users.php
-M	wp-admin/widgets.php
-M	wp-content/plugins/better-wp-security/better-wp-security.php
-M	wp-content/plugins/better-wp-security/core/admin-pages/js/settings.js
-M	wp-content/plugins/better-wp-security/core/admin-pages/module-settings.php
-M	wp-content/plugins/better-wp-security/core/admin-pages/page-settings.php
-M	wp-content/plugins/better-wp-security/core/core.php
-M	wp-content/plugins/better-wp-security/core/history.txt
-M	wp-content/plugins/better-wp-security/core/lib.php
-M	wp-content/plugins/better-wp-security/core/lib/class-itsec-lib-login-interstitial.php
-M	wp-content/plugins/better-wp-security/core/lib/class-itsec-mail.php
-M	wp-content/plugins/better-wp-security/core/lib/class-itsec-scheduler-cron.php
-M	wp-content/plugins/better-wp-security/core/lib/class-itsec-scheduler-page-load.php
-M	wp-content/plugins/better-wp-security/core/lib/class-itsec-scheduler.php
-M	wp-content/plugins/better-wp-security/core/lib/fingerprinting/class-itsec-fingerprint.php
-M	wp-content/plugins/better-wp-security/core/lib/itsec-zxcvbn-php/matchers/dictionary.php
-M	wp-content/plugins/better-wp-security/core/lib/login-interstitial/abstract-itsec-login-interstitial.php
-M	wp-content/plugins/better-wp-security/core/lib/login-interstitial/class-itsec-login-interstitial-session.php
-M	wp-content/plugins/better-wp-security/core/lib/schema.php
-M	wp-content/plugins/better-wp-security/core/lib/validator.php
-M	wp-content/plugins/better-wp-security/core/lockout.php
-M	wp-content/plugins/better-wp-security/core/modules.php
-M	wp-content/plugins/better-wp-security/core/modules/404-detection/class-itsec-four-oh-four.php
-M	wp-content/plugins/better-wp-security/core/modules/brute-force/class-itsec-brute-force.php
-M	wp-content/plugins/better-wp-security/core/modules/core/class-rest-core-admin-notices-controller.php
-M	wp-content/plugins/better-wp-security/core/modules/core/img/security-ebook.png
-M	wp-content/plugins/better-wp-security/core/modules/core/img/sync-logo.png
-M	wp-content/plugins/better-wp-security/core/modules/core/sidebar-widget-mail-list-signup.php
-M	wp-content/plugins/better-wp-security/core/modules/core/sidebar-widget-sync-cross-promo.php
-M	wp-content/plugins/better-wp-security/core/modules/file-change/class-itsec-file-change.php
-D	wp-content/plugins/better-wp-security/core/modules/file-change/sync-verbs/itsec-perform-file-scan.php
-D	wp-content/plugins/better-wp-security/core/modules/file-change/sync-verbs/itsec-ping-file-scan.php
-M	wp-content/plugins/better-wp-security/core/modules/global/js/settings-page.js
-M	wp-content/plugins/better-wp-security/core/modules/global/settings-page.php
-M	wp-content/plugins/better-wp-security/core/modules/global/settings.php
-M	wp-content/plugins/better-wp-security/core/modules/global/setup.php
-M	wp-content/plugins/better-wp-security/core/modules/global/validator.php
-M	wp-content/plugins/better-wp-security/core/modules/hide-backend/class-itsec-hide-backend.php
-M	wp-content/plugins/better-wp-security/core/modules/ipcheck/class-itsec-ipcheck.php
-M	wp-content/plugins/better-wp-security/core/modules/ipcheck/utilities.php
-M	wp-content/plugins/better-wp-security/core/modules/pro/settings-page.php
-M	wp-content/plugins/better-wp-security/core/modules/security-check/js/settings-page.js
-M	wp-content/plugins/better-wp-security/core/modules/security-check/scanner.php
-M	wp-content/plugins/better-wp-security/core/modules/security-check/settings-page.php
-M	wp-content/plugins/better-wp-security/core/modules/system-tweaks/class-itsec-system-tweaks.php
-M	wp-content/plugins/better-wp-security/core/package.json
-M	wp-content/plugins/better-wp-security/core/response.php
-M	wp-content/plugins/better-wp-security/history.txt
-M	wp-content/plugins/better-wp-security/package.json
-M	wp-content/plugins/better-wp-security/readme.txt
-M	wp-content/plugins/really-simple-ssl/class-admin.php
-M	wp-content/plugins/really-simple-ssl/class-front-end.php
-M	wp-content/plugins/really-simple-ssl/class-multisite.php
-M	wp-content/plugins/really-simple-ssl/class-server.php
-M	wp-content/plugins/really-simple-ssl/css/main.css
-M	wp-content/plugins/really-simple-ssl/css/main.min.css
-M	wp-content/plugins/really-simple-ssl/force-deactivate.txt
-M	wp-content/plugins/really-simple-ssl/readme.txt
-M	wp-content/plugins/really-simple-ssl/rlrsssl-really-simple-ssl.php
-M	wp-content/plugins/really-simple-ssl/ssl-test-page.php
-M	wp-content/plugins/simple-custom-post-order/assets/scporder.js
-D	wp-content/plugins/simple-custom-post-order/class-colorlib-dashboard-widget-extend-feed.php
-M	wp-content/plugins/simple-custom-post-order/languages/simple-custom-post-order.po
-M	wp-content/plugins/simple-custom-post-order/readme.txt
-M	wp-content/plugins/simple-custom-post-order/settings.php
-M	wp-content/plugins/simple-custom-post-order/simple-custom-post-order.php
-M	wp-content/plugins/wordpress-seo/admin/ajax.php
-M	wp-content/plugins/wordpress-seo/admin/ajax/class-recalculate-scores-ajax.php
-M	wp-content/plugins/wordpress-seo/admin/ajax/class-shortcode-filter.php
-M	wp-content/plugins/wordpress-seo/admin/ajax/class-yoast-dismissable-notice.php
-M	wp-content/plugins/wordpress-seo/admin/ajax/class-yoast-onpage-ajax.php
-M	wp-content/plugins/wordpress-seo/admin/ajax/class-yoast-plugin-conflict-ajax.php
-M	wp-content/plugins/wordpress-seo/admin/capabilities/class-abstract-capability-manager.php
-M	wp-content/plugins/wordpress-seo/admin/capabilities/class-capability-manager-integration.php
-M	wp-content/plugins/wordpress-seo/admin/capabilities/class-capability-manager-vip.php
-M	wp-content/plugins/wordpress-seo/admin/capabilities/class-capability-utils.php
-M	wp-content/plugins/wordpress-seo/admin/capabilities/class-register-capabilities.php
-M	wp-content/plugins/wordpress-seo/admin/class-add-keyword-modal.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-asset-analysis-worker-location.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-asset-dev-server-location.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-asset-manager.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-asset-seo-location.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-asset-yoast-components-l10n.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-editor-specific-replace-vars.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-gutenberg-compatibility-notification.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-help-panel.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-init.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-media-purge-notification.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-recommended-replace-vars.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin-user-profile.php
-M	wp-content/plugins/wordpress-seo/admin/class-admin.php
-M	wp-content/plugins/wordpress-seo/admin/class-asset.php
-M	wp-content/plugins/wordpress-seo/admin/class-bulk-description-editor-list-table.php
-M	wp-content/plugins/wordpress-seo/admin/class-bulk-editor-list-table.php
-M	wp-content/plugins/wordpress-seo/admin/class-bulk-title-editor-list-table.php
-M	wp-content/plugins/wordpress-seo/admin/class-collector.php
-M	wp-content/plugins/wordpress-seo/admin/class-config.php
-M	wp-content/plugins/wordpress-seo/admin/class-customizer.php
-M	wp-content/plugins/wordpress-seo/admin/class-database-proxy.php
-M	wp-content/plugins/wordpress-seo/admin/class-export.php
-M	wp-content/plugins/wordpress-seo/admin/class-expose-shortlinks.php
-M	wp-content/plugins/wordpress-seo/admin/class-extension-manager.php
-M	wp-content/plugins/wordpress-seo/admin/class-extension.php
-M	wp-content/plugins/wordpress-seo/admin/class-extensions.php
-M	wp-content/plugins/wordpress-seo/admin/class-gutenberg-compatibility.php
-D	wp-content/plugins/wordpress-seo/admin/class-help-center-item.php
-D	wp-content/plugins/wordpress-seo/admin/class-help-center.php
-M	wp-content/plugins/wordpress-seo/admin/class-keyword-synonyms-modal.php
-M	wp-content/plugins/wordpress-seo/admin/class-license-page-manager.php
-M	wp-content/plugins/wordpress-seo/admin/class-meta-columns.php
-M	wp-content/plugins/wordpress-seo/admin/class-meta-storage.php
-M	wp-content/plugins/wordpress-seo/admin/class-meta-table-accessible.php
-M	wp-content/plugins/wordpress-seo/admin/class-multiple-keywords-modal.php
-M	wp-content/plugins/wordpress-seo/admin/class-my-yoast-proxy.php
-M	wp-content/plugins/wordpress-seo/admin/class-my-yoast-route.php
-M	wp-content/plugins/wordpress-seo/admin/class-option-tab.php
-M	wp-content/plugins/wordpress-seo/admin/class-option-tabs-formatter.php
-M	wp-content/plugins/wordpress-seo/admin/class-option-tabs.php
-M	wp-content/plugins/wordpress-seo/admin/class-paper-presenter.php
-M	wp-content/plugins/wordpress-seo/admin/class-plugin-availability.php
-M	wp-content/plugins/wordpress-seo/admin/class-plugin-compatibility.php
-M	wp-content/plugins/wordpress-seo/admin/class-plugin-conflict.php
-M	wp-content/plugins/wordpress-seo/admin/class-premium-upsell-admin-block.php
-M	wp-content/plugins/wordpress-seo/admin/class-primary-term-admin.php
-M	wp-content/plugins/wordpress-seo/admin/class-product-upsell-notice.php
-M	wp-content/plugins/wordpress-seo/admin/class-recalculate-scores.php
-M	wp-content/plugins/wordpress-seo/admin/class-remote-request.php
-M	wp-content/plugins/wordpress-seo/admin/class-schema-person-upgrade-notification.php
-M	wp-content/plugins/wordpress-seo/admin/class-social-admin.php
-M	wp-content/plugins/wordpress-seo/admin/class-suggested-plugins.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-alerts.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-columns.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-dashboard-widget.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-form.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-network-admin.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-network-settings-api.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-notification-center.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-notification.php
-M	wp-content/plugins/wordpress-seo/admin/class-yoast-plugin-conflict.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-components.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-endpoint.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-options-adapter.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-page.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-service.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-storage.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-structure.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/class-configuration-translations.php
-D	wp-content/plugins/wordpress-seo/admin/config-ui/components/class-component-connect-google-search-console.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/components/class-component-mailchimp-signup.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/components/class-component-suggestions.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/components/interface-component.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/factories/class-factory-post-type.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-choice-post-type.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-choice.php
-D	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-connect-google-search-console.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-environment.php
-D	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-google-search-console-intro.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-mailchimp-signup.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-multiple-authors.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-site-name.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-success-message.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-suggestions.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-upsell-configuration-service.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field-upsell-site-review.php
-M	wp-content/plugins/wordpress-seo/admin/config-ui/fields/class-field.php
-D	wp-content/plugins/wordpress-seo/admin/courses-overview.php
-M	wp-content/plugins/wordpress-seo/admin/endpoints/class-endpoint-file-size.php
-M	wp-content/plugins/wordpress-seo/admin/endpoints/class-endpoint-indexable.php
-M	wp-content/plugins/wordpress-seo/admin/endpoints/class-endpoint-ryte.php
-M	wp-content/plugins/wordpress-seo/admin/endpoints/class-endpoint-statistics.php
-M	wp-content/plugins/wordpress-seo/admin/filters/class-abstract-post-filter.php
-M	wp-content/plugins/wordpress-seo/admin/filters/class-cornerstone-filter.php
-M	wp-content/plugins/wordpress-seo/admin/formatter/class-metabox-formatter.php
-M	wp-content/plugins/wordpress-seo/admin/formatter/class-post-metabox-formatter.php
-M	wp-content/plugins/wordpress-seo/admin/formatter/class-term-metabox-formatter.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-ajax.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-bulk-action.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-category-filters.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-config.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-count.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-issue.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-issues.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-mapper.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-marker.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-modal.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-platform-tabs.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-service.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-settings.php
-D	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc-table.php
-M	wp-content/plugins/wordpress-seo/admin/google_search_console/class-gsc.php
-M	wp-content/plugins/wordpress-seo/admin/google_search_console/views/gsc-display.php
-D	wp-content/plugins/wordpress-seo/admin/help_center/class-template-variables-tab.php
-M	wp-content/plugins/wordpress-seo/admin/import/class-import-detector.php
-M	wp-content/plugins/wordpress-seo/admin/import/class-import-plugin.php
-M	wp-content/plugins/wordpress-seo/admin/import/class-import-settings.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-abstract-plugin-importer.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-aioseo.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-greg-high-performance-seo.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-headspace.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-jetpack.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-platinum-seo-pack.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-seo-framework.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-seopressor.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-smartcrawl.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-squirrly.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-ultimate-seo.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-woothemes-seo.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-wp-meta-seo.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-import-wpseo.php
-M	wp-content/plugins/wordpress-seo/admin/import/plugins/class-importers.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-cleanup-transient.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-column-count.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-columns.php
-D	wp-content/plugins/wordpress-seo/admin/links/class-link-compatibility-notifier.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-content-processor.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-extractor.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-factory.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-filter.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-installer.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-notifier.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-query.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-reindex-dashboard.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-reindex-post-endpoint.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-reindex-post-service.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-storage.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-table-accessible-notifier.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-table-accessible.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-type-classifier.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link-watcher.php
-M	wp-content/plugins/wordpress-seo/admin/links/class-link.php
-M	wp-content/plugins/wordpress-seo/admin/menu/class-admin-menu.php
-M	wp-content/plugins/wordpress-seo/admin/menu/class-base-menu.php
-M	wp-content/plugins/wordpress-seo/admin/menu/class-menu.php
-M	wp-content/plugins/wordpress-seo/admin/menu/class-network-admin-menu.php
-M	wp-content/plugins/wordpress-seo/admin/menu/class-replacevar-editor.php
-M	wp-content/plugins/wordpress-seo/admin/menu/class-submenu-capability-normalize.php
-D	wp-content/plugins/wordpress-seo/admin/metabox/class-metabox-addon-section.php
-M	wp-content/plugins/wordpress-seo/admin/metabox/class-metabox-editor.php
-M	wp-content/plugins/wordpress-seo/admin/metabox/class-metabox-form-tab.php
-M	wp-content/plugins/wordpress-seo/admin/metabox/class-metabox-section-react.php
-D	wp-content/plugins/wordpress-seo/admin/metabox/class-metabox-tab-section.php
-M	wp-content/plugins/wordpress-seo/admin/metabox/class-metabox.php
-M	wp-content/plugins/wordpress-seo/admin/notifiers/class-configuration-notifier.php
-M	wp-content/plugins/wordpress-seo/admin/notifiers/class-post-type-archive-notification-handler.php
-M	wp-content/plugins/wordpress-seo/admin/onpage/class-onpage-option.php
-M	wp-content/plugins/wordpress-seo/admin/onpage/class-onpage-request.php
-M	wp-content/plugins/wordpress-seo/admin/onpage/class-onpage.php
-M	wp-content/plugins/wordpress-seo/admin/onpage/class-ryte-service.php
-D	wp-content/plugins/wordpress-seo/admin/pages/courses.php
-M	wp-content/plugins/wordpress-seo/admin/pages/dashboard.php
-M	wp-content/plugins/wordpress-seo/admin/pages/metas.php
-M	wp-content/plugins/wordpress-seo/admin/pages/network.php
-M	wp-content/plugins/wordpress-seo/admin/pages/social.php
-M	wp-content/plugins/wordpress-seo/admin/pages/tools.php
-M	wp-content/plugins/wordpress-seo/admin/recalculate/class-recalculate-posts.php
-M	wp-content/plugins/wordpress-seo/admin/recalculate/class-recalculate-terms.php
-M	wp-content/plugins/wordpress-seo/admin/recalculate/class-recalculate.php
-M	wp-content/plugins/wordpress-seo/admin/roles/class-abstract-role-manager.php
-M	wp-content/plugins/wordpress-seo/admin/roles/class-register-roles.php
-M	wp-content/plugins/wordpress-seo/admin/roles/class-role-manager-vip.php
-M	wp-content/plugins/wordpress-seo/admin/roles/class-role-manager-wp.php
-M	wp-content/plugins/wordpress-seo/admin/services/class-file-size.php
-M	wp-content/plugins/wordpress-seo/admin/services/class-indexable-post-provider.php
-M	wp-content/plugins/wordpress-seo/admin/services/class-indexable-provider.php
-M	wp-content/plugins/wordpress-seo/admin/services/class-indexable-term-provider.php
-M	wp-content/plugins/wordpress-seo/admin/statistics/class-statistics-integration.php
-M	wp-content/plugins/wordpress-seo/admin/statistics/class-statistics-service.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-columns.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-content-fields.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-fields-presenter.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-fields.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-metabox.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-settings-fields.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy-social-fields.php
-M	wp-content/plugins/wordpress-seo/admin/taxonomy/class-taxonomy.php
-M	wp-content/plugins/wordpress-seo/admin/tracking/class-tracking-default-data.php
-M	wp-content/plugins/wordpress-seo/admin/tracking/class-tracking-plugin-data.php
-M	wp-content/plugins/wordpress-seo/admin/tracking/class-tracking-server-data.php
-M	wp-content/plugins/wordpress-seo/admin/tracking/class-tracking-theme-data.php
-M	wp-content/plugins/wordpress-seo/admin/tracking/class-tracking.php
-M	wp-content/plugins/wordpress-seo/admin/views/class-view-utils.php
-M	wp-content/plugins/wordpress-seo/admin/views/class-yoast-feature-toggle.php
-M	wp-content/plugins/wordpress-seo/admin/views/class-yoast-feature-toggles.php
-D	wp-content/plugins/wordpress-seo/admin/views/class-yoast-form-fieldset.php
-M	wp-content/plugins/wordpress-seo/admin/views/class-yoast-input-select.php
-M	wp-content/plugins/wordpress-seo/admin/views/form/fieldset.php
-M	wp-content/plugins/wordpress-seo/admin/views/form/select.php
-M	wp-content/plugins/wordpress-seo/admin/views/licenses.php
-M	wp-content/plugins/wordpress-seo/admin/views/paper-collapsible.php
-M	wp-content/plugins/wordpress-seo/admin/views/partial-alerts-errors.php
-M	wp-content/plugins/wordpress-seo/admin/views/partial-alerts-template.php
-M	wp-content/plugins/wordpress-seo/admin/views/partial-alerts-warnings.php
-M	wp-content/plugins/wordpress-seo/admin/views/sidebar.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/dashboard/dashboard.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/dashboard/features.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/dashboard/webmaster-tools.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/archives.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/archives/help.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/breadcrumbs.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/general.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/media.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/author-archive-settings.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/breadcrumbs-content.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/date-archives-settings.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/general/homepage.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/general/knowledge-graph.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/general/title-separator.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/media-content.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/post-type-content.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/post_type/post-type.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/rss-content.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/paper-content/taxonomy-content.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/post-types.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/rss.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/taxonomies.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/metas/taxonomies/category-url.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/network/features.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/network/general.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/social/accounts.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/social/facebook.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/social/pinterest.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/social/twitterbox.php
-M	wp-content/plugins/wordpress-seo/admin/views/tabs/tool/wpseo-import.php
-M	wp-content/plugins/wordpress-seo/admin/views/tool-bulk-editor.php
-M	wp-content/plugins/wordpress-seo/admin/views/tool-file-editor.php
-M	wp-content/plugins/wordpress-seo/admin/views/tool-import-export.php
-M	wp-content/plugins/wordpress-seo/admin/watchers/class-slug-change-watcher.php
-D	wp-content/plugins/wordpress-seo/css/dist/admin-global-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/admin-global-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/adminbar-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/adminbar-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/alerts-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/alerts-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/dashboard-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/dashboard-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/edit-page-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/edit-page-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/featured-image-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/featured-image-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/filter-explanation-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/filter-explanation-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/inside-editor-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/inside-editor-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/metabox-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/metabox-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/metabox-primary-category-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/metabox-primary-category-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/search-appearance-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/search-appearance-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/structured-data-blocks-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/structured-data-blocks-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/toggle-switch-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/toggle-switch-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/wpseo-dismissible-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/wpseo-dismissible-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yoast-components-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yoast-components-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yoast-extensions-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yoast-extensions-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yst_plugin_tools-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yst_plugin_tools-1150.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yst_seo_score-1150-rtl.min.css
-D	wp-content/plugins/wordpress-seo/css/dist/yst_seo_score-1150.min.css
-M	wp-content/plugins/wordpress-seo/deprecated/admin/config-ui/fields/class-field-profile-url-googleplus.php
-M	wp-content/plugins/wordpress-seo/deprecated/class-cornerstone.php
-M	wp-content/plugins/wordpress-seo/deprecated/class-recalibration-beta-notification.php
-M	wp-content/plugins/wordpress-seo/deprecated/class-recalibration-beta.php
-M	wp-content/plugins/wordpress-seo/deprecated/class-wpseo-option-internallinks.php
-M	wp-content/plugins/wordpress-seo/deprecated/class-wpseo-option-permalinks.php
-M	wp-content/plugins/wordpress-seo/deprecated/class-yoast-modal.php
-M	wp-content/plugins/wordpress-seo/frontend/class-breadcrumbs.php
-M	wp-content/plugins/wordpress-seo/frontend/class-frontend-page-type.php
-M	wp-content/plugins/wordpress-seo/frontend/class-frontend.php
-M	wp-content/plugins/wordpress-seo/frontend/class-handle-404.php
-M	wp-content/plugins/wordpress-seo/frontend/class-opengraph-image.php
-M	wp-content/plugins/wordpress-seo/frontend/class-opengraph-oembed.php
-M	wp-content/plugins/wordpress-seo/frontend/class-opengraph.php
-M	wp-content/plugins/wordpress-seo/frontend/class-primary-category.php
-M	wp-content/plugins/wordpress-seo/frontend/class-remove-reply-to-com.php
-M	wp-content/plugins/wordpress-seo/frontend/class-twitter.php
-M	wp-content/plugins/wordpress-seo/frontend/class-woocommerce-shop-page.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-article.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-author.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-breadcrumb.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-context.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-faq-question-list.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-faq-questions.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-faq.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-ids.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-image.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-organization.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-person.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-webpage.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema-website.php
-M	wp-content/plugins/wordpress-seo/frontend/schema/class-schema.php
-D	wp-content/plugins/wordpress-seo/images/Local_SEO_Icon.svg
-D	wp-content/plugins/wordpress-seo/images/News_SEO_Icon.svg
-D	wp-content/plugins/wordpress-seo/images/SEO_for_beginners.svg
-D	wp-content/plugins/wordpress-seo/images/Video_SEO_Icon.svg
-D	wp-content/plugins/wordpress-seo/images/Woo_SEO_Icon.svg
-M	wp-content/plugins/wordpress-seo/images/Yoast_SEO_Icon.svg
-D	wp-content/plugins/wordpress-seo/images/all-round-SEO.svg
-D	wp-content/plugins/wordpress-seo/images/editicon.png
-D	wp-content/plugins/wordpress-seo/images/exclamation-triangle.svg
-D	wp-content/plugins/wordpress-seo/images/extensions-local-for-woocommerce.png
-D	wp-content/plugins/wordpress-seo/images/extensions-local.png
-D	wp-content/plugins/wordpress-seo/images/extensions-news.png
-D	wp-content/plugins/wordpress-seo/images/extensions-premium-ribbon.png
-D	wp-content/plugins/wordpress-seo/images/extensions-video.png
-D	wp-content/plugins/wordpress-seo/images/extensions-woo.png
-D	wp-content/plugins/wordpress-seo/images/sample_course_card_header.png
-D	wp-content/plugins/wordpress-seo/images/waiting.gif
-D	wp-content/plugins/wordpress-seo/images/yoast-configuration-icon.svg
-D	wp-content/plugins/wordpress-seo/images/yoast_seo_for_wp_2.svg
-M	wp-content/plugins/wordpress-seo/inc/class-addon-manager.php
-M	wp-content/plugins/wordpress-seo/inc/class-my-yoast-api-request.php
-M	wp-content/plugins/wordpress-seo/inc/class-post-type.php
-M	wp-content/plugins/wordpress-seo/inc/class-rewrite.php
-M	wp-content/plugins/wordpress-seo/inc/class-structured-data-blocks.php
-M	wp-content/plugins/wordpress-seo/inc/class-upgrade-history.php
-M	wp-content/plugins/wordpress-seo/inc/class-upgrade.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-admin-bar-menu.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-content-images.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-custom-fields.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-custom-taxonomies.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-endpoint-factory.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-image-utils.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-installation.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-meta.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-primary-term.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-rank.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-replace-vars.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-shortlinker.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-statistics.php
-M	wp-content/plugins/wordpress-seo/inc/class-wpseo-utils.php
-M	wp-content/plugins/wordpress-seo/inc/endpoints/class-myyoast-connect.php
-M	wp-content/plugins/wordpress-seo/inc/indexables/class-indexable.php
-M	wp-content/plugins/wordpress-seo/inc/indexables/class-post-indexable.php
-M	wp-content/plugins/wordpress-seo/inc/indexables/class-term-indexable.php
-M	wp-content/plugins/wordpress-seo/inc/indexables/validators/class-object-type-validator.php
-M	wp-content/plugins/wordpress-seo/inc/indexables/validators/class-robots-validator.php
-M	wp-content/plugins/wordpress-seo/inc/language-utils.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-option-ms.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-option-social.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-option-titles.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-option-wpseo.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-option.php
-D	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-options-backfill.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-options.php
-M	wp-content/plugins/wordpress-seo/inc/options/class-wpseo-taxonomy-meta.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-author-sitemap-provider.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-post-type-sitemap-provider.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemap-cache-data.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemap-image-parser.php
-D	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemap-timezone.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemaps-admin.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemaps-cache-validator.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemaps-cache.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemaps-renderer.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemaps-router.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-sitemaps.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/class-taxonomy-sitemap-provider.php
-M	wp-content/plugins/wordpress-seo/inc/sitemaps/interface-sitemap-cache-data.php
-D	wp-content/plugins/wordpress-seo/inc/structured-data-blocks/class-how-to-block.php
-M	wp-content/plugins/wordpress-seo/inc/wpseo-functions.php
-M	wp-content/plugins/wordpress-seo/inc/wpseo-non-ajax-functions.php
-D	wp-content/plugins/wordpress-seo/js/dist/analysis-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/babel-polyfill-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/commons-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/components-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/configuration-wizard-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/search-appearance-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/styled-components-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-apiFetch-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-components-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-compose-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-data-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-element-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-i18n-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-richText-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-admin-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-admin-global-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-admin-gsc-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-admin-media-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-analysis-worker-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-api-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-bulk-editor-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-courses-overview-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-dashboard-widget-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-edit-page-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-featured-image-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-filter-explanation-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-help-center-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-metabox-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-metabox-category-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-modal-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-network-admin-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-post-scraper-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-quick-edit-handler-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-recalculate-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-reindex-links-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-replacevar-plugin-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-shortcode-plugin-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-structured-data-blocks-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-term-scraper-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/dist/wp-seo-used-keywords-assessment-1150.min.js
-D	wp-content/plugins/wordpress-seo/js/vendor/lodash-noconflict.js
-D	wp-content/plugins/wordpress-seo/js/vendor/lodash.min.js
-D	wp-content/plugins/wordpress-seo/js/vendor/react-dom.min.js
-D	wp-content/plugins/wordpress-seo/js/vendor/react.min.js
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-bg_BG.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-bs_BA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-ca.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-cs_CZ.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-da_DK.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-de_CH.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-de_DE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-el.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-en_AU.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-en_CA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-en_GB.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-en_NZ.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-en_ZA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-es_AR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-es_ES.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-es_MX.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-es_PE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-es_VE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-fa_IR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-fr_CA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-fr_FR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-gl_ES.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-he_IL.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-hr.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-hu_HU.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-it_IT.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-ja.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-nb_NO.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-nl_BE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-nl_NL.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-pl_PL.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-pt_AO.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-pt_BR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-pt_PT.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-ro_RO.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-ru_RU.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-sk_SK.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-sr_RS.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-sv_SE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-tr_TR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-uk.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-vi.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-zh_CN.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seo-zh_TW.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-bg_BG.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-bs_BA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-ca.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-cs_CZ.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-da_DK.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-de_CH.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-de_DE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-el.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-en_AU.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-en_CA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-en_GB.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-en_NZ.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-en_ZA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-es_AR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-es_ES.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-es_MX.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-es_PE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-es_VE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-fa_IR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-fr_CA.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-fr_FR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-gl_ES.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-he_IL.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-hr.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-hu_HU.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-it_IT.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-ja.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-nb_NO.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-nl_BE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-nl_NL.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-pl_PL.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-pt_AO.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-pt_BR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-pt_PT.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-ro_RO.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-ru_RU.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-sk_SK.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-sr_RS.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-sv_SE.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-tr_TR.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-uk.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-vi.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-zh_CN.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs-zh_TW.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs.json
-M	wp-content/plugins/wordpress-seo/languages/wordpress-seojs.php
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-bg_BG.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-bs_BA.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-ca.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-cs_CZ.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-da_DK.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-de_CH.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-de_DE.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-el.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-en_AU.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-en_CA.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-en_GB.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-en_NZ.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-en_ZA.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-es_AR.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-es_ES.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-es_MX.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-es_PE.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-es_VE.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-fa_IR.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-fr_CA.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-fr_FR.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-gl_ES.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-he_IL.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-hr.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-hu_HU.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-it_IT.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-ja.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-nb_NO.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-nl_BE.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-nl_NL.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-pl_PL.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-pt_AO.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-pt_BR.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-pt_PT.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-ro_RO.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-ru_RU.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-sk_SK.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-sr_RS.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-sv_SE.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-tr_TR.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-uk.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-vi.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-zh_CN.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components-zh_TW.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-components.php
-M	wp-content/plugins/wordpress-seo/languages/yoast-seo-js.json
-M	wp-content/plugins/wordpress-seo/languages/yoast-seo-js.php
-D	wp-content/plugins/wordpress-seo/languages/yoastseojsfiles.txt
-M	wp-content/plugins/wordpress-seo/migrations/20171228151840_WpYoastIndexable.php
-M	wp-content/plugins/wordpress-seo/migrations/20171228151841_WpYoastPrimaryTerm.php
-D	wp-content/plugins/wordpress-seo/migrations/20180515101200_WpYoastIndexableMeta.php
-M	wp-content/plugins/wordpress-seo/readme.txt
-D	wp-content/plugins/wordpress-seo/src/config/admin.php
-D	wp-content/plugins/wordpress-seo/src/config/database-migration.php
-M	wp-content/plugins/wordpress-seo/src/config/dependency-management.php
-D	wp-content/plugins/wordpress-seo/src/config/frontend.php
-D	wp-content/plugins/wordpress-seo/src/config/plugin.php
-D	wp-content/plugins/wordpress-seo/src/config/upgrade.php
-M	wp-content/plugins/wordpress-seo/src/exceptions/missing-method.php
-D	wp-content/plugins/wordpress-seo/src/exceptions/no-indexable-found.php
-D	wp-content/plugins/wordpress-seo/src/formatters/indexable-author-formatter.php
-D	wp-content/plugins/wordpress-seo/src/formatters/indexable-post-formatter.php
-D	wp-content/plugins/wordpress-seo/src/formatters/indexable-term-formatter.php
-D	wp-content/plugins/wordpress-seo/src/loaders/indexable.php
-M	wp-content/plugins/wordpress-seo/src/loaders/oauth.php
-M	wp-content/plugins/wordpress-seo/src/loggers/logger.php
-M	wp-content/plugins/wordpress-seo/src/loggers/migration-logger.php
-D	wp-content/plugins/wordpress-seo/src/models/indexable-meta.php
-M	wp-content/plugins/wordpress-seo/src/models/indexable.php
-M	wp-content/plugins/wordpress-seo/src/models/primary-term.php
-M	wp-content/plugins/wordpress-seo/src/models/seo-meta.php
-M	wp-content/plugins/wordpress-seo/src/oauth/client.php
-M	wp-content/plugins/wordpress-seo/src/watchers/indexable-author-watcher.php
-M	wp-content/plugins/wordpress-seo/src/watchers/indexable-post-watcher.php
-M	wp-content/plugins/wordpress-seo/src/watchers/indexable-term-watcher.php
-M	wp-content/plugins/wordpress-seo/src/watchers/primary-term-watcher.php
-D	wp-content/plugins/wordpress-seo/src/wordpress/integration-group.php
-M	wp-content/plugins/wordpress-seo/src/wordpress/integration.php
-D	wp-content/plugins/wordpress-seo/src/yoast-model.php
-D	wp-content/plugins/wordpress-seo/src/yoast-orm-wrapper.php
-M	wp-content/plugins/wordpress-seo/vendor/autoload.php
-D	wp-content/plugins/wordpress-seo/vendor/autoload_52.php
-D	wp-content/plugins/wordpress-seo/vendor/composer/ClassLoader52.php
-M	wp-content/plugins/wordpress-seo/vendor/composer/autoload_classmap.php
-M	wp-content/plugins/wordpress-seo/vendor/composer/autoload_namespaces.php
-M	wp-content/plugins/wordpress-seo/vendor/composer/autoload_real.php
-D	wp-content/plugins/wordpress-seo/vendor/composer/autoload_real_52.php
-M	wp-content/plugins/wordpress-seo/vendor/composer/autoload_static.php
-D	wp-content/plugins/wordpress-seo/vendor/xrstf/composer-php52/LICENSE
-D	wp-content/plugins/wordpress-seo/vendor/xrstf/composer-php52/lib/xrstf/Composer52/AutoloadGenerator.php
-D	wp-content/plugins/wordpress-seo/vendor/xrstf/composer-php52/lib/xrstf/Composer52/ClassLoader.php
-D	wp-content/plugins/wordpress-seo/vendor/xrstf/composer-php52/lib/xrstf/Composer52/Generator.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/class-api-google-client.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/class-api-google.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/class-api-libs.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/Google_Client.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_AssertionCredentials.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_Auth.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_AuthNone.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_LoginTicket.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_OAuth2.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_P12Signer.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_PemVerifier.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_Signer.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/auth/Google_Verifier.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/cache/Google_Cache.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/cache/Google_WPCache.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/config.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/external/URITemplateParser.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/Google_CacheParser.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/Google_CurlIO.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/Google_HttpRequest.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/Google_IO.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/Google_REST.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/Google_WPIO.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/io/cacerts.pem
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/service/Google_BatchRequest.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/service/Google_MediaFileUpload.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/service/Google_Model.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/service/Google_Service.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/service/Google_ServiceResource.php
-D	wp-content/plugins/wordpress-seo/vendor/yoast/api-libs/google/service/Google_Utils.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/guzzlehttp/guzzle/src/Middleware.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/guzzlehttp/guzzle/src/functions_include.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/guzzlehttp/promises/src/functions_include.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/guzzlehttp/psr7/src/ServerRequest.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/guzzlehttp/psr7/src/functions_include.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/j4mie/idiorm/idiorm.php
-D	wp-content/plugins/wordpress-seo/vendor_prefixed/psr/log/Psr/Log/Test/LoggerInterfaceTest.php
-D	wp-content/plugins/wordpress-seo/vendor_prefixed/psr/log/Psr/Log/Test/TestLogger.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Ruckusing/Adapter/Base.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Ruckusing/Adapter/MySQL/Base.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Ruckusing/Adapter/PgSQL/Base.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Ruckusing/Adapter/Sqlite3/Base.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Ruckusing/Task/Manager.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Task/Db/Migrate.php
-D	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/Task/Hello/World.php
-M	wp-content/plugins/wordpress-seo/vendor_prefixed/ruckusing/lib/version.php
-M	wp-content/plugins/wordpress-seo/wp-seo-main.php
-M	wp-content/plugins/wordpress-seo/wp-seo.php
-M	wp-content/plugins/wp-pagenavi/readme.txt
-M	wp-content/plugins/wp-pagenavi/scb/AdminPage.php
-M	wp-content/plugins/wp-pagenavi/scb/Options.php
-M	wp-content/plugins/wp-pagenavi/wp-pagenavi.php
-M	wp-cron.php
-M	wp-includes/ID3/getid3.lib.php
-M	wp-includes/ID3/getid3.php
-M	wp-includes/ID3/license.txt
-M	wp-includes/ID3/module.audio-video.asf.php
-M	wp-includes/ID3/module.audio-video.flv.php
-M	wp-includes/ID3/module.audio-video.matroska.php
-M	wp-includes/ID3/module.audio-video.quicktime.php
-M	wp-includes/ID3/module.audio-video.riff.php
-M	wp-includes/ID3/module.audio.ac3.php
-M	wp-includes/ID3/module.audio.dts.php
-M	wp-includes/ID3/module.audio.flac.php
-M	wp-includes/ID3/module.audio.mp3.php
-M	wp-includes/ID3/module.audio.ogg.php
-M	wp-includes/ID3/module.tag.apetag.php
-M	wp-includes/ID3/module.tag.id3v1.php
-M	wp-includes/ID3/module.tag.id3v2.php
-M	wp-includes/ID3/module.tag.lyrics3.php
-M	wp-includes/ID3/readme.txt
-M	wp-includes/IXR/class-IXR-date.php
-M	wp-includes/IXR/class-IXR-server.php
-M	wp-includes/Requests/Cookie.php
-M	wp-includes/Requests/Transport/fsockopen.php
-M	wp-includes/SimplePie/Parse/Date.php
-M	wp-includes/admin-bar.php
-M	wp-includes/atomlib.php
-M	wp-includes/author-template.php
-M	wp-includes/blocks.php
-M	wp-includes/blocks/archives.php
-M	wp-includes/blocks/block.php
-M	wp-includes/blocks/calendar.php
-M	wp-includes/blocks/categories.php
-M	wp-includes/blocks/latest-comments.php
-M	wp-includes/blocks/latest-posts.php
-M	wp-includes/blocks/rss.php
-M	wp-includes/blocks/search.php
-M	wp-includes/blocks/shortcode.php
-M	wp-includes/blocks/tag-cloud.php
-M	wp-includes/bookmark-template.php
-M	wp-includes/bookmark.php
-M	wp-includes/canonical.php
-M	wp-includes/capabilities.php
-M	wp-includes/category-template.php
-M	wp-includes/category.php
-M	wp-includes/certificates/ca-bundle.crt
-M	wp-includes/class-feed.php
-M	wp-includes/class-http.php
-M	wp-includes/class-json.php
-M	wp-includes/class-oembed.php
-M	wp-includes/class-phpmailer.php
-M	wp-includes/class-pop3.php
-M	wp-includes/class-requests.php
-M	wp-includes/class-smtp.php
-M	wp-includes/class-walker-category.php
-M	wp-includes/class-walker-comment.php
-M	wp-includes/class-walker-nav-menu.php
-M	wp-includes/class-walker-page-dropdown.php
-M	wp-includes/class-walker-page.php
-M	wp-includes/class-wp-admin-bar.php
-M	wp-includes/class-wp-ajax-response.php
-M	wp-includes/class-wp-block-type-registry.php
-M	wp-includes/class-wp-comment-query.php
-M	wp-includes/class-wp-customize-control.php
-M	wp-includes/class-wp-customize-manager.php
-M	wp-includes/class-wp-customize-nav-menus.php
-M	wp-includes/class-wp-customize-panel.php
-M	wp-includes/class-wp-customize-section.php
-M	wp-includes/class-wp-customize-setting.php
-M	wp-includes/class-wp-customize-widgets.php
-M	wp-includes/class-wp-dependency.php
-M	wp-includes/class-wp-editor.php
-M	wp-includes/class-wp-embed.php
-M	wp-includes/class-wp-fatal-error-handler.php
-M	wp-includes/class-wp-hook.php
-M	wp-includes/class-wp-http-cookie.php
-M	wp-includes/class-wp-http-curl.php
-M	wp-includes/class-wp-http-encoding.php
-M	wp-includes/class-wp-http-proxy.php
-M	wp-includes/class-wp-http-requests-hooks.php
-M	wp-includes/class-wp-http-requests-response.php
-M	wp-includes/class-wp-http-response.php
-M	wp-includes/class-wp-http-streams.php
-M	wp-includes/class-wp-image-editor-gd.php
-M	wp-includes/class-wp-image-editor-imagick.php
-M	wp-includes/class-wp-image-editor.php
-M	wp-includes/class-wp-list-util.php
-M	wp-includes/class-wp-locale-switcher.php
-M	wp-includes/class-wp-locale.php
-M	wp-includes/class-wp-meta-query.php
-M	wp-includes/class-wp-network-query.php
-M	wp-includes/class-wp-network.php
-M	wp-includes/class-wp-oembed-controller.php
-M	wp-includes/class-wp-post-type.php
-M	wp-includes/class-wp-query.php
-M	wp-includes/class-wp-recovery-mode-cookie-service.php
-M	wp-includes/class-wp-recovery-mode-email-service.php
-M	wp-includes/class-wp-recovery-mode.php
-M	wp-includes/class-wp-rewrite.php
-M	wp-includes/class-wp-roles.php
-M	wp-includes/class-wp-site-query.php
-M	wp-includes/class-wp-site.php
-M	wp-includes/class-wp-tax-query.php
-M	wp-includes/class-wp-taxonomy.php
-M	wp-includes/class-wp-term-query.php
-M	wp-includes/class-wp-text-diff-renderer-table.php
-M	wp-includes/class-wp-theme.php
-M	wp-includes/class-wp-user-query.php
-M	wp-includes/class-wp-user.php
-M	wp-includes/class-wp-walker.php
-M	wp-includes/class-wp-widget-factory.php
-M	wp-includes/class-wp-widget.php
-M	wp-includes/class-wp-xmlrpc-server.php
-M	wp-includes/class-wp.php
-M	wp-includes/class.wp-dependencies.php
-M	wp-includes/class.wp-scripts.php
-M	wp-includes/class.wp-styles.php
-M	wp-includes/comment-template.php
-M	wp-includes/comment.php
-M	wp-includes/compat.php
-M	wp-includes/cron.php
-M	wp-includes/css/admin-bar-rtl.css
-M	wp-includes/css/admin-bar-rtl.min.css
-M	wp-includes/css/admin-bar.css
-M	wp-includes/css/admin-bar.min.css
-M	wp-includes/css/buttons-rtl.css
-M	wp-includes/css/buttons-rtl.min.css
-M	wp-includes/css/buttons.css
-M	wp-includes/css/buttons.min.css
-M	wp-includes/css/customize-preview-rtl.css
-M	wp-includes/css/customize-preview-rtl.min.css
-M	wp-includes/css/customize-preview.css
-M	wp-includes/css/customize-preview.min.css
-M	wp-includes/css/dist/block-editor/style-rtl.css
-M	wp-includes/css/dist/block-editor/style-rtl.min.css
-M	wp-includes/css/dist/block-editor/style.css
-M	wp-includes/css/dist/block-editor/style.min.css
-M	wp-includes/css/dist/block-library/editor-rtl.css
-M	wp-includes/css/dist/block-library/editor-rtl.min.css
-M	wp-includes/css/dist/block-library/editor.css
-M	wp-includes/css/dist/block-library/editor.min.css
-M	wp-includes/css/dist/block-library/style-rtl.css
-M	wp-includes/css/dist/block-library/style-rtl.min.css
-M	wp-includes/css/dist/block-library/style.css
-M	wp-includes/css/dist/block-library/style.min.css
-M	wp-includes/css/dist/block-library/theme-rtl.css
-M	wp-includes/css/dist/block-library/theme-rtl.min.css
-M	wp-includes/css/dist/block-library/theme.css
-M	wp-includes/css/dist/block-library/theme.min.css
-M	wp-includes/css/dist/components/style-rtl.css
-M	wp-includes/css/dist/components/style-rtl.min.css
-M	wp-includes/css/dist/components/style.css
-M	wp-includes/css/dist/components/style.min.css
-M	wp-includes/css/dist/edit-post/style-rtl.css
-M	wp-includes/css/dist/edit-post/style-rtl.min.css
-M	wp-includes/css/dist/edit-post/style.css
-M	wp-includes/css/dist/edit-post/style.min.css
-M	wp-includes/css/dist/editor/editor-styles-rtl.css
-M	wp-includes/css/dist/editor/editor-styles-rtl.min.css
-M	wp-includes/css/dist/editor/editor-styles.css
-M	wp-includes/css/dist/editor/editor-styles.min.css
-M	wp-includes/css/dist/editor/style-rtl.css
-M	wp-includes/css/dist/editor/style-rtl.min.css
-M	wp-includes/css/dist/editor/style.css
-M	wp-includes/css/dist/editor/style.min.css
-M	wp-includes/css/dist/format-library/style-rtl.css
-M	wp-includes/css/dist/format-library/style.css
-M	wp-includes/css/dist/list-reusable-blocks/style-rtl.css
-M	wp-includes/css/dist/list-reusable-blocks/style.css
-M	wp-includes/css/dist/nux/style-rtl.css
-M	wp-includes/css/dist/nux/style-rtl.min.css
-M	wp-includes/css/dist/nux/style.css
-M	wp-includes/css/dist/nux/style.min.css
-M	wp-includes/css/editor-rtl.css
-M	wp-includes/css/editor-rtl.min.css
-M	wp-includes/css/editor.css
-M	wp-includes/css/editor.min.css
-M	wp-includes/css/jquery-ui-dialog-rtl.css
-M	wp-includes/css/jquery-ui-dialog-rtl.min.css
-M	wp-includes/css/jquery-ui-dialog.css
-M	wp-includes/css/jquery-ui-dialog.min.css
-M	wp-includes/css/media-views-rtl.css
-M	wp-includes/css/media-views-rtl.min.css
-M	wp-includes/css/media-views.css
-M	wp-includes/css/media-views.min.css
-M	wp-includes/css/wp-auth-check-rtl.css
-M	wp-includes/css/wp-auth-check-rtl.min.css
-M	wp-includes/css/wp-auth-check.css
-M	wp-includes/css/wp-auth-check.min.css
-M	wp-includes/css/wp-embed-template.css
-M	wp-includes/css/wp-embed-template.min.css
-M	wp-includes/css/wp-pointer-rtl.css
-M	wp-includes/css/wp-pointer-rtl.min.css
-M	wp-includes/css/wp-pointer.css
-M	wp-includes/css/wp-pointer.min.css
-M	wp-includes/customize/class-wp-customize-date-time-control.php
-M	wp-includes/customize/class-wp-customize-header-image-control.php
-M	wp-includes/customize/class-wp-customize-header-image-setting.php
-M	wp-includes/customize/class-wp-customize-nav-menu-control.php
-M	wp-includes/customize/class-wp-customize-nav-menu-item-control.php
-M	wp-includes/customize/class-wp-customize-nav-menu-item-setting.php
-M	wp-includes/customize/class-wp-customize-nav-menu-location-control.php
-M	wp-includes/customize/class-wp-customize-nav-menu-locations-control.php
-M	wp-includes/customize/class-wp-customize-nav-menu-setting.php
-M	wp-includes/customize/class-wp-customize-nav-menus-panel.php
-M	wp-includes/customize/class-wp-customize-selective-refresh.php
-M	wp-includes/customize/class-wp-customize-site-icon-control.php
-M	wp-includes/customize/class-wp-customize-theme-control.php
-M	wp-includes/customize/class-wp-customize-themes-panel.php
-M	wp-includes/customize/class-wp-customize-themes-section.php
-M	wp-includes/date.php
-M	wp-includes/default-constants.php
-M	wp-includes/default-filters.php
-M	wp-includes/deprecated.php
-M	wp-includes/embed.php
-M	wp-includes/error-protection.php
-M	wp-includes/feed-atom-comments.php
-M	wp-includes/feed-rss2-comments.php
-M	wp-includes/feed.php
-M	wp-includes/formatting.php
-M	wp-includes/functions.php
-M	wp-includes/functions.wp-scripts.php
-M	wp-includes/general-template.php
-M	wp-includes/http.php
-M	wp-includes/images/blank.gif
-M	wp-includes/images/down_arrow-2x.gif
-M	wp-includes/images/down_arrow.gif
-M	wp-includes/images/smilies/icon_arrow.gif
-M	wp-includes/images/smilies/icon_biggrin.gif
-M	wp-includes/images/smilies/icon_confused.gif
-M	wp-includes/images/smilies/icon_cool.gif
-M	wp-includes/images/smilies/icon_cry.gif
-M	wp-includes/images/smilies/icon_eek.gif
-M	wp-includes/images/smilies/icon_evil.gif
-M	wp-includes/images/smilies/icon_exclaim.gif
-M	wp-includes/images/smilies/icon_idea.gif
-M	wp-includes/images/smilies/icon_lol.gif
-M	wp-includes/images/smilies/icon_mad.gif
-M	wp-includes/images/smilies/icon_mrgreen.gif
-M	wp-includes/images/smilies/icon_neutral.gif
-M	wp-includes/images/smilies/icon_question.gif
-M	wp-includes/images/smilies/icon_razz.gif
-M	wp-includes/images/smilies/icon_redface.gif
-M	wp-includes/images/smilies/icon_rolleyes.gif
-M	wp-includes/images/smilies/icon_sad.gif
-M	wp-includes/images/smilies/icon_smile.gif
-M	wp-includes/images/smilies/icon_surprised.gif
-M	wp-includes/images/smilies/icon_twisted.gif
-M	wp-includes/images/smilies/icon_wink.gif
-M	wp-includes/images/wpspin-2x.gif
-M	wp-includes/images/wpspin.gif
-M	wp-includes/images/xit-2x.gif
-M	wp-includes/images/xit.gif
-M	wp-includes/js/admin-bar.js
-M	wp-includes/js/admin-bar.min.js
-M	wp-includes/js/api-request.min.js
-M	wp-includes/js/autosave.min.js
-M	wp-includes/js/backbone.js
-M	wp-includes/js/backbone.min.js
-M	wp-includes/js/clipboard.min.js
-M	wp-includes/js/colorpicker.min.js
-M	wp-includes/js/comment-reply.js
-M	wp-includes/js/comment-reply.min.js
-M	wp-includes/js/customize-base.min.js
-M	wp-includes/js/customize-loader.min.js
-M	wp-includes/js/customize-models.min.js
-M	wp-includes/js/customize-preview-nav-menus.min.js
-M	wp-includes/js/customize-preview-widgets.min.js
-M	wp-includes/js/customize-preview.min.js
-M	wp-includes/js/customize-selective-refresh.min.js
-M	wp-includes/js/customize-views.min.js
-M	wp-includes/js/dist/a11y.js
-M	wp-includes/js/dist/a11y.min.js
-M	wp-includes/js/dist/annotations.js
-M	wp-includes/js/dist/annotations.min.js
-M	wp-includes/js/dist/api-fetch.js
-M	wp-includes/js/dist/api-fetch.min.js
-M	wp-includes/js/dist/autop.js
-M	wp-includes/js/dist/autop.min.js
-M	wp-includes/js/dist/blob.js
-M	wp-includes/js/dist/blob.min.js
-M	wp-includes/js/dist/block-editor.js
-M	wp-includes/js/dist/block-editor.min.js
-M	wp-includes/js/dist/block-library.js
-M	wp-includes/js/dist/block-library.min.js
-M	wp-includes/js/dist/block-serialization-default-parser.js
-M	wp-includes/js/dist/block-serialization-default-parser.min.js
-M	wp-includes/js/dist/blocks.js
-M	wp-includes/js/dist/blocks.min.js
-M	wp-includes/js/dist/components.js
-M	wp-includes/js/dist/components.min.js
-M	wp-includes/js/dist/compose.js
-M	wp-includes/js/dist/compose.min.js
-M	wp-includes/js/dist/core-data.js
-M	wp-includes/js/dist/core-data.min.js
-M	wp-includes/js/dist/data.js
-M	wp-includes/js/dist/data.min.js
-M	wp-includes/js/dist/date.js
-M	wp-includes/js/dist/date.min.js
-M	wp-includes/js/dist/deprecated.js
-M	wp-includes/js/dist/deprecated.min.js
-M	wp-includes/js/dist/dom-ready.js
-M	wp-includes/js/dist/dom-ready.min.js
-M	wp-includes/js/dist/dom.js
-M	wp-includes/js/dist/dom.min.js
-M	wp-includes/js/dist/edit-post.js
-M	wp-includes/js/dist/edit-post.min.js
-M	wp-includes/js/dist/editor.js
-M	wp-includes/js/dist/editor.min.js
-M	wp-includes/js/dist/element.js
-M	wp-includes/js/dist/element.min.js
-M	wp-includes/js/dist/escape-html.js
-M	wp-includes/js/dist/escape-html.min.js
-M	wp-includes/js/dist/format-library.js
-M	wp-includes/js/dist/format-library.min.js
-M	wp-includes/js/dist/hooks.js
-M	wp-includes/js/dist/hooks.min.js
-M	wp-includes/js/dist/html-entities.js
-M	wp-includes/js/dist/html-entities.min.js
-M	wp-includes/js/dist/i18n.js
-M	wp-includes/js/dist/i18n.min.js
-M	wp-includes/js/dist/is-shallow-equal.js
-M	wp-includes/js/dist/is-shallow-equal.min.js
-M	wp-includes/js/dist/keycodes.js
-M	wp-includes/js/dist/keycodes.min.js
-M	wp-includes/js/dist/list-reusable-blocks.js
-M	wp-includes/js/dist/list-reusable-blocks.min.js
-M	wp-includes/js/dist/notices.js
-M	wp-includes/js/dist/notices.min.js
-M	wp-includes/js/dist/nux.js
-M	wp-includes/js/dist/nux.min.js
-M	wp-includes/js/dist/plugins.js
-M	wp-includes/js/dist/plugins.min.js
-M	wp-includes/js/dist/priority-queue.js
-M	wp-includes/js/dist/priority-queue.min.js
-M	wp-includes/js/dist/redux-routine.js
-M	wp-includes/js/dist/redux-routine.min.js
-M	wp-includes/js/dist/rich-text.js
-M	wp-includes/js/dist/rich-text.min.js
-M	wp-includes/js/dist/shortcode.js
-M	wp-includes/js/dist/shortcode.min.js
-M	wp-includes/js/dist/token-list.js
-M	wp-includes/js/dist/token-list.min.js
-M	wp-includes/js/dist/url.js
-M	wp-includes/js/dist/url.min.js
-M	wp-includes/js/dist/vendor/lodash.js
-M	wp-includes/js/dist/vendor/lodash.min.js
-M	wp-includes/js/dist/vendor/react-dom.js
-M	wp-includes/js/dist/vendor/react-dom.min.js
-M	wp-includes/js/dist/vendor/react.js
-M	wp-includes/js/dist/vendor/react.min.js
-M	wp-includes/js/dist/vendor/wp-polyfill-fetch.min.js
-M	wp-includes/js/dist/vendor/wp-polyfill.js
-M	wp-includes/js/dist/vendor/wp-polyfill.min.js
-M	wp-includes/js/dist/viewport.js
-M	wp-includes/js/dist/viewport.min.js
-M	wp-includes/js/dist/wordcount.js
-M	wp-includes/js/dist/wordcount.min.js
-M	wp-includes/js/heartbeat.min.js
-M	wp-includes/js/hoverIntent.min.js
-M	wp-includes/js/imgareaselect/jquery.imgareaselect.min.js
-M	wp-includes/js/jquery/jquery.color.min.js
-M	wp-includes/js/jquery/jquery.form.min.js
-M	wp-includes/js/jquery/ui/accordion.min.js
-M	wp-includes/js/jquery/ui/autocomplete.min.js
-M	wp-includes/js/jquery/ui/button.min.js
-M	wp-includes/js/jquery/ui/core.min.js
-M	wp-includes/js/jquery/ui/datepicker.min.js
-M	wp-includes/js/jquery/ui/dialog.min.js
-M	wp-includes/js/jquery/ui/draggable.min.js
-M	wp-includes/js/jquery/ui/droppable.min.js
-M	wp-includes/js/jquery/ui/effect-blind.min.js
-M	wp-includes/js/jquery/ui/effect-bounce.min.js
-M	wp-includes/js/jquery/ui/effect-clip.min.js
-M	wp-includes/js/jquery/ui/effect-drop.min.js
-M	wp-includes/js/jquery/ui/effect-explode.min.js
-M	wp-includes/js/jquery/ui/effect-fade.min.js
-M	wp-includes/js/jquery/ui/effect-fold.min.js
-M	wp-includes/js/jquery/ui/effect-highlight.min.js
-M	wp-includes/js/jquery/ui/effect-puff.min.js
-M	wp-includes/js/jquery/ui/effect-pulsate.min.js
-M	wp-includes/js/jquery/ui/effect-scale.min.js
-M	wp-includes/js/jquery/ui/effect-shake.min.js
-M	wp-includes/js/jquery/ui/effect-size.min.js
-M	wp-includes/js/jquery/ui/effect-slide.min.js
-M	wp-includes/js/jquery/ui/effect-transfer.min.js
-M	wp-includes/js/jquery/ui/effect.min.js
-M	wp-includes/js/jquery/ui/menu.min.js
-M	wp-includes/js/jquery/ui/mouse.min.js
-M	wp-includes/js/jquery/ui/position.min.js
-M	wp-includes/js/jquery/ui/progressbar.min.js
-M	wp-includes/js/jquery/ui/resizable.min.js
-M	wp-includes/js/jquery/ui/selectable.min.js
-M	wp-includes/js/jquery/ui/selectmenu.min.js
-M	wp-includes/js/jquery/ui/slider.min.js
-M	wp-includes/js/jquery/ui/sortable.min.js
-M	wp-includes/js/jquery/ui/spinner.min.js
-M	wp-includes/js/jquery/ui/tabs.min.js
-M	wp-includes/js/jquery/ui/tooltip.min.js
-M	wp-includes/js/jquery/ui/widget.min.js
-M	wp-includes/js/json2.min.js
-M	wp-includes/js/mce-view.js
-M	wp-includes/js/mce-view.min.js
-M	wp-includes/js/media-audiovideo.js
-M	wp-includes/js/media-audiovideo.min.js
-M	wp-includes/js/media-editor.min.js
-M	wp-includes/js/media-grid.js
-M	wp-includes/js/media-grid.min.js
-M	wp-includes/js/media-models.js
-M	wp-includes/js/media-models.min.js
-M	wp-includes/js/media-views.js
-M	wp-includes/js/media-views.min.js
-M	wp-includes/js/mediaelement/mediaelement-and-player.js
-M	wp-includes/js/mediaelement/mediaelement-and-player.min.js
-M	wp-includes/js/mediaelement/mediaelement-migrate.min.js
-M	wp-includes/js/mediaelement/mediaelement.js
-M	wp-includes/js/mediaelement/mediaelement.min.js
-M	wp-includes/js/mediaelement/mediaelementplayer-legacy.css
-M	wp-includes/js/mediaelement/mediaelementplayer-legacy.min.css
-M	wp-includes/js/mediaelement/mediaelementplayer.css
-M	wp-includes/js/mediaelement/mediaelementplayer.min.css
-M	wp-includes/js/mediaelement/renderers/vimeo.js
-M	wp-includes/js/mediaelement/renderers/vimeo.min.js
-M	wp-includes/js/mediaelement/wp-mediaelement.css
-M	wp-includes/js/mediaelement/wp-mediaelement.min.css
-M	wp-includes/js/mediaelement/wp-mediaelement.min.js
-M	wp-includes/js/mediaelement/wp-playlist.min.js
-M	wp-includes/js/plupload/handlers.js
-M	wp-includes/js/plupload/handlers.min.js
-M	wp-includes/js/plupload/moxie.min.js
-M	wp-includes/js/plupload/plupload.min.js
-M	wp-includes/js/plupload/wp-plupload.js
-M	wp-includes/js/plupload/wp-plupload.min.js
-M	wp-includes/js/quicktags.min.js
-M	wp-includes/js/shortcode.min.js
-M	wp-includes/js/tinymce/plugins/image/plugin.js
-M	wp-includes/js/tinymce/plugins/image/plugin.min.js
-M	wp-includes/js/tinymce/plugins/lists/plugin.js
-M	wp-includes/js/tinymce/plugins/lists/plugin.min.js
-M	wp-includes/js/tinymce/plugins/paste/plugin.js
-M	wp-includes/js/tinymce/plugins/paste/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wordpress/plugin.js
-M	wp-includes/js/tinymce/plugins/wordpress/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wpautoresize/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wpdialogs/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wpeditimage/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wpemoji/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wpgallery/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wplink/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wptextpattern/plugin.min.js
-M	wp-includes/js/tinymce/plugins/wpview/plugin.js
-M	wp-includes/js/tinymce/plugins/wpview/plugin.min.js
-M	wp-includes/js/tinymce/themes/inlite/theme.js
-M	wp-includes/js/tinymce/themes/inlite/theme.min.js
-M	wp-includes/js/tinymce/themes/modern/theme.js
-M	wp-includes/js/tinymce/themes/modern/theme.min.js
-M	wp-includes/js/tinymce/tinymce.min.js
-M	wp-includes/js/tinymce/wp-tinymce.js
-M	wp-includes/js/tinymce/wp-tinymce.php
-M	wp-includes/js/tw-sack.min.js
-M	wp-includes/js/twemoji.js
-M	wp-includes/js/twemoji.min.js
-M	wp-includes/js/underscore.min.js
-M	wp-includes/js/utils.min.js
-D	wp-includes/js/wp-a11y.js
-D	wp-includes/js/wp-a11y.min.js
-M	wp-includes/js/wp-ajax-response.min.js
-M	wp-includes/js/wp-api.min.js
-M	wp-includes/js/wp-auth-check.min.js
-M	wp-includes/js/wp-backbone.min.js
-M	wp-includes/js/wp-custom-header.min.js
-M	wp-includes/js/wp-embed-template.min.js
-M	wp-includes/js/wp-embed.min.js
-M	wp-includes/js/wp-emoji-loader.js
-M	wp-includes/js/wp-emoji-loader.min.js
-M	wp-includes/js/wp-emoji-release.min.js
-M	wp-includes/js/wp-emoji.js
-M	wp-includes/js/wp-emoji.min.js
-M	wp-includes/js/wp-list-revisions.min.js
-M	wp-includes/js/wp-lists.min.js
-M	wp-includes/js/wp-pointer.min.js
-M	wp-includes/js/wp-sanitize.js
-M	wp-includes/js/wp-sanitize.min.js
-M	wp-includes/js/wp-util.min.js
-M	wp-includes/js/wpdialog.min.js
-M	wp-includes/js/wplink.min.js
-M	wp-includes/js/zxcvbn-async.min.js
-M	wp-includes/kses.php
-M	wp-includes/l10n.php
-M	wp-includes/link-template.php
-M	wp-includes/load.php
-M	wp-includes/locale.php
-M	wp-includes/media-template.php
-M	wp-includes/media.php
-M	wp-includes/meta.php
-M	wp-includes/ms-blogs.php
-M	wp-includes/ms-deprecated.php
-M	wp-includes/ms-functions.php
-M	wp-includes/ms-load.php
-M	wp-includes/ms-site.php
-M	wp-includes/nav-menu-template.php
-M	wp-includes/nav-menu.php
-M	wp-includes/option.php
-M	wp-includes/pluggable.php
-M	wp-includes/plugin.php
-M	wp-includes/pomo/plural-forms.php
-M	wp-includes/pomo/streams.php
-M	wp-includes/post-formats.php
-M	wp-includes/post-template.php
-M	wp-includes/post-thumbnail-template.php
-M	wp-includes/post.php
-M	wp-includes/query.php
-M	wp-includes/registration-functions.php
-M	wp-includes/registration.php
-M	wp-includes/rest-api.php
-M	wp-includes/rest-api/class-wp-rest-request.php
-M	wp-includes/rest-api/class-wp-rest-response.php
-M	wp-includes/rest-api/class-wp-rest-server.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-attachments-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-block-renderer-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-blocks-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-comments-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-post-statuses-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-post-types-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-revisions-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-search-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-settings-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-taxonomies-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-terms-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-themes-controller.php
-M	wp-includes/rest-api/endpoints/class-wp-rest-users-controller.php
-M	wp-includes/rest-api/fields/class-wp-rest-meta-fields.php
-M	wp-includes/rest-api/search/class-wp-rest-post-search-handler.php
-M	wp-includes/revision.php
-M	wp-includes/rewrite.php
-M	wp-includeSwitched to a new branch 'auto_updates_1582160735'
-s/rss-functions.php
-M	wp-includes/script-loader.php
-M	wp-includes/session.php
-M	wp-includes/shortcodes.php
-M	wp-includes/sodium_compat/LICENSE
-M	wp-includes/sodium_compat/autoload.php
-M	wp-includes/sodium_compat/composer.json
-M	wp-includes/sodium_compat/lib/constants.php
-M	wp-includes/sodium_compat/lib/namespaced.php
-M	wp-includes/sodium_compat/lib/php72compat.php
-M	wp-includes/sodium_compat/lib/sodium_compat.php
-M	wp-includes/sodium_compat/src/Compat.php
-M	wp-includes/sodium_compat/src/Core/BLAKE2b.php
-M	wp-includes/sodium_compat/src/Core/Ed25519.php
-M	wp-includes/sodium_compat/src/Core/Poly1305/State.php
-M	wp-includes/sodium_compat/src/Core/XChaCha20.php
+M	wp-includes/sodSwitched to a new branch 'auto_updates_1582232094'
+ium_compat/src/Core/XChaCha20.php
 M	wp-includes/sodium_compat/src/Core32/BLAKE2b.php
 M	wp-includes/sodium_compat/src/Core32/Ed25519.php
 M	wp-includes/sodium_compat/src/Core32/Poly1305/State.php
@@ -3570,8 +1861,8 @@ M	wp-signup.php
 M	xmlrpc.php
 Add all new files to commit
 git commit
-[auto_updates_1582160735 dd402510] Automatic update.
- 2014 files changed, 222957 insertions(+), 137067 deletions(-)
+[auto_updates_1582232094 e380a46e] Automatic update.
+ 2100 files changed, 222957 insertions(+), 137067 deletions(-)
  rewrite wp-admin/about.php (72%)
  rewrite wp-admin/credits.php (82%)
  rewrite wp-admin/css/about-rtl.min.css (98%)
@@ -3753,6 +2044,92 @@ git commit
  create mode 100644 wp-content/plugins/better-wp-security/core/templates/lockout/lamp-light.svg
  create mode 100644 wp-content/plugins/better-wp-security/core/templates/lockout/lockout.css
  create mode 100644 wp-content/plugins/better-wp-security/core/templates/lockout/lockout.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Authentication/AccessToken.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Authentication/AccessTokenMetadata.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Authentication/OAuth2Client.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookAuthenticationException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookAuthorizationException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookClientException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookOtherException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookResponseException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookResumableUploadException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookSDKException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookServerException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Exceptions/FacebookThrottleException.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Facebook.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FacebookApp.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FacebookBatchRequest.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FacebookBatchResponse.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FacebookClient.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FacebookRequest.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FacebookResponse.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookFile.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookResumableUploader.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookTransferChunk.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/FacebookVideo.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/FileUpload/Mimetypes.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/Birthday.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/Collection.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphAchievement.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphAlbum.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphApplication.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphCoverPhoto.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphEdge.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphEvent.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphGroup.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphList.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphLocation.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphNode.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphNodeFactory.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphObject.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphObjectFactory.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphPage.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphPicture.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphSessionInfo.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/GraphNodes/GraphUser.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookCanvasHelper.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookJavaScriptHelper.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookPageTabHelper.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookRedirectLoginHelper.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Helpers/FacebookSignedRequestFromInputHelper.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Http/GraphRawResponse.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Http/RequestBodyInterface.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Http/RequestBodyMultipart.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Http/RequestBodyUrlEncoded.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookCurl.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookCurlHttpClient.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookGuzzleHttpClient.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookHttpClientInterface.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookStream.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/FacebookStreamHttpClient.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/HttpClientsFactory.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/HttpClients/certs/DigiCertHighAssuranceEVRootCA.pem
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/FacebookMemoryPersistentDataHandler.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/FacebookSessionPersistentDataHandler.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/PersistentDataFactory.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PersistentData/PersistentDataInterface.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/McryptPseudoRandomStringGenerator.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/OpenSslPseudoRandomStringGenerator.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/PseudoRandomStringGeneratorFactory.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/PseudoRandomStringGeneratorInterface.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/PseudoRandomStringGeneratorTrait.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/PseudoRandomString/UrandomPseudoRandomStringGenerator.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/SignedRequest.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Url/FacebookUrlDetectionHandler.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Url/FacebookUrlManipulator.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/Url/UrlDetectionInterface.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/autoload.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/Facebook/polyfills.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/.gitignore
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/.travis.yml
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/LICENSE.md
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/README.md
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/TwitterAPIExchange.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/composer.json
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/index.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/phpunit.xml
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/test/TwitterAPIExchangeTest.php
+ mode change 100755 => 100644 wp-content/plugins/mri-social-feed/includes/twitter-api-php/test/img.png
  create mode 100644 wp-content/plugins/really-simple-ssl/assets/icon-128x128.png
  create mode 100644 wp-content/plugins/really-simple-ssl/assets/logo-really-simple-ssl.png
  create mode 100644 wp-content/plugins/really-simple-ssl/assets/wpsearchinsights.jpg
@@ -4525,16 +2902,15 @@ git commit
  create mode 100644 wp-includes/sodium_compat/src/Core32/SecretStream/State.php
  create mode 100644 wp-includes/sodium_compat/src/PHP52/SplFixedArray.php
  rewrite wp-includes/spl-autoload-compat.php (90%)
-push auto_updates_1582160735
+push auto_updates_1582232094
 remote: 
-remote: To create a merge request for auto_updates_1582160735, visit:        
-remote:   https://gitlab.com/kitestrings-secret-group/kitestrings-public/-/merge_requests/new?merge_request%5Bsource_branch%5D=auto_updates_1582160735        
+remote: To create a merge request for auto_updates_1582232094, visit:        
+remote:   https://gitlab.com/kitestrings-secret-group/kitestrings-public/-/merge_requests/new?merge_request%5Bsource_branch%5D=auto_updates_1582232094        
 remote: 
 To gitlab.com:kitestrings-secret-group/kitestrings-public.git
- * [new branch]        auto_updates_1582160735 -> auto_updates_1582160735
-Branch 'auto_updates_1582160735' set up to track remote branch 'auto_updates_1582160735' from 'origin'.
-Wed Feb 19 17:05:56 PST 2020 Slack notification system.
-Wed Feb 19 17:05:57 PST 2020 Automatic git commit script completed without error for root@wp-auto-2c.do.kitestrings.io. See branch auto_updates_1582160735
-Wed Feb 19 17:05:57 PST 2020 Slack notification system.
-Wed Feb 19 17:05:57 PST 2020 Routine cleanup. Deleting /tmp/auto_updates_1582160735
-Wed Feb 19 17:06:09 PST 2020 Permissions updated on root@wp-auto-2c.do.kitestrings.io
+ * [new branch]        auto_updates_1582232094 -> auto_updates_1582232094
+Branch 'auto_updates_1582232094' set up to track remote branch 'auto_updates_1582232094' from 'origin'.
+Thu Feb 20 12:55:15 PST 2020 Slack notification system.
+Thu Feb 20 12:55:15 PST 2020 Automatic git commit script completed without error for root@wp-auto-2c.do.kitestrings.io. See branch auto_updates_1582232094
+Thu Feb 20 12:55:15 PST 2020 Slack notification system.
+Thu Feb 20 12:55:15 PST 2020 Routine cleanup. Deleting /tmp/auto_updates_1582232094
