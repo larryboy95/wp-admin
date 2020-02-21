@@ -2,7 +2,7 @@
 USAGE="
 $(basename $0) Version  0.2.8
 
-Usage: wordpress-update HOSTNAME UUUUUPDATE_TYPE [WEBROOT]
+Usage: wordpress-update HOSTNAME [WEBROOT]
 Where:
 - HOSTNAME must be available in ssh config
 - WEBROOT is optional, defaults to /var/www/html
