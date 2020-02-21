@@ -29,7 +29,7 @@ WP_CLI_LOCAL=$(which wp)
 PLUGIN_UPDATE_EXCLUSIONS="woocommerce,advanced-custom-fields-pro"
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
-	WP="${WP_CLI_LOCAL} --path=${WEBROOT} --allow-root --skip-themes --ssh=${HOSTNAME} "
+	WP="${WP_CLI_LOCAL} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME} "
 else
 	notify "wp-cli not found on admin server" critical
 	failure
@@ -48,8 +48,7 @@ if [ ! $? -eq 0 ]; then
 fi
 UPDATES_AVAILABLE=$($WP core check-update --format=count)
 if [ -z $UPDATES_AVAILABLE ]; then
-	notify "Core update is not available for ${SITEURL}, exiting…"
-    exit 0
+	notify "Core update is not available for ${SITEURL}"
 fi
 $WP core update
 if [ ! $? -eq 0 ]; then
