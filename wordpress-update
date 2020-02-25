@@ -61,7 +61,7 @@ if [ ! $? -eq 0 ]; then
     failure
 fi
 sleep 1
-notify "Core update completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
+# notify "Core update completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
 # Update plugins
 PLUGIN_UPDATES_AVAILABLE=$($WP plugin list --update=available --status=active | wc -l)
@@ -81,7 +81,8 @@ $WP plugin update --all --exclude=$PLUGIN_UPDATE_EXCLUSIONS
 PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
 [ $? -eq 0 ] || failure "plugin updates info 3"
 notify "Plugins not updated: $PLUGIN_NAMES"
-notify "Plugin updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
+
+notify "All updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
 wordpress-permissions $HOSTNAME www-data
 wordpress-commit $HOSTNAME $WEBROOT
