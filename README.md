@@ -69,3 +69,28 @@ Twitter Notifications:
 OS-Admin
 * [os-authorize](https://gitlab.com/neilscudder/wp-admin/blob/master/os-authorize) - Authorize ssh keys for user on remote server.
 * [os-update](https://gitlab.com/neilscudder/wp-admin/blob/master/os-update) - Update server software and reboot.
+
+
+## Auto-Update script
+The `wprdpress-update` script will use wp-cli to install updates on a remote web host.
+The script then invokes `wordpress-commit` which will sync the repo and the untracked files to the local host, commit all the updates to a new branch with a unique timestamp and then push.
+Extensive Slack notifications document the success or failure of automatic updates.
+
+Example batch script for automatic updates:
+```
+#!/bin/bash
+
+LOG="$HOME/auto-update.log"
+
+notify "Auto updates are starting"
+
+# Syntax for DO hosts using nginx:
+#  wordpress-update SSH_HOST >> $LOG 2>&1
+# Syntax for DO hosts using lsws:
+#  wordpress-update SSH_HOST /var/www/html >> $LOG 2>&1
+# Syntax for other hosts:
+#  wordpress-update SSH_HOST RELATIVE_WEBROOT_PATH >> $LOG 2>&1
+# (where the WEBROOT_PATH is relative to the login user's home dir)
+
+exit 0
+```
