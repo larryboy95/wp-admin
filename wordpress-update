@@ -26,7 +26,7 @@ HOSTNAME="$1"
 WEBROOT="${2:-/var/www/html}"
 # Find the wp-cli binary
 WP_CLI_LOCAL=$(which wp)
-PLUGIN_UPDATE_EXCLUSIONS="woocommerce,advanced-custom-fields-pro"
+PLUGIN_BLACKLIST="woocommerce,advanced-custom-fields-pro,gravity-forms-pdf-extended,instagram-feed-pro"
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
 	WP="${WP_CLI_LOCAL} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME} "
@@ -61,7 +61,7 @@ if [ ! $? -eq 0 ]; then
     failure
 fi
 sleep 1
-notify "Core update completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
+# notify "Core update completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
 # Update plugins
 PLUGIN_UPDATES_AVAILABLE=$($WP plugin list --update=available --status=active | wc -l)
@@ -76,12 +76,13 @@ if [ -z $2 ]; then
     wordpress-permissions $HOSTNAME dev
 fi
 
-$WP plugin update --all --exclude=$PLUGIN_UPDATE_EXCLUSIONS
+$WP plugin update --all --exclude=$PLUGIN_BLACKLIST
 [ $? -eq 0 ] || notify "Some plugin updates failed for $SITEURL" critical
 PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
 [ $? -eq 0 ] || failure "plugin updates info 3"
 notify "Plugins not updated: $PLUGIN_NAMES"
-notify "Plugin updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
+
+notify "All updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
 wordpress-permissions $HOSTNAME www-data
 wordpress-commit $HOSTNAME $WEBROOT
