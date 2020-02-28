@@ -84,7 +84,14 @@ notify "Plugins not updated: $PLUGIN_NAMES"
 
 notify "All updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
-wordpress-permissions $HOSTNAME www-data
+if [[ $2 = "/var/www/html" ]]; then
+    # it is a LSWS host
+    wordpress-permissions $HOSTNAME www-data
+elif [ -z $2 ]; then
+    # it is nginx on DO
+    wordpress-permissions $HOSTNAME dev
+fi
+# otherwise we do not want to change permissions
 wordpress-commit $HOSTNAME $WEBROOT
 
 exit 0
