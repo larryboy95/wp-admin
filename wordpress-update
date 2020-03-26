@@ -26,7 +26,7 @@ HOSTNAME="$1"
 WEBROOT="${2:-/var/www/html}"
 # Find the wp-cli binary
 WP_CLI_LOCAL=$(which wp)
-PLUGIN_BLACKLIST="woocommerce,advanced-custom-fields-pro,gravity-forms-pdf-extended,instagram-feed-pro"
+PLUGIN_BLACKLIST="woocommerce,advanced-custom-fields-pro,gravity-forms-pdf-extended,instagram-feed-pro wp-media-folder wp-media-folder-addons"
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
 	WP="${WP_CLI_LOCAL} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME} "
