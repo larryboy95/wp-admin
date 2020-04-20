@@ -68,7 +68,9 @@ PLUGIN_UPDATES_AVAILABLE=$($WP plugin list --update=available --status=active | 
 [ $? -eq 0 ] || failure "plugin updates info 1"
 PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
 [ $? -eq 0 ] || failure "plugin updates info 2"
-notify "$PLUGIN_UPDATES_AVAILABLE plugin updates are available for ${SITEURL}. The plugins are: $PLUGIN_NAMES"
+notify "$((PLUGIN_UPDATES_AVAILABLE -1)) plugin updates are available for ${SITEURL}. The plugins are:  
+
+$PLUGIN_NAMES"
 
 # If there is no webroot argument supplied we assume this is a 
 # legacy server at DO with login user dev
@@ -80,7 +82,9 @@ $WP plugin update --all --exclude=$PLUGIN_BLACKLIST
 [ $? -eq 0 ] || notify "Some plugin updates failed for $SITEURL" critical
 PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
 [ $? -eq 0 ] || failure "plugin updates info 3"
-notify "Plugins not updated: $PLUGIN_NAMES"
+notify "Plugins not updated:
+
+$PLUGIN_NAMES"
 
 notify "All updates completed for ${SITEURL}. Post-upgrade screenshot:" "$SITEURL"
 
