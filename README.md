@@ -1,5 +1,4 @@
 # wp-admin
-Version  0.2.8  
 Status: Beta
 
 Shell scripts for the centralized management of WordPress.
@@ -15,8 +14,7 @@ Dependencies:
 * [restic](https://github.com/restic/restic)
 
 For twitter notifications:
-* [tweet.sh](https://github.com/piroor/tweet.sh)
-* [markov-sentence-generator](https://github.com/hrs/markov-sentence-generator)
+* [slack-cli](https://github.com/rockymadden/slack-cli)
 * [pagres-cli](https://github.com/sindresorhus/pageres-cli)
 
 ## Installation
