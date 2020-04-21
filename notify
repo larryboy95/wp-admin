@@ -26,6 +26,8 @@ LASTRUNFILE="${HOME}/.wp-admin-config/slack.lastrun"
 LASTRUN=$(cat "$LASTRUNFILE")
 SINCELASTRUN=$(expr $(date +%s) - $LASTRUN)
 
+SLACK_CHANNEL_NORMAL="${SLACK_CHANNEL_NORMAL:-admin}"
+SLACK_CHANNEL_CRITICAL="${SLACK_CHANNEL_CRITICAL:-admin-critical}"
 SLACK=$(which slack)
 if [ ! $? -eq 0 ]; then
 	echo "$(date) Could not find slack cli (https://github.com/rockymadden/slack-cli)"
@@ -54,18 +56,18 @@ screenshot() {
 	PARGS="--crop --delay=2 --format=jpg --timeout=20"
 	echo "$(date) Taking screenshot:"
 	pageres $PARGS --filename="${TEMPPIC}-0" "$URL" 1600x2100 > /dev/null 2>&1
-	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
+	slack chat send "${MESSAGE}" $SLACK_CHANNEL_NORMAL --color good > /dev/null 2>&1
 	p="${TEMPPIC}-0.jpg"
 	if [ -f "$p" ]; then
-		slack file upload "$p" admin > /dev/null 2>&1
+		slack file upload "$p" $SLACK_CHANNEL_NORMAL > /dev/null 2>&1
 	fi
 }
 
 echo "$(date) Slack notification system."
 if [ $# -eq 1 ]; then
-	slack chat send "${MESSAGE}" admin --color good > /dev/null 2>&1
+	slack chat send "${MESSAGE}" $SLACK_CHANNEL_NORMAL --color good > /dev/null 2>&1
 elif [ "$2" = "critical" ]; then
-	slack chat send "${MESSAGE}" admin-critical --color danger > /dev/null 2>&1
+	slack chat send "${MESSAGE}" $SLACK_CHANNEL_CRITICAL --color danger > /dev/null 2>&1
 else
 	screenshot "$@"
 fi
