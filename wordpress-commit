@@ -34,7 +34,7 @@ TEMPDIR=${TEMPDIR:-/tmp}
 REPO_LOCAL="${TEMPDIR}/${BRANCH}"
 GITIGNORE="${REPO_LOCAL}/.gitignore"
 
-mkdir "$REPO_LOCAL"
+mkdir -p "$REPO_LOCAL"
 [ $? -eq 0 ] || failure "mkdir"
 
 if [ -d "$REPO_LOCAL" ]; then
