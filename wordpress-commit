@@ -79,7 +79,7 @@ $GIT commit -am 'Automatic update.'
 [ $? -eq 0 ] || failure "commit"
 
 echo "push $BRANCH"
-$GIT push $BRANCH
+$GIT push
 [ $? -eq 0 ] || failure "push"
 
 notify "Automatic git commit script completed without error for ${HOSTNAME}. See branch ${BRANCH}"
