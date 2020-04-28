@@ -24,9 +24,7 @@ if [ $# -lt 3 ]; then
 	echo "$USAGE"
 	exit 1
 fi
-TIMESTAMP="$(date +%s)"
-echo "Timestamp is $TIMESTAMP"
-BRANCH="auto_updates_${TIMESTAMP}"
+BRANCH="${AUTO_COMMIT_BRANCH:-staging}"
 echo "Branch name is $BRANCH"
 HOSTNAME="$1"
 WEBROOT="$2"
