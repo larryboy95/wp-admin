@@ -3,7 +3,8 @@
 USAGE="
 $(basename $0) Version  0.2.8
 
-$(basename $0) HOSTNAME WEBROOT
+$(basename $0) HOSTNAME WEBROOT REPOURL
+All 3 parameters are required.
 Syncs a git repo from a remote webroot to the local tmp dir and commits 
 all changes to a new branch.
 It syncs, it branches, it commits, it pushes, it notifies.
@@ -19,7 +20,7 @@ failure(){
 }
 
 # Print USAGE if not enough args
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
 	echo "$USAGE"
 	exit 1
 fi
@@ -29,6 +30,7 @@ BRANCH="auto_updates_${TIMESTAMP}"
 echo "Branch name is $BRANCH"
 HOSTNAME="$1"
 WEBROOT="$2"
+REPOURL="$3"
 WORKING_DIR="$(pwd)"
 TEMPDIR=${TEMPDIR:-/tmp}
 REPO_LOCAL="${TEMPDIR}/${HOSTNAME}-${BRANCH}"
@@ -54,21 +56,21 @@ RSYNC=`which rsync`
 [ $? -eq 0 ] || failure "rsync"
 RSYNC="$RSYNC -a"
 
-echo "Sync .git* from remote to local"
-$RSYNC ${HOSTNAME}:${WEBROOT}/.git* $REPO_LOCAL/
-[ $? -eq 0 ] || failure "rsync error"
-
-echo "Sync files from remote to local"
-$RSYNC --exclude-from=$GITIGNORE ${HOSTNAME}:${WEBROOT}/* ${REPO_LOCAL}/
-[ $? -eq 0 ] || failure "rsync error"
+echo "Clone git repo"
+$GIT clone $REPOURL $REPO_LOCAL/
+[ $? -eq 0 ] || failure "git clone error"
 
 echo "Change directories"
 cd $REPO_LOCAL 
 [ $? -eq 0 ] || failure "cd $REPO_LOCAL"
 
-echo "Checkout new branch $BRANCH"
-$GIT checkout -b "$BRANCH"
+echo "Checkout branch $BRANCH"
+$GIT checkout "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
+
+echo "Sync files from remote to local"
+$RSYNC --exclude-from=$GITIGNORE ${HOSTNAME}:${WEBROOT}/* .
+[ $? -eq 0 ] || failure "rsync error"
 
 echo "Add all new files to commit"
 $GIT add -A
@@ -79,7 +81,7 @@ $GIT commit -am 'Automatic update.'
 [ $? -eq 0 ] || failure "commit"
 
 echo "push $BRANCH"
-$GIT push -u origin $BRANCH
+$GIT push $BRANCH
 [ $? -eq 0 ] || failure "push"
 
 notify "Automatic git commit script completed without error for ${HOSTNAME}. See branch ${BRANCH}"
