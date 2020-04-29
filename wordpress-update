@@ -96,6 +96,5 @@ elif [ -z $2 ]; then
     wordpress-permissions $HOSTNAME dev
 fi
 # otherwise we do not want to change permissions
-wordpress-commit $HOSTNAME $WEBROOT
 
 exit 0
