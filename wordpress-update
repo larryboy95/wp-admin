@@ -49,6 +49,8 @@ fi
 UPDATES_AVAILABLE=$($WP core check-update --format=count)
 if [ -z $UPDATES_AVAILABLE ]; then
 	notify "Core update is not available for ${SITEURL}"
+else
+	notify "Installing core update for ${SITEURL}"
 fi
 $WP core update
 if [ ! $? -eq 0 ]; then
