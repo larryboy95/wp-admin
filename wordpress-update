@@ -68,9 +68,16 @@ sleep 1
 # Update plugins
 PLUGIN_UPDATES_AVAILABLE=$($WP plugin list --update=available --status=active | wc -l)
 [ $? -eq 0 ] || failure "plugin updates info 1"
+PLUGIN_UPDATES_AVAILABLE=$((PLUGIN_UPDATES_AVAILABLE -1))
 PLUGIN_NAMES=$($WP --allow-root plugin list --field=name --update=available --status=active)
 [ $? -eq 0 ] || failure "plugin updates info 2"
-notify "$((PLUGIN_UPDATES_AVAILABLE -1)) plugin updates are available for ${SITEURL}. The plugins are:  
+
+if [ -z $PLUGIN_UPDATES_AVAILABLE ] && [ -z $UPDATES_AVAILABLE ]; then
+    notify "No updates available for ${SITEURL}, skipping host."
+    exit 0
+fi
+
+notify "$PLUGIN_UPDATES_AVAILABLE plugin updates are available for ${SITEURL}. The plugins are:  
 
 $PLUGIN_NAMES"
 
