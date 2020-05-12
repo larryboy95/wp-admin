@@ -1,0 +1,65 @@
+#!/bin/bash
+
+USAGE="
+$(basename $0) Version  0.2.8
+
+$(basename $0) HOSTNAME REPOURL
+"
+
+failure(){
+    NOTE="$1"
+    notify "$(basename $0) failed for $HOSTNAME (${NOTE})" critical
+    exit 1
+}
+
+# Print USAGE if not enough args
+if [ $# -lt 1 ]; then
+	echo "$USAGE"
+	exit 1
+fi
+REPOURL="$1"
+WORKING_DIR="$(pwd)"
+TEMPDIR=${TEMPDIR:-/tmp}
+REPO_LOCAL="${TEMPDIR}/${HOSTNAME}-${BRANCH}"
+BRANCH_SOURCE="staging"
+BRANCH_TARGET="master"
+
+mkdir -p "$REPO_LOCAL"
+[ $? -eq 0 ] || failure "mkdir"
+
+if [ -d "$REPO_LOCAL" ]; then
+    REPO_LOCAL_CONTENTS="$(ls $REPO_LOCAL)"
+    if [ ! -z $REPO_LOCAL_CONTENTS ]; then
+        failure "Repo dir $REPO_LOCAL is not empty."
+    fi
+else
+    failure "$REPO_LOCAL does not exist"
+fi
+
+echo "Finding binaries"
+GIT=`which git`
+[ $? -eq 0 ] || failure "git"
+
+echo "Clone git repo"
+$GIT clone $REPOURL $REPO_LOCAL/
+[ $? -eq 0 ] || failure "git clone error"
+
+echo "Change directories"
+cd $REPO_LOCAL 
+[ $? -eq 0 ] || failure "cd $REPO_LOCAL"
+
+echo "Checkout branch $BRANCH_TARGET"
+$GIT checkout "$BRANCH_TARGET"
+[ $? -eq 0 ] || failure "checkout $BRANCH_TARGET"
+
+echo "git merge"
+$GIT merge "$BRANCH_SOURCE"
+[ $? -eq 0 ] || failure "merge"
+
+echo "push $BRANCH_TARGET"
+$GIT push
+[ $? -eq 0 ] || failure "push"
+
+notify "git merge to ${BRANCH_TARGET} completed without error for ${REPOURL}"
+
+exit 0
