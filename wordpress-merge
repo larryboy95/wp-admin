@@ -21,7 +21,7 @@ REPOURL="$1"
 WORKING_DIR="$(pwd)"
 TEMPDIR=${TEMPDIR:-/tmp}
 REPO_LOCAL="${TEMPDIR}/${HOSTNAME}-${BRANCH}"
-BRANCH_SOURCE="staging"
+BRANCH_SOURCE="origin/staging"
 BRANCH_TARGET="master"
 
 mkdir -p "$REPO_LOCAL"
