@@ -36,6 +36,8 @@ else
     failure "$REPO_LOCAL does not exist"
 fi
 
+notify "START - merge from ${BRANCH_SOURCE} to ${BRANCH_TARGET} for ${REPOURL}"
+
 echo "Finding binaries"
 GIT=`which git`
 [ $? -eq 0 ] || failure "git"
