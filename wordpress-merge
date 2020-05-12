@@ -8,7 +8,7 @@ $(basename $0) HOSTNAME REPOURL
 
 failure(){
     NOTE="$1"
-    notify "$(basename $0) failed for $HOSTNAME (${NOTE})" critical
+    notify "ERROR - $(basename $0) failed for $HOSTNAME (${NOTE})" critical
     exit 1
 }
 
@@ -60,6 +60,6 @@ echo "push $BRANCH_TARGET"
 $GIT push
 [ $? -eq 0 ] || failure "push"
 
-notify "git merge to ${BRANCH_TARGET} completed without error for ${REPOURL}"
+notify "SUCCESS - merge from ${BRANCH_SOURCE} to ${BRANCH_TARGET} for ${REPOURL}"
 
 exit 0
