@@ -20,7 +20,7 @@ fi
 REPOURL="$1"
 WORKING_DIR="$(pwd)"
 TEMPDIR=${TEMPDIR:-/tmp}
-REPO_LOCAL="${TEMPDIR}/${HOSTNAME}-${BRANCH}"
+REPO_LOCAL="${TEMPDIR}/$(date +'%s')"
 BRANCH_SOURCE="origin/staging"
 BRANCH_TARGET="master"
 
