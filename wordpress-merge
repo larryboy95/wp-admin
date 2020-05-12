@@ -60,6 +60,11 @@ echo "push $BRANCH_TARGET"
 $GIT push
 [ $? -eq 0 ] || failure "push"
 
+cd
+
+rm -rf "$REPO_LOCAL"
+[ $? -eq 0 ] || failure "rm"
+
 notify "SUCCESS - merge from ${BRANCH_SOURCE} to ${BRANCH_TARGET} for ${REPOURL}"
 
 exit 0
