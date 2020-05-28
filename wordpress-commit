@@ -52,7 +52,7 @@ GIT=`which git`
 
 RSYNC=`which rsync`
 [ $? -eq 0 ] || failure "rsync"
-RSYNC="$RSYNC -a"
+RSYNC="$RSYNC -a --exclude-from=$GITIGNORE --delete"
 
 echo "Clone git repo"
 $GIT clone $REPOURL $REPO_LOCAL/
@@ -67,7 +67,7 @@ $GIT checkout "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
 
 echo "Sync files from remote to local"
-$RSYNC --exclude-from=$GITIGNORE ${HOSTNAME}:${WEBROOT}/* .
+$RSYNC ${HOSTNAME}:${WEBROOT}/* .
 [ $? -eq 0 ] || failure "rsync error"
 
 echo "Add all new files to commit"
