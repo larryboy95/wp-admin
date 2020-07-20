@@ -50,7 +50,7 @@ GIT=`which git`
 
 RSYNC=`which rsync`
 [ $? -eq 0 ] || failure "rsync"
-RSYNC="$RSYNC -a --exclude-from=$GITIGNORE --delete"
+RSYNC="$RSYNC -a --exclude-from=$GITIGNORE --exclude 'robots.txt' --delete"
 
 echo "Clone git repo"
 $GIT clone $REPOURL $REPO_LOCAL/
@@ -63,6 +63,9 @@ cd $REPO_LOCAL
 echo "Checkout branch $BRANCH"
 $GIT checkout "$BRANCH"
 [ $? -eq 0 ] || failure "checkout $BRANCH"
+
+echo "Check for .gitignore"
+[ -f $GITIGNORE ] || failure "$GITIGNORE does not exist, abort!"
 
 echo "Sync files from remote to local"
 $RSYNC ${HOSTNAME}:${WEBROOT}/* .
