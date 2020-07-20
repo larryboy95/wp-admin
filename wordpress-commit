@@ -8,9 +8,7 @@ All 3 parameters are required.
 Syncs a git repo from a remote webroot to the local tmp dir and commits 
 all changes to a new branch.
 It syncs, it branches, it commits, it pushes, it notifies.
-Branch is named auto_updates_timestamp, where timestamp is seconds since the Unix epoch.
 Commits will be made in the name of the user that executes this script.
-This script tested only with root login to lsws web servers.
 "
 
 failure(){
