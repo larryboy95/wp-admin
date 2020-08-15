@@ -49,8 +49,9 @@ GIT=`which git`
 [ $? -eq 0 ] || failure "git"
 
 RSYNC=`which rsync`
-[ $? -eq 0 ] || failure "rsync"
+[ $? -eq 0 ] || failure "rsync not found"
 RSYNC="$RSYNC -a --exclude-from=$GITIGNORE --exclude 'robots.txt' --delete"
+[ $? -eq 0 ] || failure "rsync error $?"
 
 echo "Clone git repo"
 $GIT clone $REPOURL $REPO_LOCAL/
