@@ -1,13 +1,33 @@
 #!/bin/bash
 SCRIPTDIR=$(dirname "${0}")
-# Reset global variables
-[ -f "${SCRIPTDIR}/includes/globals" ] || { echo "Cannot find globals"; exit 1; }
-. "${SCRIPTDIR}/includes/globals"
-[ -f "${SCRIPTDIR}/languages/en" ] || { echo "Cannot find language file"; exit 1; }
-. "${SCRIPTDIR}/languages/en"
+USAGE="
+Version $VERSION
+
+Usage: $SCRIPTNAME HOST [WEBROOT OWNER]
+
+This script is run by git-auto-deploy, 
+but it can be run manually as well.
+HOST must be configured in ~/.ssh/config
+Will clone repo to /var/repos/HOST
+Deploys from /var/repos/HOST to HOST:WEBROOT
+Default WEBROOT is /var/www/html
+
+OWNER defaults to \"none\".
+The wordpress-permissions script will be run on WEBROOT
+with OWNER as the argument unless OWNER is set to \"none\".
+
+Requires a .gitignore file in repo dir to use as file mask.
+.git* is not transferred to WEBROOT.
+Deletes all files in WEBROOT unless they exist:
+	a) in the repo
+	b) in the .gitignore
+A discouraging robots.txt is added to WEBROOT when the
+git branch is detected to be staging or development.
+"
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
-	printusage $(basename "$0")
+	echo "$USAGE"
+	exit 1
 fi
 
 HOSTNAME="$1"
