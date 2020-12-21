@@ -1,0 +1,146 @@
+#!/bin/bash
+SCRIPTDIR=$(dirname "${0}")
+# Reset global variables
+[ -f "${SCRIPTDIR}/includes/globals" ] || { echo "Cannot find globals"; exit 1; }
+. "${SCRIPTDIR}/includes/globals"
+[ -f "${SCRIPTDIR}/languages/en" ] || { echo "Cannot find language file"; exit 1; }
+. "${SCRIPTDIR}/languages/en"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+	printusage $(basename "$0")
+fi
+
+HOSTNAME="$1"
+WEBROOT=${2:-/var/www/html}
+OWNER=${3:-none}
+REPODIR="/var/repos"
+GITIGNORE="${REPODIR}/${HOSTNAME}/.gitignore"
+SITEURL=""
+BRANCH=""
+ROBOTSTXT="${SCRIPTDIR}/robots.txt-disallow"
+if [ ! -f "$ROBOTSTXT" ]; then
+	notify "Could not locate $ROBOTSTXT" critical
+	exit 1
+fi
+WPBIN=$(which wp)
+if [ $? -eq 0 ]; then
+	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
+else
+	notify "wp-cli not found on admin server" critical
+	exit 1
+fi
+
+notify "Initializing deployment for ${HOSTNAME}"
+
+
+check_for_gitignore() {
+	if [ ! -f "$GITIGNORE" ]; then 
+		notify "gitignore not found in ${REPODIR}/${HOSTNAME}. Abort deployment." critical
+		exit 1
+	fi
+}
+
+do_the_sync() {
+	echo "$(date) syncing files to ${HOSTNAME}:${WEBROOT}"
+	rsync -r \
+		--exclude=".git*" \
+		--exclude-from="$GITIGNORE" \
+		--delete \
+		${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
+	RSYNCERR="$?"
+	if [ "$RSYNCERR" -eq 23 ]; then
+		notify "rsync exited with code ${RSYNCERR} (some files failed to transfer) while attempting to deploy to ${HOSTNAME}" 
+	elif [ ! "$RSYNCERR" -eq 0 ]; then
+		notify "rsync exited with code ${RSYNCERR} while attempting to deploy to ${HOSTNAME}" critical
+	else
+		echo "$(date) rsync completed without error"
+	fi
+}
+
+forbid_robots() {
+	cd "${REPODIR}/${HOSTNAME}"
+	BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+	if [[ "$BRANCH" == "staging" ]] 
+	|| [[ "$BRANCH" == "development" ]]
+	then
+		deploy_robots
+	elif [[ "$BRANCH" == "master" ]]
+	then
+		production_robots
+	fi
+	get_robots
+}
+
+deploy_robots() {
+	notify "${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
+	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/robots.txt"
+	RSYNCERR="$?"
+	if [ ! "$RSYNCERR" -eq 0 ]; then
+		notify "rsync exited with code ${RSYNCERR} while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
+	else
+		echo "$(date) rsync completed without error (for ${ROBOTSTXT})"
+	fi
+}
+
+production_robots() {
+	ssh $HOSTNAME "[ -f ${WEBROOT}/robots.txt ] && exit 42" > /dev/null 2>&1
+	if [ $? -eq 42 ]; then
+		notify "Robots.txt exists on production domain ${SITEURL}" critical
+	fi
+}
+
+get_robots() {
+		ROBOTSREAL="$(curl ${SITEURL}/robots.txt)"
+		notify "Actual robots.txt after deployment: 
+$ROBOTSREAL"
+}
+
+set_permissions() {
+	if [[ "$OWNER" != "none" ]]; then
+		wordpress-permissions "$HOSTNAME" "$OWNER"
+		PERMERR="$?"
+		if [ ! "$PERMERR" -eq 0 ]; then
+			echo "$(date) ERROR wordpress-permissions exited with code ${PERMERR}"
+		fi
+	fi
+}
+
+check_installed() {
+	${WP} \
+		--quiet \
+		core is-installed
+	if [ ! $? -eq 0 ]; then
+		notify "${HOSTNAME} \
+			\`wp core is-installed\` failed, most likely a PATH issue." \
+			critical
+	fi
+}
+
+get_siteurl() {
+	SITEURL=$(${WP} --quiet option get siteurl)
+	if [ ! $? -eq 0 ]; then
+		notify "${HOSTNAME} \
+			Error getting siteurl." \
+			critical
+	fi
+}
+
+check_and_notify() {
+	check_installed
+	get_siteurl
+	if [ "$RSYNCERR" -eq 0 ] && [[ ! "$SITEURL" == "" ]]; then
+		notify "Deploy complete for ${HOSTNAME} at ${SITEURL}. Post-deployment screenshot:" "$SITEURL"
+	elif [ "$RSYNCERR" -eq 0 ]; then
+		notify "Deploy complete for ${HOSTNAME}. Screenshot not available as SITEURL is empty."
+	fi
+}
+
+
+check_for_gitignore
+do_the_sync
+forbid_robots
+set_permissions
+check_and_notify
+
+exit 0

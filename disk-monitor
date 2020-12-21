@@ -1,0 +1,18 @@
+#!/bin/bash
+
+HOSTNAME="$1"
+DISK="${2:-/dev/sda}"
+LIMIT=80
+if [[ "$HOSTNAME" == "localhost" ]]; then
+	ls -l "$DISK" || { notify "$DISK not found on $HOSTNAME" critical; exit 1; }
+	USED=$(df $DISK | awk '{print $5}' | sed -ne 2p | cut -d'%' -f1)
+else
+	ssh "$HOSTNAME" "ls -l $DISK" || { notify "$DISK not found on $HOSTNAME" critical; exit 1; }
+	USED=$(ssh "$HOSTNAME" "df $DISK | awk '{print \$5}' | sed -ne 2p | cut -d'%' -f1")
+fi
+
+if [ $USED -gt $LIMIT ]; then
+	notify "$DISK space usage is at ${USED}% on $HOSTNAME" critical
+fi
+
+exit 0
