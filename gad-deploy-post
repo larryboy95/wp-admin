@@ -1,5 +1,4 @@
 #!/bin/bash
-SCRIPTDIR=$(dirname "${0}")
 USAGE="
 Version $VERSION
 
@@ -30,6 +29,7 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 HOSTNAME="$1"
 WEBROOT=${2:-/var/www/html}
 OWNER=${3:-none}
@@ -37,11 +37,6 @@ REPODIR="/var/repos"
 GITIGNORE="${REPODIR}/${HOSTNAME}/.gitignore"
 SITEURL=""
 BRANCH=""
-ROBOTSTXT="${SCRIPTDIR}/robots.txt-disallow"
-if [ ! -f "$ROBOTSTXT" ]; then
-	notify "Could not locate $ROBOTSTXT" critical
-	exit 1
-fi
 WPBIN=$(which wp)
 if [ $? -eq 0 ]; then
 	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
@@ -81,7 +76,7 @@ forbid_robots() {
 	cd "${REPODIR}/${HOSTNAME}"
 	BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
-	if [[ "$BRANCH" == "staging" ]] 
+	if [[ "$BRANCH" == "staging" ]] \
 	|| [[ "$BRANCH" == "development" ]]
 	then
 		deploy_robots
@@ -93,8 +88,13 @@ forbid_robots() {
 }
 
 deploy_robots() {
+	ROBOTSTXT="${SCRIPTDIR}/robots.txt-disallow"
+	if [ ! -f "$ROBOTSTXT" ]; then
+		notify "Could not locate $ROBOTSTXT" critical
+		exit 1
+	fi
 	notify "${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
-	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/robots.txt"
+	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
 	RSYNCERR="$?"
 	if [ ! "$RSYNCERR" -eq 0 ]; then
 		notify "rsync exited with code ${RSYNCERR} while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
@@ -147,8 +147,6 @@ get_siteurl() {
 }
 
 check_and_notify() {
-	check_installed
-	get_siteurl
 	if [ "$RSYNCERR" -eq 0 ] && [[ ! "$SITEURL" == "" ]]; then
 		notify "Deploy complete for ${HOSTNAME} at ${SITEURL}. Post-deployment screenshot:" "$SITEURL"
 	elif [ "$RSYNCERR" -eq 0 ]; then
@@ -159,6 +157,8 @@ check_and_notify() {
 
 check_for_gitignore
 do_the_sync
+check_installed
+get_siteurl
 forbid_robots
 set_permissions
 check_and_notify
