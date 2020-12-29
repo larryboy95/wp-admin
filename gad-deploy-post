@@ -111,9 +111,16 @@ production_robots() {
 }
 
 get_robots() {
-		ROBOTSREAL="$(curl ${SITEURL}/robots.txt)"
-		notify "Actual robots.txt after deployment: 
-$ROBOTSREAL"
+	CURLTMP=/tmp/curl.tmp
+	curl ${SITEURL}/robots.txt > $CURLTMP
+	ERR="$?"
+	ROBOTSREAL="$(cat $CURLTMP)"
+	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
+		notify "Actual robots.txt after deployment: $ROBOTSREAL"
+	else
+		notify "Curl failed to retrieve robots.txt from ${SITEURL} with error code $ERR" critical
+	fi
+	rm $CURLTMP
 }
 
 set_permissions() {
@@ -158,10 +165,10 @@ check_and_notify() {
 
 check_for_gitignore
 do_the_sync
+set_permissions
 check_installed
 get_siteurl
 forbid_robots
-set_permissions
 check_and_notify
 
 exit 0
