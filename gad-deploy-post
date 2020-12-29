@@ -141,8 +141,9 @@ get_siteurl() {
 	SITEURL=$(${WP} --quiet option get siteurl)
 	if [ ! $? -eq 0 ]; then
 		notify "${HOSTNAME} \
-			Error getting siteurl." \
+			Error getting siteurl. Using ssh HOST instead." \
 			critical
+			SITEURL="https://${HOSTNAME}/"
 	fi
 }
 
