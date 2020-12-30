@@ -1,0 +1,174 @@
+#!/bin/bash
+USAGE="
+Version $VERSION
+
+Usage: $SCRIPTNAME HOST [WEBROOT OWNER]
+
+This script is run by git-auto-deploy, 
+but it can be run manually as well.
+HOST must be configured in ~/.ssh/config
+Will clone repo to /var/repos/HOST
+Deploys from /var/repos/HOST to HOST:WEBROOT
+Default WEBROOT is /var/www/html
+
+OWNER defaults to \"none\".
+The wordpress-permissions script will be run on WEBROOT
+with OWNER as the argument unless OWNER is set to \"none\".
+
+Requires a .gitignore file in repo dir to use as file mask.
+.git* is not transferred to WEBROOT.
+Deletes all files in WEBROOT unless they exist:
+	a) in the repo
+	b) in the .gitignore
+A discouraging robots.txt is added to WEBROOT when the
+git branch is detected to be staging or development.
+"
+# Print USAGE if no args
+if [ $# -eq 0 ]; then
+	echo "$USAGE"
+	exit 1
+fi
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+HOSTNAME="$1"
+WEBROOT=${2:-/var/www/html}
+OWNER=${3:-none}
+REPODIR="/var/repos"
+GITIGNORE="${REPODIR}/${HOSTNAME}/.gitignore"
+SITEURL=""
+BRANCH=""
+WPBIN=$(which wp)
+if [ $? -eq 0 ]; then
+	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
+else
+	notify "wp-cli not found on admin server" critical
+	exit 1
+fi
+
+notify "Initializing deployment for ${HOSTNAME}"
+
+
+check_for_gitignore() {
+	if [ ! -f "$GITIGNORE" ]; then 
+		notify "gitignore not found in ${REPODIR}/${HOSTNAME}. Abort deployment." critical
+		exit 1
+	fi
+}
+
+do_the_sync() {
+	echo "$(date) syncing files to ${HOSTNAME}:${WEBROOT}"
+	rsync -r \
+		--exclude=".git*" \
+		--exclude-from="$GITIGNORE" \
+		--delete \
+		${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
+	RSYNCERR="$?"
+	if [ "$RSYNCERR" -eq 23 ]; then
+		notify "rsync exited with code ${RSYNCERR} (some files failed to transfer) while attempting to deploy to ${HOSTNAME}" 
+	elif [ ! "$RSYNCERR" -eq 0 ]; then
+		notify "rsync exited with code ${RSYNCERR} while attempting to deploy to ${HOSTNAME}" critical
+	else
+		echo "$(date) rsync completed without error"
+	fi
+}
+
+forbid_robots() {
+	cd "${REPODIR}/${HOSTNAME}"
+	BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+	if [[ "$BRANCH" == "staging" ]] \
+	|| [[ "$BRANCH" == "development" ]]
+	then
+		deploy_robots
+	elif [[ "$BRANCH" == "master" ]]
+	then
+		production_robots
+	fi
+	get_robots
+}
+
+deploy_robots() {
+	ROBOTSTXT="${SCRIPTDIR}/robots.txt-disallow"
+	if [ ! -f "$ROBOTSTXT" ]; then
+		notify "Could not locate $ROBOTSTXT" critical
+		exit 1
+	fi
+	notify "${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
+	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
+	RSYNCERR="$?"
+	if [ ! "$RSYNCERR" -eq 0 ]; then
+		notify "rsync exited with code ${RSYNCERR} while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
+	else
+		echo "$(date) rsync completed without error (for ${ROBOTSTXT})"
+	fi
+}
+
+production_robots() {
+	ssh $HOSTNAME "[ -f ${WEBROOT}/robots.txt ] && exit 42" > /dev/null 2>&1
+	if [ $? -eq 42 ]; then
+		notify "Robots.txt exists on production domain ${SITEURL}" critical
+	fi
+}
+
+get_robots() {
+	CURLTMP=/tmp/curl.tmp
+	curl ${SITEURL}/robots.txt > $CURLTMP
+	ERR="$?"
+	ROBOTSREAL="$(cat $CURLTMP)"
+	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
+		notify "Actual robots.txt after deployment: $ROBOTSREAL"
+	else
+		notify "Curl failed to retrieve robots.txt from ${SITEURL} with error code $ERR" critical
+	fi
+	rm $CURLTMP
+}
+
+set_permissions() {
+	if [[ "$OWNER" != "none" ]]; then
+		wordpress-permissions "$HOSTNAME" "$OWNER"
+		PERMERR="$?"
+		if [ ! "$PERMERR" -eq 0 ]; then
+			echo "$(date) ERROR wordpress-permissions exited with code ${PERMERR}"
+		fi
+	fi
+}
+
+check_installed() {
+	${WP} \
+		--quiet \
+		core is-installed
+	if [ ! $? -eq 0 ]; then
+		notify "${HOSTNAME} \
+			\`wp core is-installed\` failed, most likely a PATH issue." \
+			critical
+	fi
+}
+
+get_siteurl() {
+	SITEURL=$(${WP} --quiet option get siteurl)
+	if [ ! $? -eq 0 ]; then
+		notify "${HOSTNAME} \
+			Error getting siteurl. Using ssh HOST instead." \
+			critical
+			SITEURL="https://${HOSTNAME}/"
+	fi
+}
+
+check_and_notify() {
+	if [ "$RSYNCERR" -eq 0 ] && [[ ! "$SITEURL" == "" ]]; then
+		notify "Deploy complete for ${HOSTNAME} at ${SITEURL}. Post-deployment screenshot:" "$SITEURL"
+	elif [ "$RSYNCERR" -eq 0 ]; then
+		notify "Deploy complete for ${HOSTNAME}. Screenshot not available as SITEURL is empty."
+	fi
+}
+
+
+check_for_gitignore
+do_the_sync
+set_permissions
+check_installed
+get_siteurl
+forbid_robots
+check_and_notify
+
+exit 0
