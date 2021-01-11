@@ -112,7 +112,7 @@ production_robots() {
 
 get_robots() {
 	CURLTMP=/tmp/curl.tmp
-	curl ${SITEURL}/robots.txt > $CURLTMP
+	curl --insecure ${SITEURL}/robots.txt > $CURLTMP
 	ERR="$?"
 	ROBOTSREAL="$(cat $CURLTMP)"
 	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
