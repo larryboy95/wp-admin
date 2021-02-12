@@ -1,20 +1,48 @@
 #!/bin/bash
 
-# bulk search replace with wp-cli
-# takes a list of space delimited strings AAA BBB
-# the first string will be replaced with the second
-# the strings are assumed to be urls with no prefix
-# multiple prefixes will be attached i.e.:
-# https://AAA http://AAA @AAA
-# 
-# This script exist in order to replace old domains
-# with new values and reduce reliance on redirects.
+print_usage() {
+echo "
+wordpress-bulk-update HOSTNAME AAA BBB [DRY-RUN]
+bulk search replace with wp-cli on a remote host
+takes two strings AAA BBB
+the first string will be replaced with the second
+the strings are assumed to be URLs with no prefix
+multiple prefixes will be attached i.e.:
+https://AAA http://AAA @AAA
 
+This script exists in order to replace old domains
+with new values and reduce reliance on redirects.
+
+$1
+"
+}
+
+# Print USAGE if not enough args
+# TODO allow two args to erase a string with confirmation
+if [ $# -lt 3 ]; then
+	print_usage "Not enough arguments!"
+	exit 1
+fi
+
+HOSTNAME=$1
+AAA=$2
+BBB=$3
 PREFIXES=(https:// http:// @)
-AAA=$1
-BBB=$2
+WEBROOT="/var/www/html"
+WPBIN=$(which wp)
+# Set global options for wp-cli or report missing binary
+if [ $? -eq 0 ]; then
+	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME} --skip-columns=UUID --report-changed-only"
+else
+	notify "wp-cli not found on admin server" critical
+	exit 1
+fi
+if [ $4 ]; then
+	echo "DRY RUN MODE ACTIVE"
+	WP="${WP} --dry-run"
+fi
 
 for P in ${PREFIXES[@]}; do
-	#wp search-replace "${P}${AAA}" "${P}${BBB}" --skip-columns=UUID --allow-root
-	echo wp search-replace "${P}${AAA}" "${P}${BBB}" --skip-columns=UUID --allow-root
+	echo "Prefix $P"
+	$WP search-replace "${P}${AAA}" "${P}${BBB}" 
 done
