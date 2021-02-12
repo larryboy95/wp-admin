@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# bulk search replace with wp-cli
+# takes a list of space delimited strings AAA BBB
+# the first string will be replaced with the second
+# the strings are assumed to be urls with no prefix
+# multiple prefixes will be attached i.e.:
+# https://AAA http://AAA @AAA
+# 
+# This script exist in order to replace old domains
+# with new values and reduce reliance on redirects.
+
+PREFIXES=(https:// http:// @)
+AAA=$1
+BBB=$2
+
+for P in ${PREFIXES[@]}; do
+	#wp search-replace "${P}${AAA}" "${P}${BBB}" --skip-columns=UUID --allow-root
+	echo wp search-replace "${P}${AAA}" "${P}${BBB}" --skip-columns=UUID --allow-root
+done
