@@ -27,7 +27,7 @@ fi
 HOSTNAME=$1
 AAA=$2
 BBB=$3
-PREFIXES=(https:// http:// @)
+PREFIXES=("@" "http://" "HTTP://" "https://" "HTTPS://" "src=\"" "SRC=\"" "src=\'" "SRC=\'")
 WEBROOT="/var/www/html"
 WPBIN=$(which wp)
 # Set global options for wp-cli or report missing binary
