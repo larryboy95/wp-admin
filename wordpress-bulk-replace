@@ -2,13 +2,16 @@
 
 print_usage() {
 echo "
-wordpress-bulk-update HOSTNAME AAA BBB [DRY-RUN]
+wordpress-bulk-update HOSTNAME AAA BBB [MODE]
 bulk search replace with wp-cli on a remote host
 takes two strings AAA BBB
 the first string will be replaced with the second
 the strings are assumed to be URLs with no prefix
 multiple prefixes will be attached i.e.:
 https://AAA http://AAA @AAA
+
+MODE can be DRY-RUN, REPLACE
+Mode will default to DRY-RUN
 
 This script exists in order to replace old domains
 with new values and reduce reliance on redirects.
@@ -37,10 +40,21 @@ else
 	notify "wp-cli not found on admin server" critical
 	exit 1
 fi
-if [ $4 ]; then
-	echo "DRY RUN MODE ACTIVE"
-	WP="${WP} --dry-run"
-fi
+
+case $4 in
+	DRY-RUN)
+		echo "DRY RUN MODE ACTIVE"
+		WP="${WP} --dry-run"
+		;;
+	REPLACE)
+		echo "REPLACE MODE ACTIVE"	
+		;;
+	*)
+		echo "DEFAULT DRY RUN MODE ACTIVE"
+		WP="${WP} --dry-run"
+		;;
+esac
+		
 
 for P in ${PREFIXES[@]}; do
 	echo "Prefix $P"
