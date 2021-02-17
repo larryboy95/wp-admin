@@ -47,7 +47,8 @@ case $4 in
 		WP="${WP} --dry-run"
 		;;
 	COUNT)
-		echo "DRY RUN MODE ACTIVE"
+		echo "COUNT MODE ACTIVE"
+		PREFIXES=("")
 		WP="${WP} --dry-run --format=count"
 		;;
 	REPLACE)
@@ -64,3 +65,6 @@ for P in ${PREFIXES[@]}; do
 	echo "Prefix $P"
 	$WP search-replace "${P}${AAA}" "${P}${BBB}" 
 done
+if [ -n $PREFIXES ]; then
+	$WP search-replace "${AAA}" "${BBB}" 
+fi
