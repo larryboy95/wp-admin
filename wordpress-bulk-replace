@@ -46,6 +46,10 @@ case $4 in
 		echo "DRY RUN MODE ACTIVE"
 		WP="${WP} --dry-run"
 		;;
+	COUNT)
+		echo "DRY RUN MODE ACTIVE"
+		WP="${WP} --dry-run --format=count"
+		;;
 	REPLACE)
 		echo "REPLACE MODE ACTIVE"	
 		;;
