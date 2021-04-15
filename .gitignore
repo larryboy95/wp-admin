@@ -6,3 +6,4 @@ tmp.*
 *.sql
 *.conf
 *.retry
+local-*
