@@ -61,6 +61,7 @@ do_the_sync() {
 		--exclude=".git*" \
 		--exclude-from="$GITIGNORE" \
 		--delete \
+		--chmod=D755,F644 \
 		${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
 	RSYNCERR="$?"
 	if [ "$RSYNCERR" -eq 23 ]; then
