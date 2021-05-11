@@ -16,7 +16,14 @@ fi
 HOST=$1
 DOMAIN=$2
 
-# First we need to verify what certs are being used
+# Connection test
+ssh $HOST "exit 0"
+if [ ! $? -eq 0 ]; then
+	echo "FAIL to connect to $HOST over ssh"
+	exit 2
+fi
+
+# Verify what certs are being used
 # Fail if the configured cert path does not match our expectation
 ssh ${HOST} "grep -q $DOMAIN/fullchain.pem /usr/local/lsws/conf/vhosts/wordpress/vhconf.conf"
 if [ ! $? -eq 0 ]; then
