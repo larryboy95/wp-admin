@@ -51,7 +51,7 @@ CMD="certbot certonly \
 	--pre-hook='/bin/systemctl stop lsws' \
 	--post-hook='/bin/systemctl start lsws' \
 	-d $HOST"
-if [ -z $WWW ]; then
+if [ ! -z $WWW ]; then
 	CMD+=" -d $WWW"
 fi
 # -t makes it an interactive session, output is verbose
@@ -102,7 +102,7 @@ CMD="certbot certonly \
 	--pre-hook='/bin/systemctl stop lsws' \
 	--post-hook='/bin/systemctl start lsws' \
 	-d $HOST"
-if [ -z $WWW ]; then
+if [ ! -z $WWW ]; then
 	CMD+=" -d $WWW"
 fi
 # -t makes it an interactive session, output is verbose
