@@ -63,7 +63,7 @@ fi
 CMD=""
 
 # BACKUP the old certs for this domain
-ssh ${HOST} "cp -rf /etc/letsencrypt ~/BACKUP-LE/$(date +%s)"
+ssh ${HOST} "cp -rf /etc/letsencrypt ~/BACKUP-LE-$(date +%s)"
 if [ ! $? -eq 0 ]; then
 	echo "FAIL to backup old certs"
 	exit 2
