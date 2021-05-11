@@ -49,7 +49,14 @@ if [ ! $? -eq 0 ]; then
 fi
 CMD=""
 
-# Delete the old certs for this domain
+# BACKUP the old certs for this domain
+ssh ${HOST} "cp -rf /etc/letsencrypt ~/BACKUP-LE/$(date +%s)"
+if [ ! $? -eq 0 ]; then
+	echo "FAIL to backup old certs"
+	exit 2
+fi
+
+# DELETE the old certs for this domain
 ssh ${HOST} "rm -rf /etc/letsencrypt/live/$DOMAIN"
 if [ ! $? -eq 0 ]; then
 	echo "FAIL to remove old certs"
