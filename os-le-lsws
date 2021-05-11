@@ -2,7 +2,7 @@
 
 USAGE="
 Usage:
-$(basename $0) HOST DOMAIN
+LEMAIL=user@localhost $(basename $0) HOST DOMAIN
 
 Env variable LEMAIL must be set
 
@@ -24,9 +24,30 @@ if [ ! $? -eq 0 ]; then
 	exit 2
 fi
 echo "Expected configuration was found."
+
 # Test if the certs are configured in the listener instead of vhost
 # grep $DOMAIN/privkey.pem /usr/local/lsws/conf/httpd_config.conf
 # grep $DOMAIN/fullchain.pem /usr/local/lsws/conf/httpd_config.conf
+
+# Run certbot in test mode to verify domain resolution
+CMD="certbot certonly \
+	--dry-run \
+	--non-interactive \
+	--force-renew \
+	--email=$LEMAIL \
+	--agree-tos \
+	--authenticator=standalone \
+	--pre-hook='/bin/systemctl stop lsws' \
+	--post-hook='/bin/systemctl start lsws' \
+	-d $DOMAIN \
+	-d www.$DOMAIN"
+# -t makes it an interactive session, output is verbose
+ssh -t ${HOST} ${CMD}
+if [ ! $? -eq 0 ]; then
+	echo "FAIL certbot dry run"
+	exit 2
+fi
+CMD=""
 
 # Delete the old certs for this domain
 ssh ${HOST} "rm -rf /etc/letsencrypt/live/$DOMAIN"
@@ -64,5 +85,11 @@ CMD="certbot certonly \
 	-d www.$DOMAIN"
 # -t makes it an interactive session, output is verbose
 ssh -t ${HOST} ${CMD}
+if [ ! $? -eq 0 ]; then
+	echo "FAIL certbot live"
+	exit 2
+fi
+
+ssh $HOST "reboot"
 
 exit 0
