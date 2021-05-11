@@ -1,0 +1,68 @@
+#!/bin/bash
+
+USAGE="
+Usage:
+$(basename $0) HOST DOMAIN
+
+Env variable LEMAIL must be set
+
+"
+# Print USAGE if no args
+if [ $# -lt 2 ] ||
+	[ -z $LEMAIL ] ; then
+	echo "$USAGE"
+	exit 1
+fi
+HOST=$1
+DOMAIN=$2
+
+# First we need to verify what certs are being used
+# Fail if the configured cert path does not match our expectation
+ssh ${HOST} "grep -q $DOMAIN/fullchain.pem /usr/local/lsws/conf/vhosts/wordpress/vhconf.conf"
+if [ ! $? -eq 0 ]; then
+	echo "FAIL to find expected cert path in config"
+	exit 2
+fi
+echo "Expected configuration was found."
+# Test if the certs are configured in the listener instead of vhost
+# grep $DOMAIN/privkey.pem /usr/local/lsws/conf/httpd_config.conf
+# grep $DOMAIN/fullchain.pem /usr/local/lsws/conf/httpd_config.conf
+
+# Delete the old certs for this domain
+ssh ${HOST} "rm -rf /etc/letsencrypt/live/$DOMAIN"
+if [ ! $? -eq 0 ]; then
+	echo "FAIL to remove old certs"
+	exit 2
+fi
+ssh ${HOST} "rm -rf /etc/letsencrypt/archive/$DOMAIN" 
+if [ ! $? -eq 0 ]; then
+	echo "FAIL to remove old certs"
+	exit 2
+fi
+ssh ${HOST} "rm /etc/letsencrypt/renewal/$DOMAIN.conf" 
+if [ ! $? -eq 0 ]; then
+	echo "FAIL to remove old certs"
+	exit 2
+fi
+echo "Old certs removed."
+
+# The following command will setup a renewal job
+# in /etc/letsencrypt/renewal/$DOMAIN.conf with:
+#   pre_hook = /bin/systemctl stop lsws
+#   post_hook = /bin/systemctl start lsws
+#   authenticator = standalone
+echo "Getting the new cert..."
+CMD="certbot certonly \
+	--non-interactive \
+	--force-renew \
+	--email=$LEMAIL \
+	--agree-tos \
+	--authenticator=standalone \
+	--pre-hook='/bin/systemctl stop lsws' \
+	--post-hook='/bin/systemctl start lsws' \
+	-d $DOMAIN \
+	-d www.$DOMAIN"
+# -t makes it an interactive session, output is verbose
+ssh -t ${HOST} ${CMD}
+
+exit 0
