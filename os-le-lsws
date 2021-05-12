@@ -48,7 +48,7 @@ CMD="certbot certonly \
 	--email=$LEMAIL \
 	--agree-tos \
 	--authenticator=standalone \
-	--pre-hook='/bin/systemctl stop lsws' \
+	--pre-hook='/bin/systemctl stop lsws; sleep 5' \
 	--post-hook='/bin/systemctl start lsws' \
 	-d $HOST"
 if [ ! -z $WWW ]; then
@@ -99,7 +99,7 @@ CMD="certbot certonly \
 	--email=$LEMAIL \
 	--agree-tos \
 	--authenticator=standalone \
-	--pre-hook='/bin/systemctl stop lsws' \
+	--pre-hook='/bin/systemctl stop lsws; sleep 5' \
 	--post-hook='/bin/systemctl start lsws' \
 	-d $HOST"
 if [ ! -z $WWW ]; then
