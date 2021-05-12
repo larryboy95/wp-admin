@@ -10,7 +10,7 @@ Env variable LEMAIL must be set
 
 "
 # Print USAGE if no args
-if [ $# -lt 2 ] ||
+if [ $# -lt 1 ] ||
 	[ -z $LEMAIL ] ; then
 	echo "$USAGE"
 	exit 1
