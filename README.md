@@ -5,17 +5,12 @@ Shell scripts for the centralized management of WordPress.
 Intended to be kept as simple as possible for maximum legibility.
 These tools provide maintenance and workflow functions.
 
-This project is a dependency of [dowp](https://gitlab.com/neilscudder/dowp), deploying WordPress on Digitalocean.
-
 Dependencies:
 * Ubuntu Linux >= 16.04
+* [notify-cli](https://gitlab.com/neilscudder/notify-cli)
 * [wp-cli](https://github.com/wp-cli/wp-cli)
 * [git-auto-deploy](https://github.com/olipo186/Git-Auto-Deploy)
 * [restic](https://github.com/restic/restic)
-
-For twitter notifications:
-* [slack-cli](https://github.com/rockymadden/slack-cli)
-* [pagres-cli](https://github.com/sindresorhus/pageres-cli)
 
 ## Installation
 Clone this repo and add it to your path.
@@ -58,19 +53,14 @@ Backup and Restore:
 * [wordpress-restore](https://gitlab.com/neilscudder/wp-admin/blob/master/wordpress-restore) - Restore from local backup or git repo.
 
 Deploying from git:
-* [gad-add-host](https://gitlab.com/neilscudder/wp-admin/blob/master/gad-add-host) - Add a host to the git-auto-deploy configuration file.
 * [gad-deploy-post](https://gitlab.com/neilscudder/wp-admin/blob/master/gad-deploy-post) - Runs after git-auto-deploy, rsyncs the repo from `/var/repos` to host.
 
-Twitter Notifications:
-* [notify](https://gitlab.com/neilscudder/wp-admin/blob/master/notify) - Send a tweet notification.
-
 OS-Admin
-* [os-authorize](https://gitlab.com/neilscudder/wp-admin/blob/master/os-authorize) - Authorize ssh keys for user on remote server.
 * [os-update](https://gitlab.com/neilscudder/wp-admin/blob/master/os-update) - Update server software and reboot.
 
 
 ## Auto-Update script
-The `wprdpress-update` script will use wp-cli to install updates on a remote web host.
+The `wordpress-update` script will use wp-cli to install updates on a remote web host.
 The script then invokes `wordpress-commit` which will sync the repo and the untracked files to the local host, commit all the updates to a new branch with a unique timestamp and then push.
 Extensive Slack notifications document the success or failure of automatic updates.
 
