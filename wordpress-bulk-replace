@@ -2,6 +2,8 @@
 
 print_usage() {
 echo "
+Status: ALPHA
+
 wordpress-bulk-update HOSTNAME AAA BBB [MODE]
 bulk search replace with wp-cli on a remote host
 takes two strings AAA BBB
