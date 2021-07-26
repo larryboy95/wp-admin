@@ -1,19 +1,23 @@
 #!/bin/bash
 USAGE="
-Usage: $SCRIPTNAME HOST [WEBROOT OWNER]
+Usage: $SCRIPTNAME HOSTNAME [WEBROOT OWNER]
 
-This script is run by git hook, 
+This script is run by a git hook, 
 but it can be run manually as well.
-HOST must be configured in ~/.ssh/config
-Deploys from /WORKTREE to HOST:WEBROOT
+HOSTNAME must be configured in ~/.ssh/config
+Deploys from WORKTREE to HOST:WEBROOT
 Default WEBROOT is /var/www/html
 
+WORKTREES should be set as an environment variable.
+WORKTREES defaults to /var/worktrees
+WORKTREE will be set to WORKTREES/HOSTNAME
+(i.e. /var/worktrees/www.clientsite.com)
+
 OWNER defaults to \"none\".
-The wordpress-permissions script will be run on WEBROOT
+The wordpress-permissions script will be run on HOSTNAME:WEBROOT
 with OWNER as the argument unless OWNER is set to \"none\".
 
 Requires a .gitignore file in worktree dir to use as file mask.
-.git* is not transferred to WEBROOT.
 Deletes all files in WEBROOT unless they exist:
 	a) in the worktree
 	b) in the .gitignore
@@ -30,7 +34,8 @@ SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
 HOSTNAME="$1"
 WEBROOT=${2:-/var/www/html}
 OWNER=${3:-none}
-WORKTREE="${WORKTREE:-/var/worktrees}"
+WORKTREES="${WORKTREES:-/var/worktrees}"
+WORKTREE="$WORKTREES/$HOSTNAME"
 GITIGNORE="${WORKTREE}/.gitignore"
 SITEURL=""
 BRANCH=""
