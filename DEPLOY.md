@@ -1,9 +1,16 @@
+# Wordpress-Deploy
+
 Deployment is handled by the `wordpress-deploy` script which is called by a git hook which resides in a git remote on an internal administration server.
-In a typical situation code is pushed to a single `origin` remote.
-To use `wordpress-deploy` we are going to associate two separate `push` URLs per remote, and set specific remotes for branches which have servers associated with them.
+
+Normally, code is pushed to a single `origin` remote (i.e. gitlab.)
+The `origin` remote then triggers deployment using either a webhook or a built-in CI function.
+
+To use `wordpress-deploy` we are going to  set specific remotes for branches which have servers associated with them and associate two `push` URLs per deployment-enabled remote.
+
+`wordpress-deploy` is specifically meant to centralize deployment from a single admin server in order to simplify the management of multiple sites.
 
 Each remote on the admin server is associated with an individual branch and a single deployment target.
-The admin server configuration is handled by the [https://gitlab.com/neilscudder/script-generator](script-generator).
+The admin server configuration is handled by the (https://gitlab.com/neilscudder/script-generator)[script-generator].
 More on that below.
 
 Assumptions:
@@ -11,7 +18,6 @@ Assumptions:
 - you have already cloned the repo and changed to the local repo directory
 - the `main` branch gets deployed to the production server
 - the `staging` branch deploys to a staging server
-- the `development` branch is not deployed anywhere
 
 The `origin` remote will remain unadulterated so that new branches only get pushed to gitlab.
 Two new remotes will be created, and then updated so that each has one URL to `fetch` from and two URLs to `push` to.
@@ -99,7 +105,7 @@ exit 0
 In the `post-receive` example above you can see that repo-specific variables are sourced from a file called `git-hooks-env`.
 The repos are separated from the worktrees, to keep all the git stuff segregated from the actual codebase.
 Both the repository and worktree paths are all named after the full.ain of the deployment target server ($HOSTNAME) for predictability.
-The [https://gitlab.com/neilscudder/script-generator](script-generator) generates an initialization script based on a CSV.
+The (https://gitlab.com/neilscudder/script-generator)[script-generator] generates an initialization script based on a CSV.
 
 Example admin server initialization script:
 ```
