@@ -22,7 +22,7 @@ Assumptions:
 The `origin` remote will remain unadulterated so that new branches only get pushed to gitlab.
 Two new remotes will be created, and then updated so that each has one URL to `fetch` from and two URLs to `push` to.
 
-```
+```bash
 git remote add production git@gitlab.com:agency/git-deploy-test.git;
 git remote set-url --push --add production agency-admin:scratch/agency/repos/git-deploy-test.agency.com.git;
 git remote set-url --push --add production git@gitlab.com:agency/git-deploy-test.git;
@@ -73,7 +73,7 @@ And your `.git/config` file should include a section that looks like this:
 
 Each repo on the admin server is configured with a git hook which will execute after receiving files pushed to it.
 Example of a `post-receive` git hook:
-```
+```bash
 #!/bin/sh
 #
 # post-receive to deploy code after receiving a push
@@ -108,7 +108,7 @@ Both the repository and worktree paths are all named after the full.ain of the d
 The (https://gitlab.com/neilscudder/script-generator)[script-generator] generates an initialization script based on a CSV.
 
 Example admin server initialization script:
-```
+```bash
 #!/bin/bash
 
 # Initialize all repos not already initialized
