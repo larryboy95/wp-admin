@@ -30,6 +30,8 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
+export SLACK_CHANNEL_NORMAL="__deploy"
+export SLACK_CHANNEL_CRITICAL="__error"
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
 HOSTNAME="$1"
 WEBROOT=${2:-/var/www/html}
