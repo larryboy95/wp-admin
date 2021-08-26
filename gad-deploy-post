@@ -83,7 +83,8 @@ forbid_robots() {
 	|| [[ "$BRANCH" == "development" ]]
 	then
 		deploy_robots
-	elif [[ "$BRANCH" == "master" ]]
+	elif [[ "$BRANCH" == "master" ]] \
+	|| [[ "$BRANCH" == "main" ]]
 	then
 		production_robots
 	fi
