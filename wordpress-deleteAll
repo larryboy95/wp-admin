@@ -17,7 +17,7 @@ fi
 WP=$(which wp)
 [ $? != 0 ] && {echo "wp-cli not found"; exit 1}
 WPCMD="$WP --ssh=${1} --path='/var/www/html'"
-wordpress-backup ${1} tmp
+wordpress-backup ${1} dbtmp
 [ $? != 0 ] && {echo "Problem making backup"; exit 1}
 SITEURL=$($WPCMD option get siteurl)
 [ $? != 0 ] && {echo "Problem retrieving siteurl"; exit 1}
