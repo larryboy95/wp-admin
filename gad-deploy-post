@@ -47,7 +47,7 @@ else
 	exit 1
 fi
 
-notify "GAD - Initializing deployment for ${HOSTNAME}"
+notify "GAD - Initializing deployment for ${HOSTNAME}" warning
 
 
 check_for_gitignore() {
@@ -67,7 +67,7 @@ do_the_sync() {
 		${REPODIR}/${HOSTNAME}/ ${HOSTNAME}:${WEBROOT}
 	RSYNCERR="$?"
 	if [ "$RSYNCERR" -eq 23 ]; then
-		notify "GAD - rsync exited with code ${RSYNCERR} (some files failed to transfer) while attempting to deploy to ${HOSTNAME}" 
+		notify "GAD - rsync exited with code ${RSYNCERR} (some files failed to transfer) while attempting to deploy to ${HOSTNAME}" warning
 	elif [ ! "$RSYNCERR" -eq 0 ]; then
 		notify "GAD - rsync exited with code ${RSYNCERR} while attempting to deploy to ${HOSTNAME}" critical
 	else
@@ -97,7 +97,7 @@ deploy_robots() {
 		notify "GAD - Could not locate $ROBOTSTXT" critical
 		exit 1
 	fi
-	notify "GAD - ${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
+	notify "GAD - ${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots." warning
 	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
 	RSYNCERR="$?"
 	if [ ! "$RSYNCERR" -eq 0 ]; then
@@ -120,7 +120,7 @@ get_robots() {
 	ERR="$?"
 	ROBOTSREAL="$(cat $CURLTMP)"
 	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
-		notify "GAD - Actual robots.txt after deployment: $ROBOTSREAL"
+		notify "GAD - Actual robots.txt after deployment: $ROBOTSREAL" warning
 	else
 		notify "GAD - Curl failed to retrieve robots.txt from ${SITEURL} with error code $ERR" critical
 	fi
@@ -160,9 +160,9 @@ get_siteurl() {
 
 check_and_notify() {
 	if [ "$RSYNCERR" -eq 0 ] && [[ ! "$SITEURL" == "" ]]; then
-		notify "GAD - Deploy complete for ${HOSTNAME} at ${SITEURL}. Post-deployment screenshot:" "$SITEURL"
+		notify "GAD - Deploy complete for ${HOSTNAME} at ${SITEURL}. Post-deployment screenshot:" "$SITEURL" warning
 	elif [ "$RSYNCERR" -eq 0 ]; then
-		notify "GAD - Deploy complete for ${HOSTNAME}. Screenshot not available as SITEURL is empty."
+		notify "GAD - Deploy complete for ${HOSTNAME}. Screenshot not available as SITEURL is empty." warning
 	fi
 }
 
