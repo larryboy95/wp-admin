@@ -101,9 +101,8 @@ deploy_robots() {
 	fi
 	notify "${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
 	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
-	RSYNCERR="$?"
-	if [ ! "$RSYNCERR" -eq 0 ]; then
-		notify "rsync exited with code ${RSYNCERR} while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
+	if [ ! $? -eq 0 ]; then
+		notify "rsync error  while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
 	else
 		echo "$(date) rsync completed without error (for ${ROBOTSTXT})"
 	fi
@@ -160,14 +159,6 @@ get_siteurl() {
 	fi
 }
 
-check_and_notify() {
-	if [ "$RSYNCERR" -eq 0 ] && [[ ! "$SITEURL" == "" ]]; then
-		notify "Deploy complete for ${HOSTNAME} at ${SITEURL}. Post-deployment screenshot:" "$SITEURL"
-	elif [ "$RSYNCERR" -eq 0 ]; then
-		notify "Deploy complete for ${HOSTNAME}. Screenshot not available as SITEURL is empty."
-	fi
-}
-
 
 check_for_gitignore
 do_the_sync
@@ -175,6 +166,6 @@ set_permissions
 check_installed
 get_siteurl
 forbid_robots
-check_and_notify
+notify "Deploy complete for ${HOSTNAME}."
 
 exit 0
