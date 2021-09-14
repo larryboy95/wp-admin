@@ -34,6 +34,55 @@ if [ ! $(which notify) ]; then
 	exit 1
 fi
 
+# msgfmt formats notification content
+msgfmt() {
+	local s="$HOSTNAME -"
+	case $1 in
+	init)
+		s="$s Initializing deployment"
+	;;
+	path)
+		s="$s \`wp-cli\` not found on admin server"
+	;;
+	gitignore)
+		s="$s gitignore not found in ${WORKTREE}. Abort deployment."
+	;;
+	rsync23)
+		s="$s rsync exited with code 23 (some files failed to transfer) while attempting to deploy"
+	;;
+	rsync)
+		s="$s rsync exited with code ${RSYNCERR} while attempting to deploy"
+	;;
+	botslocate)
+		s="$s Could not locate $ROBOTSTXT"
+	;;
+	botsdeploy)
+		s="$s ${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
+	;;
+	botserror)
+		s="$s rsync error  while attempting to deploy ${ROBOTSTXT}"
+	;;
+	botsexist)
+		s="$s Robots.txt exists on production domain ${SITEURL}"
+	;;
+	botsactual)
+		s="$s Actual robots.txt after deployment: $ROBOTSREAL"
+	;;
+	botscurl)
+		s="$s Curl failed to retrieve robots.txt with error code $ERR"
+	;;
+	nowp)
+		s="$s \`wp core is-installed\` failed, most likely a PATH issue."
+	;;
+	siteurl)
+		s="$s Error getting siteurl. Using ssh HOST instead."
+	;;
+	fin)
+		s="$s Deployment completed."
+	esac
+	notify "$s" $2
+}
+
 export SLACK_CHANNEL_NORMAL="__deploy"
 export SLACK_CHANNEL_CRITICAL="__error"
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
@@ -45,20 +94,21 @@ WORKTREE="$WORKTREES/$HOSTNAME"
 GITIGNORE="${WORKTREE}/.gitignore"
 SITEURL=""
 BRANCH=""
+RSYNCERR=""
 WPBIN=$(which wp)
 if [ $? -eq 0 ]; then
 	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
 else
-	notify "wp-cli not found on admin server" critical
+	msgfmt 'path' critical
 	exit 1
 fi
 
-notify "Initializing deployment for ${HOSTNAME}"
+msgfmt 'init'
 
 
 check_for_gitignore() {
 	if [ ! -f "$GITIGNORE" ]; then 
-		notify "gitignore not found in ${WORKTREE}. Abort deployment." critical
+		msgfmt 'gitignore' critical
 		exit 1
 	fi
 }
@@ -73,9 +123,9 @@ do_the_sync() {
 		${WORKTREE}/ ${HOSTNAME}:${WEBROOT}
 	RSYNCERR="$?"
 	if [ "$RSYNCERR" -eq 23 ]; then
-		notify "rsync exited with code ${RSYNCERR} (some files failed to transfer) while attempting to deploy to ${HOSTNAME}" 
+		msgfmt 'rsync23' 
 	elif [ ! "$RSYNCERR" -eq 0 ]; then
-		notify "rsync exited with code ${RSYNCERR} while attempting to deploy to ${HOSTNAME}" critical
+		msgfmt 'rsync' critical
 	else
 		echo "$(date) rsync completed without error"
 	fi
@@ -100,13 +150,13 @@ forbid_robots() {
 deploy_robots() {
 	ROBOTSTXT="${SCRIPTDIR}/robots.txt-disallow"
 	if [ ! -f "$ROBOTSTXT" ]; then
-		notify "Could not locate $ROBOTSTXT" critical
+		msgfmt 'botslocate' critical
 		exit 1
 	fi
-	notify "${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
+	msgfmt 'botsdeploy'
 	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
 	if [ ! $? -eq 0 ]; then
-		notify "rsync error  while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
+		msgfmt 'boterr' critical
 	else
 		echo "$(date) rsync completed without error (for ${ROBOTSTXT})"
 	fi
@@ -115,7 +165,7 @@ deploy_robots() {
 production_robots() {
 	ssh $HOSTNAME "[ -f ${WEBROOT}/robots.txt ] && exit 42" > /dev/null 2>&1
 	if [ $? -eq 42 ]; then
-		notify "Robots.txt exists on production domain ${SITEURL}" critical
+		msgfmt 'botsexist' critical
 	fi
 }
 
@@ -125,9 +175,9 @@ get_robots() {
 	ERR="$?"
 	ROBOTSREAL="$(cat $CURLTMP)"
 	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
-		notify "Actual robots.txt after deployment: $ROBOTSREAL"
+		msgfmt 'botsactual'
 	else
-		notify "Curl failed to retrieve robots.txt from ${SITEURL} with error code $ERR" critical
+		msgfmt 'botscurl' critical
 	fi
 	rm $CURLTMP
 }
@@ -147,19 +197,15 @@ check_installed() {
 		--quiet \
 		core is-installed
 	if [ ! $? -eq 0 ]; then
-		notify "${HOSTNAME} \
-			\`wp core is-installed\` failed, most likely a PATH issue." \
-			critical
+		msgfmt 'nowp' critical
 	fi
 }
 
 get_siteurl() {
 	SITEURL=$(${WP} --quiet option get siteurl)
 	if [ ! $? -eq 0 ]; then
-		notify "${HOSTNAME} \
-			Error getting siteurl. Using ssh HOST instead." \
-			critical
-			SITEURL="https://${HOSTNAME}/"
+		msgfmt 'siteurl' critical
+		SITEURL="https://${HOSTNAME}/"
 	fi
 }
 
@@ -170,6 +216,6 @@ set_permissions
 check_installed
 get_siteurl
 forbid_robots
-notify "Deploy complete for ${HOSTNAME}."
+msgfmt 'fin'
 
 exit 0
