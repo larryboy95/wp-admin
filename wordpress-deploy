@@ -45,25 +45,25 @@ msgfmt() {
 		s="$s \`wp-cli\` not found on admin server"
 	;;
 	gitignore)
-		s="$s gitignore not found in ${WORKTREE}. Abort deployment."
+		s="$s gitignore not found in $WORKTREE. Abort deployment."
 	;;
 	rsync23)
 		s="$s rsync exited with code 23 (some files failed to transfer) while attempting to deploy"
 	;;
 	rsync)
-		s="$s rsync exited with code ${RSYNCERR} while attempting to deploy"
+		s="$s rsync exited with code $RSYNCERR while attempting to deploy"
 	;;
 	botslocate)
 		s="$s Could not locate $ROBOTSTXT"
 	;;
 	botsdeploy)
-		s="$s ${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots."
+		s="$s $BRANCH branch, deploying the $ROBOTSTXT to disallow all bots."
 	;;
 	botserror)
-		s="$s rsync error  while attempting to deploy ${ROBOTSTXT}"
+		s="$s rsync error  while attempting to deploy $ROBOTSTXT"
 	;;
 	botsexist)
-		s="$s Robots.txt exists on production domain ${SITEURL}"
+		s="$s Robots.txt exists on production domain $SITEURL"
 	;;
 	botsactual)
 		s="$s Actual robots.txt after deployment: $ROBOTSREAL"
@@ -97,7 +97,7 @@ BRANCH=""
 RSYNCERR=""
 WPBIN=$(which wp)
 if [ $? -eq 0 ]; then
-	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${HOSTNAME}"
+	WP="$WPBIN --path=$WEBROOT --allow-root --skip-themes --skip-plugins --ssh=$HOSTNAME"
 else
 	msgfmt 'path' critical
 	exit 1
@@ -120,7 +120,7 @@ do_the_sync() {
 		--exclude-from="$GITIGNORE" \
 		--delete \
 		--chmod=D755,F644 \
-		${WORKTREE}/ ${HOSTNAME}:${WEBROOT}
+		$WORKTREE/ ${HOSTNAME}:${WEBROOT}
 	RSYNCERR="$?"
 	if [ "$RSYNCERR" -eq 23 ]; then
 		msgfmt 'rsync23' 
@@ -132,7 +132,7 @@ do_the_sync() {
 }
 
 forbid_robots() {
-	cd "${WORKTREE}"
+	cd "$WORKTREE"
 	BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 	if [[ "$BRANCH" == "staging" ]] \
@@ -148,7 +148,7 @@ forbid_robots() {
 }
 
 deploy_robots() {
-	ROBOTSTXT="${SCRIPTDIR}/robots.txt-disallow"
+	ROBOTSTXT="$SCRIPTDIR/robots.txt-disallow"
 	if [ ! -f "$ROBOTSTXT" ]; then
 		msgfmt 'botslocate' critical
 		exit 1
@@ -158,12 +158,12 @@ deploy_robots() {
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'boterr' critical
 	else
-		echo "$(date) rsync completed without error (for ${ROBOTSTXT})"
+		echo "$(date) rsync completed without error (for $ROBOTSTXT)"
 	fi
 }
 
 production_robots() {
-	ssh $HOSTNAME "[ -f ${WEBROOT}/robots.txt ] && exit 42" > /dev/null 2>&1
+	ssh $HOSTNAME "[ -f $WEBROOT/robots.txt ] && exit 42" > /dev/null 2>&1
 	if [ $? -eq 42 ]; then
 		msgfmt 'botsexist' critical
 	fi
@@ -171,7 +171,7 @@ production_robots() {
 
 get_robots() {
 	CURLTMP=/tmp/curl.tmp
-	curl --insecure ${SITEURL}/robots.txt > $CURLTMP
+	curl --insecure $SITEURL/robots.txt > $CURLTMP
 	ERR="$?"
 	ROBOTSREAL="$(cat $CURLTMP)"
 	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
@@ -187,13 +187,13 @@ set_permissions() {
 		wordpress-permissions "$HOSTNAME" "$OWNER"
 		PERMERR="$?"
 		if [ ! "$PERMERR" -eq 0 ]; then
-			echo "$(date) ERROR wordpress-permissions exited with code ${PERMERR}"
+			echo "$(date) ERROR wordpress-permissions exited with code $PERMERR"
 		fi
 	fi
 }
 
 check_installed() {
-	${WP} \
+	$WP \
 		--quiet \
 		core is-installed
 	if [ ! $? -eq 0 ]; then
@@ -202,10 +202,10 @@ check_installed() {
 }
 
 get_siteurl() {
-	SITEURL=$(${WP} --quiet option get siteurl)
+	SITEURL=$($WP --quiet option get siteurl)
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'siteurl' critical
-		SITEURL="https://${HOSTNAME}/"
+		SITEURL="https://$HOSTNAME/"
 	fi
 }
 
