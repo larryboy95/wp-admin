@@ -175,6 +175,7 @@ get_robots() {
 	ERR="$?"
 	ROBOTSREAL="$(cat $CURLTMP)"
 	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
+		ROBOTSREAL="\`\`\`$ROBOTSREAL\`\`\`"
 		msgfmt 'botsactual'
 	else
 		msgfmt 'botscurl' critical
