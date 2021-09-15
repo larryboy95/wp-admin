@@ -206,9 +206,7 @@ set_permissions() {
 }
 
 check_installed() {
-	$WP \
-		--quiet \
-		core is-installed
+	$WP --quiet core is-installed
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'nowp' critical
 	fi
