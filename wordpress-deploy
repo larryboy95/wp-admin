@@ -47,6 +47,12 @@ msgfmt() {
 	gitignore)
 		s="$s gitignore not found in $WORKTREE. Abort deployment."
 	;;
+	syncdoing)
+		s="$s syncing files to ${HOSTNAME}:${WEBROOT}"
+	;;
+	syncgood)
+		s="$s rsync completed without error"
+	;;
 	rsync23)
 		s="$s rsync exited with code 23 (some files failed to transfer) while attempting to deploy"
 	;;
@@ -71,11 +77,17 @@ msgfmt() {
 	botscurl)
 		s="$s Curl failed to retrieve robots.txt with error code $ERR"
 	;;
+	botssuccess)
+		s="$s rsync completed without error (for $ROBOTSTXT)"
+	;;
 	nowp)
 		s="$s \`wp core is-installed\` failed, most likely a PATH issue."
 	;;
 	siteurl)
 		s="$s Error getting siteurl. Using ssh HOST instead."
+	;;
+	perms)
+		s="$s ERROR wordpress-permissions exited with code $PERMERR"
 	;;
 	fin)
 		s="$s Deployment completed."
@@ -114,7 +126,7 @@ check_for_gitignore() {
 }
 
 do_the_sync() {
-	echo "$(date) syncing files to ${HOSTNAME}:${WEBROOT}"
+	msgfmt 'syncdoing'
 	rsync -r \
 		--exclude=".git*" \
 		--exclude-from="$GITIGNORE" \
@@ -127,7 +139,7 @@ do_the_sync() {
 	elif [ ! "$RSYNCERR" -eq 0 ]; then
 		msgfmt 'rsync' critical
 	else
-		echo "$(date) rsync completed without error"
+		msgfmt 'syncgood'
 	fi
 }
 
@@ -158,7 +170,7 @@ deploy_robots() {
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'boterr' critical
 	else
-		echo "$(date) rsync completed without error (for $ROBOTSTXT)"
+		msgfmt 'botssuccess'
 	fi
 }
 
@@ -188,7 +200,7 @@ set_permissions() {
 		wordpress-permissions "$HOSTNAME" "$OWNER"
 		PERMERR="$?"
 		if [ ! "$PERMERR" -eq 0 ]; then
-			echo "$(date) ERROR wordpress-permissions exited with code $PERMERR"
+			msgfmt 'perms' critical
 		fi
 	fi
 }
