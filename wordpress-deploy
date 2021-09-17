@@ -57,7 +57,7 @@ msgfmt() {
 		s="$s rsync exited with code 23 (some files failed to transfer) while attempting to deploy"
 	;;
 	rsync)
-		s="$s rsync exited with code $RSYNCERR while attempting to deploy"
+		s="$s rsync exited with code $ERR while attempting to deploy"
 	;;
 	botslocate)
 		s="$s Could not locate $ROBOTSTXT"
@@ -87,7 +87,7 @@ msgfmt() {
 		s="$s Error getting siteurl. Using ssh HOST instead."
 	;;
 	perms)
-		s="$s ERROR wordpress-permissions exited with code $PERMERR"
+		s="$s ERROR wordpress-permissions exited with code $ERR"
 	;;
 	fin)
 		s="$s Deployment completed."
@@ -106,7 +106,9 @@ WORKTREE="$WORKTREES/$HOSTNAME"
 GITIGNORE="${WORKTREE}/.gitignore"
 SITEURL=""
 BRANCH=""
-RSYNCERR=""
+ERR=""
+ROBOTSTXT=""
+ROBOTSREAL=""
 WPBIN=$(which wp)
 if [ $? -eq 0 ]; then
 	WP="$WPBIN --path=$WEBROOT --allow-root --skip-themes --skip-plugins --ssh=$HOSTNAME"
@@ -133,10 +135,10 @@ do_the_sync() {
 		--delete \
 		--chmod=D755,F644 \
 		$WORKTREE/ ${HOSTNAME}:${WEBROOT}
-	RSYNCERR="$?"
-	if [ "$RSYNCERR" -eq 23 ]; then
+	ERR="$?"
+	if [ "$ERR" -eq 23 ]; then
 		msgfmt 'rsync23' 
-	elif [ ! "$RSYNCERR" -eq 0 ]; then
+	elif [ ! "$ERR" -eq 0 ]; then
 		msgfmt 'rsync' critical
 	else
 		msgfmt 'syncgood'
@@ -198,8 +200,8 @@ get_robots() {
 set_permissions() {
 	if [[ "$OWNER" != "none" ]]; then
 		wordpress-permissions "$HOSTNAME" "$OWNER"
-		PERMERR="$?"
-		if [ ! "$PERMERR" -eq 0 ]; then
+		ERR="$?"
+		if [ ! "$ERR" -eq 0 ]; then
 			msgfmt 'perms' critical
 		fi
 	fi
