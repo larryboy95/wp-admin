@@ -59,6 +59,9 @@ msgfmt() {
 	rsync)
 		s="$s rsync exited with code $ERR while attempting to deploy"
 	;;
+	branch)
+		s="$s Branch detection error"
+	;;
 	botslocate)
 		s="$s Could not locate $ROBOTSTXT"
 	;;
@@ -103,6 +106,8 @@ WEBROOT=${2:-/var/www/html}
 OWNER=${3:-none}
 WORKTREES="${WORKTREES:-/var/deploy/worktrees}"
 WORKTREE="$WORKTREES/$HOSTNAME"
+REPOS="${REPOS:-/var/deploy/repos}"
+REPO="$REPOS/${HOSTNAME}.git"
 GITIGNORE="${WORKTREE}/.gitignore"
 SITEURL=""
 BRANCH=""
@@ -146,8 +151,11 @@ do_the_sync() {
 }
 
 forbid_robots() {
-	cd "$WORKTREE"
+	cd "$REPO"
 	BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+	if [ ! $? -eq 0 ]; then
+		msgfmt 'branch' critical
+	fi
 
 	if [[ "$BRANCH" == "staging" ]] \
 	|| [[ "$BRANCH" == "development" ]]
