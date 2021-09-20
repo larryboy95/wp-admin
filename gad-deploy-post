@@ -98,7 +98,7 @@ deploy_robots() {
 		exit 1
 	fi
 	notify "GAD - ${BRANCH} branch, deploying the ${ROBOTSTXT} to disallow all bots." warning
-	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
+	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/robots.txt"
 	if [ ! $? -eq 0 ]; then
 		notify "GAD - rsync error while attempting to deploy ${ROBOTSTXT} to ${HOSTNAME}" critical
 	else

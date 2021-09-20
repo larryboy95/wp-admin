@@ -63,7 +63,7 @@ msgfmt() {
 		s="$s Branch detection error"
 	;;
 	botslocate)
-		s="$s Could not locate $ROBOTSTXT"
+		s="$s Could not locate the $ROBOTSTXT template"
 	;;
 	botsdeploy)
 		s="$s $BRANCH branch, deploying the $ROBOTSTXT to disallow all bots."
@@ -176,7 +176,7 @@ deploy_robots() {
 		exit 1
 	fi
 	msgfmt 'botsdeploy'
-	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/"
+	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/robots.txt"
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'boterr' critical
 	else
