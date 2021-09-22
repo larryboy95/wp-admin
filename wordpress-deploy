@@ -96,11 +96,13 @@ msgfmt() {
 	fin)
 		s="$s Deployment completed"
 	esac
-	notify "$s" $2
+	LOG_FILE_NOTIFICATIONS="$WORDPRESS_LOG" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
 }
 
 export SLACK_CHANNEL_NORMAL="__deploy"
 export SLACK_CHANNEL_CRITICAL="__error"
+WORDPRESS_LOG="/var/log/wp-admin.log"
+PARENT_SCRIPT="wordpress-deploy"
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
 HOSTNAME="$1"
 WEBROOT=${2:-/var/www/html}
@@ -134,7 +136,7 @@ check_for_gitignore() {
 }
 
 do_the_sync() {
-	msgfmt 'syncdoing'
+	msgfmt 'syncdoing' log
 	rsync -r \
 		--exclude=".git*" \
 		--exclude-from="$GITIGNORE" \
@@ -143,11 +145,11 @@ do_the_sync() {
 		$WORKTREE/ ${HOSTNAME}:${WEBROOT}
 	ERR="$?"
 	if [ "$ERR" -eq 23 ]; then
-		msgfmt 'rsync23' 
+		msgfmt 'rsync23'  log
 	elif [ ! "$ERR" -eq 0 ]; then
 		msgfmt 'rsync' critical
 	else
-		msgfmt 'syncgood'
+		msgfmt 'syncgood' log
 	fi
 }
 
@@ -181,7 +183,7 @@ deploy_robots() {
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'boterr' critical
 	else
-		msgfmt 'botssuccess'
+		msgfmt 'botssuccess' log
 	fi
 }
 
