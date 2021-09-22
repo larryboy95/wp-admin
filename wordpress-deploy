@@ -178,7 +178,7 @@ deploy_robots() {
 		msgfmt 'botslocate' critical
 		exit 1
 	fi
-	msgfmt 'botsdeploy'
+	msgfmt 'botsdeploy' log
 	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/robots.txt"
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'boterr' critical
