@@ -36,68 +36,67 @@ fi
 
 # msgfmt formats notification content
 msgfmt() {
-	local s="$HOSTNAME
-"
+	local s
 	case $1 in
 	init)
-		s="${s}Deploying..."
+		s="Deploying..."
 	;;
 	path)
-		s="${s}\`wp-cli\` not found on admin server"
+		s="\`wp-cli\` not found on admin server"
 	;;
 	gitignore)
-		s="${s}gitignore not found in $WORKTREE"
+		s="gitignore not found in $WORKTREE"
 	;;
 	syncdoing)
-		s="${s}syncing files to ${HOSTNAME}:${WEBROOT}"
+		s="syncing files to ${HOSTNAME}:${WEBROOT}"
 	;;
 	syncgood)
-		s="${s}rsync completed without error"
+		s="rsync completed without error"
 	;;
 	rsync23)
-		s="${s}rsync exited with code 23 (some files failed to transfer)"
+		s="rsync exited with code 23 (some files failed to transfer)"
 	;;
 	rsync)
-		s="${s}rsync exited with code $ERR"
+		s="rsync exited with code $ERR"
 	;;
 	branch)
-		s="${s}Branch detection error"
+		s="Branch detection error"
 	;;
 	botslocate)
-		s="${s}Could not locate the $ROBOTSTXT template"
+		s="Could not locate the $ROBOTSTXT template"
 	;;
 	botsdeploy)
-		s="${s}$BRANCH branch, disallow all bots"
+		s="$BRANCH branch, disallow all bots"
 	;;
 	botserror)
-		s="${s}rsync error  while deploying $ROBOTSTXT"
+		s="rsync error  while deploying $ROBOTSTXT"
 	;;
 	botsexist)
-		s="${s}Robots.txt exists on production domain $SITEURL"
+		s="Robots.txt exists on production domain $SITEURL"
 	;;
 	botsactual)
-		s="${s}Actual robots.txt after deployment: $ROBOTSREAL"
+		s="Actual robots.txt after deployment: $ROBOTSREAL"
 	;;
 	botscurl)
-		s="${s}Curl failed to retrieve robots.txt with error code $ERR"
+		s="Curl failed to retrieve robots.txt with error code $ERR"
 	;;
 	botssuccess)
-		s="${s}rsync completed without error (for $ROBOTSTXT)"
+		s="rsync completed without error (for $ROBOTSTXT)"
 	;;
 	nowp)
-		s="${s}\`wp core is-installed\` failed, most likely a PATH issue"
+		s="\`wp core is-installed\` failed, most likely a PATH issue"
 	;;
 	siteurl)
-		s="${s}Error getting siteurl, using ssh HOST"
+		s="Error getting siteurl, using ssh HOST"
 	;;
 	perms)
-		s="${s}wordpress-permissions exited with code $ERR"
+		s="wordpress-permissions exited with code $ERR"
 	;;
 	fin)
-		s="${s}Deployment completed
+		s="Deployment completed
 ____________________"
 	esac
-	LOG_FILE_NOTIFICATIONS="$WORDPRESS_LOG" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
+	FOOTER="$HOSTNAME" LOG_FILE_NOTIFICATIONS="$WORDPRESS_LOG" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
 }
 
 export SLACK_CHANNEL_NORMAL="__deploy"
