@@ -76,28 +76,85 @@ Example of a `post-receive` git hook:
 ```bash
 #!/bin/sh
 #
+# THIS ^ IS NOT A BASH SCRIPT
+#
 # post-receive to deploy code after receiving a push
 # goes in .git/hooks/ on the admin server
 
-# Source (bashism) HOSTNAME REPOURL BRANCH WEBROOT OWNER
-. "./hooks/git-hooks-env"
-if [ ! $? -eq 0 ]; then
-	echo "Environment file not found, exiting."
+if [ ! $(which notify) ]; then
+	echo "$date notify-cli not found, exiting"
 	exit 1
 fi
-WORKING_DIRECTORY="/var/wordpress-deploy"
-REPOS="$WORKING_DIRECTORY/repos"
-WORKTREES="$WORKING_DIRECTORY/worktrees"
-REPO="$REPOS/$HOSTNAME.git"
-WORKTREE="$WORKTREES/$HOSTNAME"
-git --work-tree=$WORKTREE --git-dir=$REPO checkout -f $BRANCH
+export SLACK_CHANNEL_NORMAL="__deploy"
+export SLACK_CHANNEL_CRITICAL="__error"
+LOG_FILE_NOTIFICATIONS="/var/log/wp-admin.log"
+PARENT_SCRIPT="git-hook-post-receive"
+# msgfmt formats notification content
+msgfmt() {
+	case $1 in
+	env)
+		s="Environment file not found in \`$SCRIPTDIR\`, exiting"
+	;;
+	init)
+		s="____________________
+git hook post-receive running
+Latest commit is by $USER_NAME"
+	;;
+	path)
+		s="Could not find the \`wordpress-deploy\` script"
+	;;
+	checkout)
+		s="Failed to checkout $BRANCH"
+	;;
+	skip)
+		s="Skipping checkout as requested"
+	;;
+	nopush)
+		s="Deployment script failed, use this command to force deployment without pushing:
+\`\`\`
+ssh dev@agency.com -f \"$REPO/hooks/post-receive nocheckout\"
+\`\`\`"
+	;;
+	esac
+	FOOTER="$HOSTNAME" LOG_FILE_NOTIFICATIONS="$LOG_FILE_NOTIFICATIONS" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
+}
+SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
+# Source (bashism) HOSTNAME REPOURL BRANCH WEBROOT WEBROOT_OWNER
+. "$SCRIPTDIR/git-hooks-env"
 if [ ! $? -eq 0 ]; then
-	notify "git hook failed to checkout -f for $HOSTNAME" critical
+	msgfmt 'env' critical
 	exit 1
+fi
+FLAG_SKIP_CHECKOUT="$1"
+WORKING_DIRECTORY="/var/deploy"
+export REPOS="$WORKING_DIRECTORY/repos"
+REPO="$REPOS/$HOSTNAME.git"
+export WORKTREES="$WORKING_DIRECTORY/worktrees"
+WORKTREE="$WORKTREES/$HOSTNAME"
+GIT="git --work-tree=$WORKTREE --git-dir=$REPO"
+USER_NAME="$($GIT log -1 --format=format:%an HEAD)"
+WORDPRESS_DEPLOY="$(which wordpress-deploy)"
+if [ ! $? -eq 0 ]; then
+	msgfmt 'path' critical
+	exit 1
+fi
+msgfmt 'init'
+
+if [ -z $FLAG_SKIP_CHECKOUT ]; then
+	$GIT checkout -f $BRANCH
+	if [ ! $? -eq 0 ]; then
+		msgfmt 'checkout' critical
+		exit 1
+	fi
+else
+	msgfmt 'skip' 
 fi
 
-export WORKTREES
-wordpress-deploy $HOSTNAME $WEBROOT $OWNER
+nohup $WORDPRESS_DEPLOY $HOSTNAME $WEBROOT $WEBROOT_OWNER > /dev/null 2>&1 &
+
+if [ ! $? -eq 0 ]; then
+	msgfmt 'nopush' critical
+fi
 
 exit 0
 ```
