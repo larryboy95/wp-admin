@@ -170,9 +170,21 @@ Example admin server initialization script:
 
 # Initialize all repos not already initialized
 
-WORKING_DIRECTORY="/var/wordpress-deploy"
+WORKING_DIRECTORY="/var/deploy"
 REPOS="$WORKING_DIRECTORY/repos"
 WORKTREES="$WORKING_DIRECTORY/worktrees"
+export SLACK_CHANNEL_NORMAL="__config"
+export SLACK_CHANNEL_CRITICAL="__error"
+# Initialize globals
+DOMAIN=""
+ORIGIN_REPO_URL=""
+BRANCH=""
+REMOTE=""
+WEBROOT=""
+OWNER=""
+REPO=""
+WORKTREE=""
+DEPLOY_REPO_URL=""
 
 if [ ! -d $REPOS ]; then
 	mkdir $REPOS || exit 1
@@ -181,41 +193,110 @@ if [ ! -d $WORKTREES ]; then
 	mkdir $WORKTREES || exit 1
 fi
 
-git-deploy-init(){
+set_globals(){
 	DOMAIN="$1"
-	REPOURL="$2"
+	ORIGIN_REPO_URL="$2"
 	BRANCH="$3"
-	WEBROOT="$4"
-	OWNER="$5"
+	REMOTE="$4"
+	WEBROOT="$5"
+	OWNER="$6"
 	REPO="$REPOS/$DOMAIN.git"
 	WORKTREE="$WORKTREES/$DOMAIN"
+	DEPLOY_REPO_URL="ssh://dev@agency.com:/var/deploy/repos/${DOMAIN}.git"
+}
+
+clone_repo() {
 	if [ -d $REPO ]; then
 		echo "$REPO already exists, skipping."
 	else
-		git clone --bare "$REPOURL" "$REPO"
+		git clone --bare "$ORIGIN_REPO_URL" "$REPO"
+		if [ ! $? -eq 0 ]; then
+			notify "Error cloning $ORIGIN_REPO_URL for $DOMAIN" critical
+			exit 1
+		fi
 		chgrp developers -R "$REPO"
-		chmod g+s -R "$REPO"
+		if [ ! $? -eq 0 ]; then
+			notify "Error chgrp $REPO for $DOMAIN" critical
+			exit 1
+		fi
+		chmod g+ws -R "$REPO"
+		if [ ! $? -eq 0 ]; then
+			notify "Error chmod $REPO for $DOMAIN" critical
+			exit 1
+		fi
+		send_instructions
 	fi
 	if [ -d $WORKTREE ]; then
 		echo "$WORKTREE already exists, skipping."
 	else
 		mkdir "$WORKTREE"
+		if [ ! $? -eq 0 ]; then
+			notify "Error mkdir $WORKTREE for $DOMAIN" critical
+			exit 1
+		fi
 		chgrp developers -R "$WORKTREE"
-		chmod g+s -R "$WORKTREE"
+		if [ ! $? -eq 0 ]; then
+			notify "Error chgrp $WORKTREE for $DOMAIN" critical
+			exit 1
+		fi
+		chmod g+ws -R "$WORKTREE"
+		if [ ! $? -eq 0 ]; then
+			notify "Error chmod $WORKTREE for $DOMAIN" critical
+			exit 1
+		fi
 	fi
+}
 
+# Copy hook into repo and set as executable
+setup_hook() {
+	echo "Copying the git hook"
 	cp post-receive $REPO/hooks/
+	if [ ! $? -eq 0 ]; then
+		notify "Error copying git hook for $DOMAIN" critical
+		exit 1
+	fi
+	echo "Setting hook as executable"
 	chmod a+x $REPO/hooks/post-receive
+	if [ ! $? -eq 0 ]; then
+		notify "Error chmodding git hook for $DOMAIN" critical
+		exit 1
+	fi
+}
 
+# Write environment variables to test file
+set_env() {
 	echo "# Git Hooks Environment
 HOSTNAME=$DOMAIN
 BRANCH=$BRANCH
 WEBROOT=$WEBROOT
 WEBROOT_OWNER=$OWNER" > $REPO/hooks/git-hooks-env
+	if [ ! $? -eq 0 ]; then
+		notify "Error setting git-hooks-env for $DOMAIN" critical
+		exit 1
+	fi
 }
 
-git-deploy-init git-deploy-test.agency.com git@gitlab.com:agency/git-deploy-test.git main /var/www/html www-data
-git-deploy-init git-deploy-test-staging.agency.com git@gitlab.com:agency/git-deploy-test.git staging /var/www/html www-data
+# Post git config commands for developers to slack
+send_instructions() {
+	INSTRUCTIONS="
+$DOMAIN
+$BRANCH branch
+\`\`\`
+git remote add $REMOTE $ORIGIN_REPO_URL;
+git remote set-url --push --add $REMOTE $DEPLOY_REPO_URL;
+git remote set-url --push --add $REMOTE $ORIGIN_REPO_URL;
+git checkout $BRANCH;
+git push -u $REMOTE
+\`\`\`
+"
+	notify "$INSTRUCTIONS"
+}
+
+git-deploy-init git-deploy-test.agency.com git@gitlab.com:agency/git-deploy-test.git main production /var/www/html www-data
+clone_repo; setup_hook; set_env
+
+git-deploy-init git-deploy-test-staging.agency.com git@gitlab.com:agency/git-deploy-test.git staging staging /var/www/html www-data
+clone_repo; setup_hook; set_env
 
 exit 0
 ```
