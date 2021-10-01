@@ -161,7 +161,7 @@ exit 0
 
 In the `post-receive` example above you can see that repo-specific variables are sourced from a file called `git-hooks-env`.
 The repos are separated from the worktrees, to keep all the git stuff segregated from the actual codebase.
-Both the repository and worktree paths are all named after the full.ain of the deployment target server ($HOSTNAME) for predictability.
+Both the repository and worktree paths are all named after the full domain of the deployment target server ($HOSTNAME) for predictability.
 The (https://gitlab.com/neilscudder/script-generator)[script-generator] generates an initialization script based on a CSV.
 
 Example admin server initialization script:
