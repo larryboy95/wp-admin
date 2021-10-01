@@ -95,6 +95,13 @@ msgfmt() {
 	fin)
 		s="Deployment completed
 ____________________"
+	;;
+	nopush)
+		s="Use this command to force deployment without pushing:
+\`\`\`
+ssh dev@admin.mediumraredev.com -p 9999 -f \"$REPO/hooks/post-receive nocheckout\"
+\`\`\`"
+	;;
 	esac
 	FOOTER="$HOSTNAME" LOG_FILE_NOTIFICATIONS="$WORDPRESS_LOG" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
 }
@@ -148,6 +155,7 @@ do_the_sync() {
 		msgfmt 'rsync23'  log
 	elif [ ! "$ERR" -eq 0 ]; then
 		msgfmt 'rsync' critical
+		msgfmt 'nopush' critical
 	else
 		msgfmt 'syncgood' log
 	fi
