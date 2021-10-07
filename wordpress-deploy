@@ -39,7 +39,7 @@ msgfmt() {
 	local s
 	case $1 in
 	init)
-		s="Deploying..."
+		s="wordpress-deploy is running"
 	;;
 	path)
 		s="\`wp-cli\` not found on admin server"
