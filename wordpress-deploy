@@ -5,7 +5,7 @@ Usage: $SCRIPTNAME HOSTNAME [WEBROOT OWNER]
 This script is run by a git hook, 
 but it can be run manually as well.
 HOSTNAME must be configured in ~/.ssh/config
-Deploys from WORKTREE to HOST:WEBROOT
+Deploys from WORKTREE to HOSTNAME:WEBROOT
 Default WEBROOT is /var/www/html
 
 WORKTREES should be set as an environment variable.
