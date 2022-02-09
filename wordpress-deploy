@@ -99,7 +99,7 @@ ____________________"
 	nopush)
 		s="Use this command to force deployment without pushing:
 \`\`\`
-ssh dev@admin.mediumraredev.com -p 9999 -f \"$REPO/hooks/post-receive nocheckout\"
+ssh developer@adminserver.example.com -p 22 -f \"$REPO/hooks/post-receive nocheckout\"
 \`\`\`"
 	;;
 	esac
