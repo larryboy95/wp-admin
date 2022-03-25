@@ -3,7 +3,7 @@
 USAGE="
 $(basename $0) Version  0.2.8
 
-Usage: $(basename $0) HOSTNAME [OWNER WEBROOT]
+Usage: $(basename $0) DOMAIN [OWNER WEBROOT]
 
 Change primary owner of webroot to OWNER while preserving write permissions for www-data to appropriate directories.
 Sets all files to 640 and all directories to 750. wp-config.php is owned by root, 644.
@@ -17,7 +17,7 @@ if [ $# -eq 0 ]; then
 	echo "$USAGE"
 	exit 1
 fi
-HOSTNAME="$1"
+DOMAIN="$1"
 GROUP="www-data"
 # If OWNER is not supplied, ask for it
 if [ $# -eq 1 ]; then
@@ -28,35 +28,35 @@ else
 fi
 WEBROOT="${3:-/var/www/html}"
 
-ssh "$HOSTNAME" "sudo ls >/dev/null 2>&1"
+ssh "$DOMAIN" "sudo ls >/dev/null 2>&1"
 if [ ! $? -eq 0 ]; then
-	echo "$(date) No sudo privileges at $HOSTNAME"
+	echo "$(date) No sudo privileges at $DOMAIN"
 	exit 2
 else
-	ssh "$HOSTNAME" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
+	ssh "$DOMAIN" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
 	if [ ! $? -eq 0 ]; then
-		notify "Permissions error on ${HOSTNAME}" critical
+		notify "Permissions error on ${DOMAIN}" critical
 		exit 1
 	fi
-	ssh "$HOSTNAME" "sudo chown ${OWNER}:${GROUP} ${WEBROOT}/..;"
-	ssh "$HOSTNAME" "sudo chown root:${GROUP} ${WEBROOT}/wp-config.php;"
-	ssh "$HOSTNAME" "[ -d ${WEBROOT}/wp-content/uploads ] && \
+	ssh "$DOMAIN" "sudo chown ${OWNER}:${GROUP} ${WEBROOT}/..;"
+	ssh "$DOMAIN" "sudo chown root:${GROUP} ${WEBROOT}/wp-config.php;"
+	ssh "$DOMAIN" "[ -d ${WEBROOT}/wp-content/uploads ] && \
 		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/uploads; \
 		[ -d ${WEBROOT}/wp-content/banners ] && \
 		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/banners; \
 		[ -d ${WEBROOT}/wp-content/plugins/wpspx/cache ] && \
 		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
 	"
-	ssh "$HOSTNAME" "[ -d ${WEBROOT}/wp-content/uploads ] && \
+	ssh "$DOMAIN" "[ -d ${WEBROOT}/wp-content/uploads ] && \
 		sudo chmod g+ws -R ${WEBROOT}/wp-content;"
-	ssh "$HOSTNAME" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
+	ssh "$DOMAIN" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
 		sudo find ${WEBROOT} -type d -exec chmod 750 {} +;
 		sudo chmod 644 ${WEBROOT}/wp-config.php;
 	"
 	if [ $? -eq 0 ]; then
-		echo "$(date) Permissions updated on ${HOSTNAME}"
+		echo "$(date) Permissions updated on ${DOMAIN}"
 	else
-		notify "Permissions error on ${HOSTNAME}" critical
+		notify "Permissions error on ${DOMAIN}" critical
 		exit 1
 	fi
 fi

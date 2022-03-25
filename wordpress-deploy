@@ -1,20 +1,20 @@
 #!/bin/bash
 USAGE="
-Usage: $SCRIPTNAME HOSTNAME [WEBROOT OWNER]
+Usage: $SCRIPTNAME DOMAIN [WEBROOT OWNER]
 
 This script is run by a git hook, 
 but it can be run manually as well.
-HOSTNAME must be configured in ~/.ssh/config
-Deploys from WORKTREE to HOSTNAME:WEBROOT
+DOMAIN must be configured in ~/.ssh/config
+Deploys from WORKTREE to DOMAIN:WEBROOT
 Default WEBROOT is /var/www/html
 
 WORKTREES should be set as an environment variable.
 WORKTREES defaults to /var/worktrees
-WORKTREE will be set to WORKTREES/HOSTNAME
+WORKTREE will be set to WORKTREES/DOMAIN
 (i.e. /var/worktrees/www.clientsite.com)
 
 OWNER defaults to \"none\".
-The wordpress-permissions script will be run on HOSTNAME:WEBROOT
+The wordpress-permissions script will be run on DOMAIN:WEBROOT
 with OWNER as the argument unless OWNER is set to \"none\".
 
 Requires a .gitignore file in worktree dir to use as file mask.
@@ -48,7 +48,7 @@ msgfmt() {
 		s="gitignore not found in $WORKTREE"
 	;;
 	syncdoing)
-		s="syncing files to ${HOSTNAME}:${WEBROOT}"
+		s="syncing files to ${DOMAIN}:${WEBROOT}"
 	;;
 	syncgood)
 		s="rsync completed without error"
@@ -107,20 +107,20 @@ ssh developer@adminserver.example.com -p 22 -f \"$REPO/hooks/post-receive nochec
 }
 
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
-HOSTNAME="$1"
+DOMAIN="$1"
 WEBROOT=${2:-/var/www/html}
 OWNER=${3:-none}
 WORKTREES="${WORKTREES:-/var/deploy/worktrees}"
-WORKTREE="$WORKTREES/$HOSTNAME"
+WORKTREE="$WORKTREES/$DOMAIN"
 REPOS="${REPOS:-/var/deploy/repos}"
-REPO="$REPOS/${HOSTNAME}.git"
+REPO="$REPOS/${DOMAIN}.git"
 GITIGNORE="${WORKTREE}/.gitignore"
 
 export SLACK_CHANNEL_NORMAL="__deploy"
 export SLACK_CHANNEL_CRITICAL="__error"
 export NOTIFY_LOG_FILE="/var/log/wp-admin.log"
 export NOTIFY_PARENT_SCRIPT="wordpress-deploy"
-export NOTIFY_HOSTNAME="$HOSTNAME"
+export NOTIFY_HOSTNAME="$DOMAIN"
 
 SITEURL=""
 BRANCH=""
@@ -152,7 +152,7 @@ do_the_sync() {
 		--exclude-from="$GITIGNORE" \
 		--delete \
 		--chmod=D755,F644 \
-		$WORKTREE/ ${HOSTNAME}:${WEBROOT}
+		$WORKTREE/ ${DOMAIN}:${WEBROOT}
 	ERR="$?"
 	if [ "$ERR" -eq 23 ]; then
 		msgfmt 'rsync23'  log
@@ -190,7 +190,7 @@ deploy_robots() {
 		exit 1
 	fi
 	msgfmt 'botsdeploy' log
-	rsync -v "$ROBOTSTXT" "${HOSTNAME}:${WEBROOT}/robots.txt"
+	rsync -v "$ROBOTSTXT" "${DOMAIN}:${WEBROOT}/robots.txt"
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'boterr' critical
 	else
@@ -199,7 +199,7 @@ deploy_robots() {
 }
 
 production_robots() {
-	ssh $HOSTNAME "[ -f $WEBROOT/robots.txt ] && exit 42" > /dev/null 2>&1
+	ssh $DOMAIN "[ -f $WEBROOT/robots.txt ] && exit 42" > /dev/null 2>&1
 	if [ $? -eq 42 ]; then
 		msgfmt 'botsexist' critical
 	fi
@@ -221,7 +221,7 @@ get_robots() {
 
 set_permissions() {
 	if [[ "$OWNER" != "none" ]]; then
-		wordpress-permissions "$HOSTNAME" "$OWNER"
+		wordpress-permissions "$DOMAIN" "$OWNER"
 		ERR="$?"
 		if [ ! "$ERR" -eq 0 ]; then
 			msgfmt 'perms' critical
@@ -240,7 +240,7 @@ get_siteurl() {
 	SITEURL=$($WP --quiet option get siteurl)
 	if [ ! $? -eq 0 ]; then
 		msgfmt 'siteurl' critical
-		SITEURL="https://$HOSTNAME/"
+		SITEURL="https://$DOMAIN/"
 	fi
 }
 
