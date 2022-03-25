@@ -103,13 +103,9 @@ ssh developer@adminserver.example.com -p 22 -f \"$REPO/hooks/post-receive nochec
 \`\`\`"
 	;;
 	esac
-	FOOTER="$HOSTNAME" LOG_FILE_NOTIFICATIONS="$WORDPRESS_LOG" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
+	notify "$s" $2
 }
 
-export SLACK_CHANNEL_NORMAL="__deploy"
-export SLACK_CHANNEL_CRITICAL="__error"
-WORDPRESS_LOG="/var/log/wp-admin.log"
-PARENT_SCRIPT="wordpress-deploy"
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
 HOSTNAME="$1"
 WEBROOT=${2:-/var/www/html}
@@ -119,6 +115,13 @@ WORKTREE="$WORKTREES/$HOSTNAME"
 REPOS="${REPOS:-/var/deploy/repos}"
 REPO="$REPOS/${HOSTNAME}.git"
 GITIGNORE="${WORKTREE}/.gitignore"
+
+export SLACK_CHANNEL_NORMAL="__deploy"
+export SLACK_CHANNEL_CRITICAL="__error"
+export NOTIFY_LOG_FILE="/var/log/wp-admin.log"
+export NOTIFY_PARENT_SCRIPT="wordpress-deploy"
+export NOTIFY_HOSTNAME="$HOSTNAME"
+
 SITEURL=""
 BRANCH=""
 ERR=""
