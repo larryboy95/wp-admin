@@ -18,6 +18,11 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 DOMAIN="$1"
+export SLACK_CHANNEL_NORMAL="__deploy"
+export SLACK_CHANNEL_CRITICAL="__error"
+export NOTIFY_LOG_FILE="/var/log/wp-admin.log"
+export NOTIFY_PARENT_SCRIPT="wordpress-permissions"
+export NOTIFY_HOSTNAME="$DOMAIN"
 GROUP="www-data"
 # If OWNER is not supplied, ask for it
 if [ $# -eq 1 ]; then

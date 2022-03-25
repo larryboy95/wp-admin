@@ -50,6 +50,11 @@ trap 'rm -rf /tmp/wordpress-backup.lock' EXIT
 
 DOMAIN="$1"
 GROUP="mribackup"
+export SLACK_CHANNEL_NORMAL="__info"
+export SLACK_CHANNEL_CRITICAL="__error"
+export NOTIFY_LOG_FILE="/var/log/wp-admin.log"
+export NOTIFY_PARENT_SCRIPT="wordpress-backup"
+export NOTIFY_HOSTNAME="$DOMAIN"
 # Set defaults if arguments absent
 BACKUPTYPE="${2:-manual}"
 WEBROOT="${3:-/var/www/html}"
