@@ -116,10 +116,10 @@ ssh dev@agency.com -f \"$REPO/hooks/post-receive nocheckout\"
 \`\`\`"
 	;;
 	esac
-	FOOTER="$HOSTNAME" LOG_FILE_NOTIFICATIONS="$LOG_FILE_NOTIFICATIONS" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
+	FOOTER="$DOMAIN" LOG_FILE_NOTIFICATIONS="$LOG_FILE_NOTIFICATIONS" PARENT_SCRIPT="$PARENT_SCRIPT" notify "$s" $2
 }
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
-# Source (bashism) HOSTNAME REPOURL BRANCH WEBROOT WEBROOT_OWNER
+# Source (bashism) DOMAIN REPOURL BRANCH WEBROOT WEBROOT_OWNER
 . "$SCRIPTDIR/git-hooks-env"
 if [ ! $? -eq 0 ]; then
 	msgfmt 'env' critical
@@ -128,9 +128,9 @@ fi
 FLAG_SKIP_CHECKOUT="$1"
 WORKING_DIRECTORY="/var/deploy"
 export REPOS="$WORKING_DIRECTORY/repos"
-REPO="$REPOS/$HOSTNAME.git"
+REPO="$REPOS/$DOMAIN.git"
 export WORKTREES="$WORKING_DIRECTORY/worktrees"
-WORKTREE="$WORKTREES/$HOSTNAME"
+WORKTREE="$WORKTREES/$DOMAIN"
 GIT="git --work-tree=$WORKTREE --git-dir=$REPO"
 USER_NAME="$($GIT log -1 --format=format:%an HEAD)"
 WORDPRESS_DEPLOY="$(which wordpress-deploy)"
@@ -150,7 +150,7 @@ else
 	msgfmt 'skip' 
 fi
 
-nohup $WORDPRESS_DEPLOY $HOSTNAME $WEBROOT $WEBROOT_OWNER > /dev/null 2>&1 &
+nohup $WORDPRESS_DEPLOY $DOMAIN $WEBROOT $WEBROOT_OWNER > /dev/null 2>&1 &
 
 if [ ! $? -eq 0 ]; then
 	msgfmt 'nopush' critical
@@ -161,7 +161,7 @@ exit 0
 
 In the `post-receive` example above you can see that repo-specific variables are sourced from a file called `git-hooks-env`.
 The repos are separated from the worktrees, to keep all the git stuff segregated from the actual codebase.
-Both the repository and worktree paths are all named after the full domain of the deployment target server ($HOSTNAME) for predictability.
+Both the repository and worktree paths are all named after the full domain of the deployment target server ($DOMAIN) for predictability.
 The (https://gitlab.com/neilscudder/script-generator)[script-generator] generates an initialization script based on a CSV.
 
 Example admin server initialization script:
@@ -266,7 +266,7 @@ setup_hook() {
 # Write environment variables to test file
 set_env() {
 	echo "# Git Hooks Environment
-HOSTNAME=$DOMAIN
+DOMAIN=$DOMAIN
 BRANCH=$BRANCH
 WEBROOT=$WEBROOT
 WEBROOT_OWNER=$OWNER" > $REPO/hooks/git-hooks-env

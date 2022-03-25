@@ -129,7 +129,7 @@ ROBOTSTXT=""
 ROBOTSREAL=""
 WPBIN=$(which wp)
 if [ $? -eq 0 ]; then
-	WP="$WPBIN --path=$WEBROOT --allow-root --skip-themes --skip-plugins --ssh=$HOSTNAME"
+	WP="$WPBIN --path=$WEBROOT --allow-root --skip-themes --skip-plugins --ssh=$DOMAIN"
 else
 	msgfmt 'path' critical
 	exit 1
