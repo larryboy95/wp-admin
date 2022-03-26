@@ -10,8 +10,8 @@ Makes a db backup in /tmp first.
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
-	echo "$USAGE"
-	exit 1
+    echo "$USAGE"
+    exit 1
 fi
 
 WP=$(which wp)
@@ -23,11 +23,11 @@ SITEURL=$($WPCMD option get siteurl)
 [ $? != 0 ] && {echo "Problem retrieving siteurl"; exit 1}
 echo "Delete ALL posts from ${SITEURL}!?"  
 read -p "Are you mad? " -n 1 -r  
-echo	# (optional) move to a new line  
+echo    # (optional) move to a new line  
 if [[ $REPLY =~ ^[Yy]$ ]]; then  
-	$WPCMD "post delete $($WPCMD "post list --format=ids")"
+    $WPCMD "post delete $($WPCMD "post list --format=ids")"
 else
-	echo "Cancelled due to sanity."
-	exit 2
-fi	
-exit 0	
+    echo "Cancelled due to sanity."
+    exit 2
+fi  
+exit 0  

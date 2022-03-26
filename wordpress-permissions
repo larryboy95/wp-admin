@@ -14,8 +14,8 @@ WEBROOT /var/www/html
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
-	echo "$USAGE"
-	exit 1
+    echo "$USAGE"
+    exit 1
 fi
 DOMAIN="$1"
 export SLACK_CHANNEL_NORMAL="__deploy"
@@ -26,43 +26,43 @@ export NOTIFY_HOSTNAME="$DOMAIN"
 GROUP="www-data"
 # If OWNER is not supplied, ask for it
 if [ $# -eq 1 ]; then
-	read -p "User: [dev]" OWNER
-	OWNER=${OWNER:-dev}
+    read -p "User: [dev]" OWNER
+    OWNER=${OWNER:-dev}
 else
-	OWNER=${2}
+    OWNER=${2}
 fi
 WEBROOT="${3:-/var/www/html}"
 
 ssh "$DOMAIN" "sudo ls >/dev/null 2>&1"
 if [ ! $? -eq 0 ]; then
-	echo "$(date) No sudo privileges at $DOMAIN"
-	exit 2
+    echo "$(date) No sudo privileges at $DOMAIN"
+    exit 2
 else
-	ssh "$DOMAIN" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
-	if [ ! $? -eq 0 ]; then
-		notify "Permissions error on ${DOMAIN}" critical
-		exit 1
-	fi
-	ssh "$DOMAIN" "sudo chown ${OWNER}:${GROUP} ${WEBROOT}/..;"
-	ssh "$DOMAIN" "sudo chown root:${GROUP} ${WEBROOT}/wp-config.php;"
-	ssh "$DOMAIN" "[ -d ${WEBROOT}/wp-content/uploads ] && \
-		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/uploads; \
-		[ -d ${WEBROOT}/wp-content/banners ] && \
-		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/banners; \
-		[ -d ${WEBROOT}/wp-content/plugins/wpspx/cache ] && \
-		sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
-	"
-	ssh "$DOMAIN" "[ -d ${WEBROOT}/wp-content/uploads ] && \
-		sudo chmod g+ws -R ${WEBROOT}/wp-content;"
-	ssh "$DOMAIN" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
-		sudo find ${WEBROOT} -type d -exec chmod 750 {} +;
-		sudo chmod 644 ${WEBROOT}/wp-config.php;
-	"
-	if [ $? -eq 0 ]; then
-		echo "$(date) Permissions updated on ${DOMAIN}"
-	else
-		notify "Permissions error on ${DOMAIN}" critical
-		exit 1
-	fi
+    ssh "$DOMAIN" "sudo chown -R ${OWNER}:${GROUP} ${WEBROOT};"
+    if [ ! $? -eq 0 ]; then
+        notify "Permissions error on ${DOMAIN}" critical
+        exit 1
+    fi
+    ssh "$DOMAIN" "sudo chown ${OWNER}:${GROUP} ${WEBROOT}/..;"
+    ssh "$DOMAIN" "sudo chown root:${GROUP} ${WEBROOT}/wp-config.php;"
+    ssh "$DOMAIN" "[ -d ${WEBROOT}/wp-content/uploads ] && \
+        sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/uploads; \
+        [ -d ${WEBROOT}/wp-content/banners ] && \
+        sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/banners; \
+        [ -d ${WEBROOT}/wp-content/plugins/wpspx/cache ] && \
+        sudo chown -R ${GROUP}:${OWNER} ${WEBROOT}/wp-content/plugins/wpspx/cache;
+    "
+    ssh "$DOMAIN" "[ -d ${WEBROOT}/wp-content/uploads ] && \
+        sudo chmod g+ws -R ${WEBROOT}/wp-content;"
+    ssh "$DOMAIN" "sudo find ${WEBROOT} -type f -exec chmod 640 {} +; \
+        sudo find ${WEBROOT} -type d -exec chmod 750 {} +;
+        sudo chmod 644 ${WEBROOT}/wp-config.php;
+    "
+    if [ $? -eq 0 ]; then
+        echo "$(date) Permissions updated on ${DOMAIN}"
+    else
+        notify "Permissions error on ${DOMAIN}" critical
+        exit 1
+    fi
 fi
 exit 0

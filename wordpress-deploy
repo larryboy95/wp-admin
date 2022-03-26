@@ -19,91 +19,91 @@ with OWNER as the argument unless OWNER is set to \"none\".
 
 Requires a .gitignore file in worktree dir to use as file mask.
 Deletes all files in WEBROOT unless they exist:
-	a) in the worktree
-	b) in the .gitignore
+    a) in the worktree
+    b) in the .gitignore
 A discouraging robots.txt is added to WEBROOT when the
 git branch is detected to be staging or development.
 "
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
-	echo "$USAGE"
-	exit 1
+    echo "$USAGE"
+    exit 1
 fi
 if [ ! $(which notify) ]; then
-	echo "$(date) notify-cli not found, exiting"
-	exit 1
+    echo "$(date) notify-cli not found, exiting"
+    exit 1
 fi
 
 # msgfmt formats notification content
 msgfmt() {
-	local s
-	case $1 in
-	init)
-		s="wordpress-deploy is running"
-	;;
-	path)
-		s="\`wp-cli\` not found on admin server"
-	;;
-	gitignore)
-		s="gitignore not found in $WORKTREE"
-	;;
-	syncdoing)
-		s="syncing files to ${DOMAIN}:${WEBROOT}"
-	;;
-	syncgood)
-		s="rsync completed without error"
-	;;
-	rsync23)
-		s="rsync exited with code 23 (some files failed to transfer)"
-	;;
-	rsync)
-		s="rsync exited with code $ERR"
-	;;
-	branch)
-		s="Branch detection error"
-	;;
-	botslocate)
-		s="Could not locate the $ROBOTSTXT template"
-	;;
-	botsdeploy)
-		s="$BRANCH branch, disallow all bots"
-	;;
-	botserror)
-		s="rsync error  while deploying $ROBOTSTXT"
-	;;
-	botsexist)
-		s="Robots.txt exists on production domain $SITEURL"
-	;;
-	botsactual)
-		s="Actual robots.txt after deployment: $ROBOTSREAL"
-	;;
-	botscurl)
-		s="Curl failed to retrieve robots.txt with error code $ERR"
-	;;
-	botssuccess)
-		s="rsync completed without error (for $ROBOTSTXT)"
-	;;
-	nowp)
-		s="\`wp core is-installed\` failed, most likely a PATH issue"
-	;;
-	siteurl)
-		s="Error getting siteurl, using ssh HOST"
-	;;
-	perms)
-		s="wordpress-permissions exited with code $ERR"
-	;;
-	fin)
-		s="Deployment completed
+    local s
+    case $1 in
+    init)
+        s="wordpress-deploy is running"
+    ;;
+    path)
+        s="\`wp-cli\` not found on admin server"
+    ;;
+    gitignore)
+        s="gitignore not found in $WORKTREE"
+    ;;
+    syncdoing)
+        s="syncing files to ${DOMAIN}:${WEBROOT}"
+    ;;
+    syncgood)
+        s="rsync completed without error"
+    ;;
+    rsync23)
+        s="rsync exited with code 23 (some files failed to transfer)"
+    ;;
+    rsync)
+        s="rsync exited with code $ERR"
+    ;;
+    branch)
+        s="Branch detection error"
+    ;;
+    botslocate)
+        s="Could not locate the $ROBOTSTXT template"
+    ;;
+    botsdeploy)
+        s="$BRANCH branch, disallow all bots"
+    ;;
+    botserror)
+        s="rsync error  while deploying $ROBOTSTXT"
+    ;;
+    botsexist)
+        s="Robots.txt exists on production domain $SITEURL"
+    ;;
+    botsactual)
+        s="Actual robots.txt after deployment: $ROBOTSREAL"
+    ;;
+    botscurl)
+        s="Curl failed to retrieve robots.txt with error code $ERR"
+    ;;
+    botssuccess)
+        s="rsync completed without error (for $ROBOTSTXT)"
+    ;;
+    nowp)
+        s="\`wp core is-installed\` failed, most likely a PATH issue"
+    ;;
+    siteurl)
+        s="Error getting siteurl, using ssh HOST"
+    ;;
+    perms)
+        s="wordpress-permissions exited with code $ERR"
+    ;;
+    fin)
+        s="Deployment completed
 ____________________"
-	;;
-	nopush)
-		s="Use this command to force deployment without pushing:
+    ;;
+    nopush)
+        s="Use this command to force deployment without pushing:
 \`\`\`
 ssh developer@adminserver.example.com -p 22 -f \"$REPO/hooks/post-receive nocheckout\"
 \`\`\`"
-	;;
-	esac
-	notify "$s" $2
+    ;;
+    esac
+    notify "$s" $2
 }
 
 SCRIPTDIR="$( cd "$( dirname "$(readlink -f "$0")" )" >/dev/null 2>&1 && pwd )"
@@ -129,119 +129,119 @@ ROBOTSTXT=""
 ROBOTSREAL=""
 WPBIN=$(which wp)
 if [ $? -eq 0 ]; then
-	WP="$WPBIN --path=$WEBROOT --allow-root --skip-themes --skip-plugins --ssh=$DOMAIN"
+    WP="$WPBIN --path=$WEBROOT --allow-root --skip-themes --skip-plugins --ssh=$DOMAIN"
 else
-	msgfmt 'path' critical
-	exit 1
+    msgfmt 'path' critical
+    exit 1
 fi
 
 msgfmt 'init'
 
 
 check_for_gitignore() {
-	if [ ! -f "$GITIGNORE" ]; then 
-		msgfmt 'gitignore' critical
-		exit 1
-	fi
+    if [ ! -f "$GITIGNORE" ]; then 
+        msgfmt 'gitignore' critical
+        exit 1
+    fi
 }
 
 do_the_sync() {
-	msgfmt 'syncdoing' log
-	rsync -r \
-		--exclude=".git*" \
-		--exclude-from="$GITIGNORE" \
-		--delete \
-		--chmod=D755,F644 \
-		$WORKTREE/ ${DOMAIN}:${WEBROOT}
-	ERR="$?"
-	if [ "$ERR" -eq 23 ]; then
-		msgfmt 'rsync23'  log
-	elif [ ! "$ERR" -eq 0 ]; then
-		msgfmt 'rsync' critical
-		msgfmt 'nopush' critical
-	else
-		msgfmt 'syncgood' log
-	fi
+    msgfmt 'syncdoing' log
+    rsync -r \
+        --exclude=".git*" \
+        --exclude-from="$GITIGNORE" \
+        --delete \
+        --chmod=D755,F644 \
+        $WORKTREE/ ${DOMAIN}:${WEBROOT}
+    ERR="$?"
+    if [ "$ERR" -eq 23 ]; then
+        msgfmt 'rsync23'  log
+    elif [ ! "$ERR" -eq 0 ]; then
+        msgfmt 'rsync' critical
+        msgfmt 'nopush' critical
+    else
+        msgfmt 'syncgood' log
+    fi
 }
 
 forbid_robots() {
-	cd "$REPO"
-	BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-	if [ ! $? -eq 0 ]; then
-		msgfmt 'branch' critical
-	fi
+    cd "$REPO"
+    BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+    if [ ! $? -eq 0 ]; then
+        msgfmt 'branch' critical
+    fi
 
-	if [[ "$BRANCH" == "staging" ]] \
-	|| [[ "$BRANCH" == "development" ]]
-	then
-		deploy_robots
-	elif [[ "$BRANCH" == "master" ]] \
-	|| [[ "$BRANCH" == "main" ]]
-	then
-		production_robots
-	fi
-	get_robots
+    if [[ "$BRANCH" == "staging" ]] \
+    || [[ "$BRANCH" == "development" ]]
+    then
+        deploy_robots
+    elif [[ "$BRANCH" == "master" ]] \
+    || [[ "$BRANCH" == "main" ]]
+    then
+        production_robots
+    fi
+    get_robots
 }
 
 deploy_robots() {
-	ROBOTSTXT="$SCRIPTDIR/robots.txt-disallow"
-	if [ ! -f "$ROBOTSTXT" ]; then
-		msgfmt 'botslocate' critical
-		exit 1
-	fi
-	msgfmt 'botsdeploy' log
-	rsync -v "$ROBOTSTXT" "${DOMAIN}:${WEBROOT}/robots.txt"
-	if [ ! $? -eq 0 ]; then
-		msgfmt 'boterr' critical
-	else
-		msgfmt 'botssuccess' log
-	fi
+    ROBOTSTXT="$SCRIPTDIR/robots.txt-disallow"
+    if [ ! -f "$ROBOTSTXT" ]; then
+        msgfmt 'botslocate' critical
+        exit 1
+    fi
+    msgfmt 'botsdeploy' log
+    rsync -v "$ROBOTSTXT" "${DOMAIN}:${WEBROOT}/robots.txt"
+    if [ ! $? -eq 0 ]; then
+        msgfmt 'boterr' critical
+    else
+        msgfmt 'botssuccess' log
+    fi
 }
 
 production_robots() {
-	ssh $DOMAIN "[ -f $WEBROOT/robots.txt ] && exit 42" > /dev/null 2>&1
-	if [ $? -eq 42 ]; then
-		msgfmt 'botsexist' critical
-	fi
+    ssh $DOMAIN "[ -f $WEBROOT/robots.txt ] && exit 42" > /dev/null 2>&1
+    if [ $? -eq 42 ]; then
+        msgfmt 'botsexist' critical
+    fi
 }
 
 get_robots() {
-	CURLTMP="/tmp/curl-$(date +%s).tmp"
-	curl --insecure $SITEURL/robots.txt > $CURLTMP
-	ERR="$?"
-	ROBOTSREAL="$(cat $CURLTMP)"
-	if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
-		ROBOTSREAL="\`\`\`$ROBOTSREAL\`\`\`"
-		msgfmt 'botsactual'
-	else
-		msgfmt 'botscurl' critical
-	fi
-	rm $CURLTMP
+    CURLTMP="/tmp/curl-$(date +%s).tmp"
+    curl --insecure $SITEURL/robots.txt > $CURLTMP
+    ERR="$?"
+    ROBOTSREAL="$(cat $CURLTMP)"
+    if [ $ERR -eq 0 ] && [ ! -z "$ROBOTSREAL" ]; then
+        ROBOTSREAL="\`\`\`$ROBOTSREAL\`\`\`"
+        msgfmt 'botsactual'
+    else
+        msgfmt 'botscurl' critical
+    fi
+    rm $CURLTMP
 }
 
 set_permissions() {
-	if [[ "$OWNER" != "none" ]]; then
-		wordpress-permissions "$DOMAIN" "$OWNER"
-		ERR="$?"
-		if [ ! "$ERR" -eq 0 ]; then
-			msgfmt 'perms' critical
-		fi
-	fi
+    if [[ "$OWNER" != "none" ]]; then
+        wordpress-permissions "$DOMAIN" "$OWNER"
+        ERR="$?"
+        if [ ! "$ERR" -eq 0 ]; then
+            msgfmt 'perms' critical
+        fi
+    fi
 }
 
 check_installed() {
-	$WP --quiet core is-installed
-	if [ ! $? -eq 0 ]; then
-		msgfmt 'nowp' critical
-	fi
+    $WP --quiet core is-installed
+    if [ ! $? -eq 0 ]; then
+        msgfmt 'nowp' critical
+    fi
 }
 
 get_siteurl() {
-	SITEURL=$($WP --quiet option get siteurl)
-	if [ ! $? -eq 0 ]; then
-		msgfmt 'siteurl' critical
-		SITEURL="https://$DOMAIN/"
-	fi
+    SITEURL=$($WP --quiet option get siteurl)
+    if [ ! $? -eq 0 ]; then
+        msgfmt 'siteurl' critical
+        SITEURL="https://$DOMAIN/"
+    fi
 }
 
 

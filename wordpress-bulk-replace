@@ -25,8 +25,8 @@ $1
 # Print USAGE if not enough args
 # TODO allow two args to erase a string with confirmation
 if [ $# -lt 3 ]; then
-	print_usage "Not enough arguments!"
-	exit 1
+    print_usage "Not enough arguments!"
+    exit 1
 fi
 
 DOMAIN=$1
@@ -37,36 +37,36 @@ WEBROOT="/var/www/html"
 WPBIN=$(which wp)
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
-	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${DOMAIN} --skip-columns=UUID --report-changed-only"
+    WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${DOMAIN} --skip-columns=UUID --report-changed-only"
 else
-	notify "wp-cli not found on admin server" critical
-	exit 1
+    notify "wp-cli not found on admin server" critical
+    exit 1
 fi
 
 case $4 in
-	DRY-RUN)
-		echo "DRY RUN MODE ACTIVE"
-		WP="${WP} --dry-run"
-		;;
-	COUNT)
-		echo "COUNT MODE ACTIVE"
-		PREFIXES=("")
-		WP="${WP} --dry-run --format=count"
-		;;
-	REPLACE)
-		echo "REPLACE MODE ACTIVE"	
-		;;
-	*)
-		echo "DEFAULT DRY RUN MODE ACTIVE"
-		WP="${WP} --dry-run"
-		;;
+    DRY-RUN)
+        echo "DRY RUN MODE ACTIVE"
+        WP="${WP} --dry-run"
+        ;;
+    COUNT)
+        echo "COUNT MODE ACTIVE"
+        PREFIXES=("")
+        WP="${WP} --dry-run --format=count"
+        ;;
+    REPLACE)
+        echo "REPLACE MODE ACTIVE"  
+        ;;
+    *)
+        echo "DEFAULT DRY RUN MODE ACTIVE"
+        WP="${WP} --dry-run"
+        ;;
 esac
-		
+        
 
 for P in ${PREFIXES[@]}; do
-	echo "Prefix $P"
-	$WP search-replace "${P}${AAA}" "${P}${BBB}" 
+    echo "Prefix $P"
+    $WP search-replace "${P}${AAA}" "${P}${BBB}" 
 done
 if [ -n $PREFIXES ]; then
-	$WP search-replace "${AAA}" "${BBB}" 
+    $WP search-replace "${AAA}" "${BBB}" 
 fi

@@ -11,28 +11,28 @@ Env variable LEMAIL must be set
 "
 # Print USAGE if no args
 if [ $# -lt 1 ] ||
-	[ -z $LEMAIL ] ; then
-	echo "$USAGE"
-	exit 1
+    [ -z $LEMAIL ] ; then
+    echo "$USAGE"
+    exit 1
 fi
 HOST=$1
 if [ -z $2 ]; then
-	WWW="www.$HOST"
+    WWW="www.$HOST"
 fi
 
 # Connection test
 ssh $HOST "exit 0"
 if [ ! $? -eq 0 ]; then
-	echo "FAIL to connect to $HOST over ssh"
-	exit 2
+    echo "FAIL to connect to $HOST over ssh"
+    exit 2
 fi
 
 # Verify what certs are being used
 # Fail if the configured cert path does not match our expectation
 ssh ${HOST} "grep -q $HOST/fullchain.pem /usr/local/lsws/conf/vhosts/wordpress/vhconf.conf"
 if [ ! $? -eq 0 ]; then
-	echo "FAIL to find expected cert path in config"
-	exit 2
+    echo "FAIL to find expected cert path in config"
+    exit 2
 fi
 echo "Expected configuration was found."
 
@@ -42,48 +42,48 @@ echo "Expected configuration was found."
 
 # Run certbot in test mode to verify domain resolution
 CMD="certbot certonly \
-	--dry-run \
-	--non-interactive \
-	--force-renew \
-	--email=$LEMAIL \
-	--agree-tos \
-	--authenticator=standalone \
-	--pre-hook='/bin/systemctl stop lsws; sleep 5' \
-	--post-hook='/bin/systemctl start lsws' \
-	-d $HOST"
+    --dry-run \
+    --non-interactive \
+    --force-renew \
+    --email=$LEMAIL \
+    --agree-tos \
+    --authenticator=standalone \
+    --pre-hook='/bin/systemctl stop lsws; sleep 5' \
+    --post-hook='/bin/systemctl start lsws' \
+    -d $HOST"
 if [ ! -z $WWW ]; then
-	CMD+=" -d $WWW"
+    CMD+=" -d $WWW"
 fi
 # -t makes it an interactive session, output is verbose
 ssh -t ${HOST} ${CMD}
 if [ ! $? -eq 0 ]; then
-	echo "FAIL certbot dry run"
-	exit 2
+    echo "FAIL certbot dry run"
+    exit 2
 fi
 CMD=""
 
 # BACKUP the old certs for this domain
 ssh ${HOST} "cp -rf /etc/letsencrypt ~/BACKUP-LE-$(date +%s)"
 if [ ! $? -eq 0 ]; then
-	echo "FAIL to backup old certs"
-	exit 2
+    echo "FAIL to backup old certs"
+    exit 2
 fi
 
 # DELETE the old certs for this domain
 ssh ${HOST} "rm -rf /etc/letsencrypt/live/$HOST"
 if [ ! $? -eq 0 ]; then
-	echo "FAIL to remove old certs"
-	exit 2
+    echo "FAIL to remove old certs"
+    exit 2
 fi
 ssh ${HOST} "rm -rf /etc/letsencrypt/archive/$HOST" 
 if [ ! $? -eq 0 ]; then
-	echo "FAIL to remove old certs"
-	exit 2
+    echo "FAIL to remove old certs"
+    exit 2
 fi
 ssh ${HOST} "rm /etc/letsencrypt/renewal/$HOST.conf" 
 if [ ! $? -eq 0 ]; then
-	echo "FAIL to remove old certs"
-	exit 2
+    echo "FAIL to remove old certs"
+    exit 2
 fi
 echo "Old certs removed."
 
@@ -94,22 +94,22 @@ echo "Old certs removed."
 #   authenticator = standalone
 echo "Getting the new cert..."
 CMD="certbot certonly \
-	--non-interactive \
-	--force-renew \
-	--email=$LEMAIL \
-	--agree-tos \
-	--authenticator=standalone \
-	--pre-hook='/bin/systemctl stop lsws; sleep 5' \
-	--post-hook='/bin/systemctl start lsws' \
-	-d $HOST"
+    --non-interactive \
+    --force-renew \
+    --email=$LEMAIL \
+    --agree-tos \
+    --authenticator=standalone \
+    --pre-hook='/bin/systemctl stop lsws; sleep 5' \
+    --post-hook='/bin/systemctl start lsws' \
+    -d $HOST"
 if [ ! -z $WWW ]; then
-	CMD+=" -d $WWW"
+    CMD+=" -d $WWW"
 fi
 # -t makes it an interactive session, output is verbose
 ssh -t ${HOST} ${CMD}
 if [ ! $? -eq 0 ]; then
-	echo "FAIL certbot live"
-	exit 2
+    echo "FAIL certbot live"
+    exit 2
 fi
 
 ssh $HOST "reboot"

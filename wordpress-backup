@@ -6,11 +6,11 @@ Usage: wordpress-backup DOMAIN BACKUPTYPE [WEBROOT]
 Where:
 - DOMAIN must be available in ssh config
 - BACKUPTYPE can be one of:
-	- full: backup webroot and db to s3, rotated
-	- manual: full backup to BACKUP_DIRECTORY_LOCAL/manual and s3, not rotated
-	- db: backup db to admin server
-	- tmp: backup db and webroot to /tmp on admin server
-	- dbtmp: backup db to /tmp on admin server
+    - full: backup webroot and db to s3, rotated
+    - manual: full backup to BACKUP_DIRECTORY_LOCAL/manual and s3, not rotated
+    - db: backup db to admin server
+    - tmp: backup db and webroot to /tmp on admin server
+    - dbtmp: backup db to /tmp on admin server
 - WEBROOT is optional, defaults to /var/www/html
 
 Note: if WEBROOT is not supplied then wordpress-permissions 
@@ -21,32 +21,32 @@ Configure Restic for s3
 =======================
 Create two buckets on s3 with an IAM user for each.
 Create two files in ~/.wp-admin-config/:
-	- restic-full.conf
-	- restic-manual.conf
+    - restic-full.conf
+    - restic-manual.conf
 Each file needs the following environment variables:
-	- export RESTIC_REPOSITORY
-	- export RESTIC_PASSWORD
-	- export AWS_ACCESS_KEY_ID
-	- export AWS_SECRET_ACCESS_KEY
+    - export RESTIC_REPOSITORY
+    - export RESTIC_PASSWORD
+    - export AWS_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY
 Optional environment variables and their default values:
-	- export RESTIC_CACHE='~/.cache/restic'
-	- export BUP_DIR='/var/backups/wordpress'
-	- export BACKUPS_TO_KEEP=28
-	- export RESTIC='/usr/local/bin/restic'
+    - export RESTIC_CACHE='~/.cache/restic'
+    - export BUP_DIR='/var/backups/wordpress'
+    - export BACKUPS_TO_KEEP=28
+    - export RESTIC='/usr/local/bin/restic'
 "
 
 # Print USAGE if no args
 if [ $# -eq 0 ]; then
-	echo "$USAGE"
-	exit 1
+    echo "$USAGE"
+    exit 1
 fi
 # Check if already running
 if ! mkdir -p /tmp/wordpress-backup.lock; then
-	echo "$(date) Failed to acquire lock. (Script already running?)"
-	exit 1
+    echo "$(date) Failed to acquire lock. (Script already running?)"
+    exit 1
 fi
 # Remove the lockdir on exit
-trap 'rm -rf /tmp/wordpress-backup.lock' EXIT	
+trap 'rm -rf /tmp/wordpress-backup.lock' EXIT   
 
 DOMAIN="$1"
 GROUP="mribackup"
@@ -73,182 +73,182 @@ TEASER="${DOMAIN} (${BACKUPTYPE}) at ${SITEURL}"
 WPBIN=$(which wp)
 # Set global options for wp-cli or report missing binary
 if [ $? -eq 0 ]; then
-	WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${DOMAIN}"
+    WP="${WPBIN} --path=${WEBROOT} --allow-root --skip-themes --skip-plugins --ssh=${DOMAIN}"
 else
-	notify "wp-cli not found on admin server" critical
-	exit 1
+    notify "wp-cli not found on admin server" critical
+    exit 1
 fi
 RESTIC_REPOSITORY=""
 RESTIC_PASSWORD=""
 
 restic-check() {
-	if [ -f "$RESTIC" ]; then
-		if [ "$BACKUPTYPE" == "full" ]; then
-			. "${HOME}/.wp-admin-config/restic-full.conf"
-			[ $? -eq 0 ] || { echo "$(date) Missing configuration"; exit 1; }
-		elif [ "$BACKUPTYPE" == "manual" ]; then 
-			. "${HOME}/.wp-admin-config/restic-manual.conf"
-			[ $? -eq 0 ] || { echo "$(date) Missing configuration"; exit 1; }
-		fi
-	else
-		notify \
-			"Restic or wp-admin.conf file not found for ${USER}@${DOMAIN}, backup to s3 for ${DOMAIN} is not happening." critical
-	fi
+    if [ -f "$RESTIC" ]; then
+        if [ "$BACKUPTYPE" == "full" ]; then
+            . "${HOME}/.wp-admin-config/restic-full.conf"
+            [ $? -eq 0 ] || { echo "$(date) Missing configuration"; exit 1; }
+        elif [ "$BACKUPTYPE" == "manual" ]; then 
+            . "${HOME}/.wp-admin-config/restic-manual.conf"
+            [ $? -eq 0 ] || { echo "$(date) Missing configuration"; exit 1; }
+        fi
+    else
+        notify \
+            "Restic or wp-admin.conf file not found for ${USER}@${DOMAIN}, backup to s3 for ${DOMAIN} is not happening." critical
+    fi
 }
 
 wp-check() {
 # TODO check host is accessible over ssh
-	${WP} \
-		--quiet \
-		core is-installed
-	if [ ! $? -eq 0 ]; then
-		notify "${DOMAIN} \
-			WP does not appear to be running. What the heck?" \
-			critical
-		exit 1
-	fi
-	SITEURL=$(${WP} --quiet option get siteurl)
-	if [ ! $? -eq 0 ]; then
-		notify "${DOMAIN} \
-			Error getting siteurl." \
-			critical
-		exit 1
-	fi
-	[ -z "$SITEURL" ] && { echo "$(date) SITEURL is empty."; exit 1; }
+    ${WP} \
+        --quiet \
+        core is-installed
+    if [ ! $? -eq 0 ]; then
+        notify "${DOMAIN} \
+            WP does not appear to be running. What the heck?" \
+            critical
+        exit 1
+    fi
+    SITEURL=$(${WP} --quiet option get siteurl)
+    if [ ! $? -eq 0 ]; then
+        notify "${DOMAIN} \
+            Error getting siteurl." \
+            critical
+        exit 1
+    fi
+    [ -z "$SITEURL" ] && { echo "$(date) SITEURL is empty."; exit 1; }
 }
 
 check-args() {
-	if [ "$DOMAIN" == "full" ] \
-		|| [ "$DOMAIN" == "db" ] \
-		|| [ "$DOMAIN" == "manual" ] \
-		|| [ "$DOMAIN" == "tmp" ]; then
-		notify "Error in first argument, ${DOMAIN} (arg1) ${BACKUPTYPE} (arg 2) backup." critical
-		exit 1
-	fi
-	if [ "$BACKUPTYPE" != "full" ] \
-		&& [ "$BACKUPTYPE" != "db" ] \
-		&& [ "$BACKUPTYPE" != "manual" ] \
-		&& [ "$BACKUPTYPE" != "tmp" ] \
-		&& [ "$BACKUPTYPE" != "dbtmp" ]; then
-		notify "Error in second argument, ${DOMAIN} (arg 1) ${BACKUPTYPE} (arg 2) backup." critical
-		exit 1
-	fi
+    if [ "$DOMAIN" == "full" ] \
+        || [ "$DOMAIN" == "db" ] \
+        || [ "$DOMAIN" == "manual" ] \
+        || [ "$DOMAIN" == "tmp" ]; then
+        notify "Error in first argument, ${DOMAIN} (arg1) ${BACKUPTYPE} (arg 2) backup." critical
+        exit 1
+    fi
+    if [ "$BACKUPTYPE" != "full" ] \
+        && [ "$BACKUPTYPE" != "db" ] \
+        && [ "$BACKUPTYPE" != "manual" ] \
+        && [ "$BACKUPTYPE" != "tmp" ] \
+        && [ "$BACKUPTYPE" != "dbtmp" ]; then
+        notify "Error in second argument, ${DOMAIN} (arg 1) ${BACKUPTYPE} (arg 2) backup." critical
+        exit 1
+    fi
 }
 
 set-backup-dir() {
-	case "$BACKUPTYPE" in
-	"db") 
-		DBFNAME=${DOMAIN}-dbonly.sql
-		;;
-	"manual") 
-		local DATESTAMP=$(date +%F)
-		DBFNAME="${DOMAIN}-${DATESTAMP}.sql"
-		BACKUP_DIRECTORY_LOCAL="${BACKUP_DIRECTORY_LOCAL}/manual"
-		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${DOMAIN}-${DATESTAMP}"
-		;;
-	"full") 
-		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${DOMAIN}"
-		;;
-	"tmp") 
-		BACKUP_DIRECTORY_LOCAL="/tmp"
-		FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${DOMAIN}"
-		;;
-	"dbtmp")
-		BACKUP_DIRECTORY_LOCAL="/tmp"
-		;;
-	esac
-	[ ! -d $BACKUP_DIRECTORY_LOCAL ] && mkdir $BACKUP_DIRECTORY_LOCAL
-	cd ${BACKUP_DIRECTORY_LOCAL}
+    case "$BACKUPTYPE" in
+    "db") 
+        DBFNAME=${DOMAIN}-dbonly.sql
+        ;;
+    "manual") 
+        local DATESTAMP=$(date +%F)
+        DBFNAME="${DOMAIN}-${DATESTAMP}.sql"
+        BACKUP_DIRECTORY_LOCAL="${BACKUP_DIRECTORY_LOCAL}/manual"
+        FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${DOMAIN}-${DATESTAMP}"
+        ;;
+    "full") 
+        FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${DOMAIN}"
+        ;;
+    "tmp") 
+        BACKUP_DIRECTORY_LOCAL="/tmp"
+        FULLBUPDIR="${BACKUP_DIRECTORY_LOCAL}/${DOMAIN}"
+        ;;
+    "dbtmp")
+        BACKUP_DIRECTORY_LOCAL="/tmp"
+        ;;
+    esac
+    [ ! -d $BACKUP_DIRECTORY_LOCAL ] && mkdir $BACKUP_DIRECTORY_LOCAL
+    cd ${BACKUP_DIRECTORY_LOCAL}
 }
 
 rotate-db-backups() {
-	local I N FNAME
-	# Trim off the file extension
-	FNAME="${DBFNAME%'.sql'}"
-	echo "$(date) Rotate db backups ($FNAME)."
-	I=$BACKUPS_TO_KEEP
-	while [ $I -gt 0 ]
-	do
-		if [ $I -gt 1 ]; then
-			H=$[I-1]
-			if [ -f ${FNAME}.${H}.sql.gz ]; then
-				mv ${FNAME}.${H}.sql.gz \
-				${FNAME}.${I}.sql.gz \
-				>/dev/null 2>&1
-			fi
-		else
-			if [ -f ${FNAME}.sql.gz ]; then
-				mv ${FNAME}.sql.gz \
-				${FNAME}.1.sql.gz \
-				>/dev/null 2>&1
-			fi
-		fi
-		(( I-- ))
-	done
+    local I N FNAME
+    # Trim off the file extension
+    FNAME="${DBFNAME%'.sql'}"
+    echo "$(date) Rotate db backups ($FNAME)."
+    I=$BACKUPS_TO_KEEP
+    while [ $I -gt 0 ]
+    do
+        if [ $I -gt 1 ]; then
+            H=$[I-1]
+            if [ -f ${FNAME}.${H}.sql.gz ]; then
+                mv ${FNAME}.${H}.sql.gz \
+                ${FNAME}.${I}.sql.gz \
+                >/dev/null 2>&1
+            fi
+        else
+            if [ -f ${FNAME}.sql.gz ]; then
+                mv ${FNAME}.sql.gz \
+                ${FNAME}.1.sql.gz \
+                >/dev/null 2>&1
+            fi
+        fi
+        (( I-- ))
+    done
 }
 
 dump-db() {
-	${WP} db export ${WEBROOT}/../${DBFNAME}
-	if [ ! $? -eq 0  ]; then
-		notify "Database export failed for ${TEASER}" critical
-		exit 1
-	fi
-	ssh ${DOMAIN} "gzip -vf ${WEBROOT}/../${DBFNAME}"
-	if [ ! $? -eq 0  ]; then
-		notify "Backup gzip failed for ${TEASER}" critical
-		exit 1
-	fi
-	scp ${DOMAIN}:${WEBROOT}/../${DBFNAME}.gz .
-	if [ ! $? -eq 0  ]; then
-		notify "DB scp failed for ${TEASER}" critical
-		exit 1
-	fi
+    ${WP} db export ${WEBROOT}/../${DBFNAME}
+    if [ ! $? -eq 0  ]; then
+        notify "Database export failed for ${TEASER}" critical
+        exit 1
+    fi
+    ssh ${DOMAIN} "gzip -vf ${WEBROOT}/../${DBFNAME}"
+    if [ ! $? -eq 0  ]; then
+        notify "Backup gzip failed for ${TEASER}" critical
+        exit 1
+    fi
+    scp ${DOMAIN}:${WEBROOT}/../${DBFNAME}.gz .
+    if [ ! $? -eq 0  ]; then
+        notify "DB scp failed for ${TEASER}" critical
+        exit 1
+    fi
 }
 
 sync-files() {
-	[ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
-	echo "$(date) Sync codebase from ${DOMAIN}"
-	rsync \
-		-qptLr \
-		--exclude=${EXCLUDE} \
-		--delete \
-		${DOMAIN}:${WEBROOT} \
-		${FULLBUPDIR}
-	if [ $? -eq 0 ]; then
-		echo "$(date) Sync from ${DOMAIN} was completed without error"
-	else
-		notify "File sync failed for ${TEASER}" critical
-	fi
-	echo "$(date) Updating permissions on local backup copy"
-	chown "$USER:$GROUP" -R "$FULLBUPDIR" || echo "$(date) ERROR"
-	find "$FULLBUPDIR" -type f -exec chmod 660 {} + || echo "$(date) ERROR"
-	find "$FULLBUPDIR" -type d -exec chmod 770 {} + || echo "$(date) ERROR"
+    [ ! -d $FULLBUPDIR ] && mkdir $FULLBUPDIR
+    echo "$(date) Sync codebase from ${DOMAIN}"
+    rsync \
+        -qptLr \
+        --exclude=${EXCLUDE} \
+        --delete \
+        ${DOMAIN}:${WEBROOT} \
+        ${FULLBUPDIR}
+    if [ $? -eq 0 ]; then
+        echo "$(date) Sync from ${DOMAIN} was completed without error"
+    else
+        notify "File sync failed for ${TEASER}" critical
+    fi
+    echo "$(date) Updating permissions on local backup copy"
+    chown "$USER:$GROUP" -R "$FULLBUPDIR" || echo "$(date) ERROR"
+    find "$FULLBUPDIR" -type f -exec chmod 660 {} + || echo "$(date) ERROR"
+    find "$FULLBUPDIR" -type d -exec chmod 770 {} + || echo "$(date) ERROR"
 }
 
 compress_codebase() {
-	local BASENAME="${FULLBUPDIR##*/}"
-	local DIR="${FULLBUPDIR%/*}"
-	echo "$BASENAME in $DIR"
+    local BASENAME="${FULLBUPDIR##*/}"
+    local DIR="${FULLBUPDIR%/*}"
+    echo "$BASENAME in $DIR"
 # note: above will break with trailing slash
-	echo "$(date) Compressing local codebase backup."
-	tar -czvf "$BASENAME.tgz" -C "$DIR" "$BASENAME" --remove-files
-	[ ! $? -eq 0  ] && notify "File compression error for ${DOMAIN}" critical
+    echo "$(date) Compressing local codebase backup."
+    tar -czvf "$BASENAME.tgz" -C "$DIR" "$BASENAME" --remove-files
+    [ ! $? -eq 0  ] && notify "File compression error for ${DOMAIN}" critical
 }
 
 backup-full() {
-	$RESTIC backup --cache-dir ${RESTIC_CACHE} ${FULLBUPDIR}/ --tag ${DOMAIN}
-	[ ! $? -eq 0  ] && notify "Restic error for ${DOMAIN}" critical
+    $RESTIC backup --cache-dir ${RESTIC_CACHE} ${FULLBUPDIR}/ --tag ${DOMAIN}
+    [ ! $? -eq 0  ] && notify "Restic error for ${DOMAIN}" critical
 }
 
 backup-db() {
-	$RESTIC backup --cache-dir ${RESTIC_CACHE} ${DBFNAME}.gz --tag ${DOMAIN}
-	[ ! $? -eq 0  ] && notify "Restic error ${DOMAIN}" critical
+    $RESTIC backup --cache-dir ${RESTIC_CACHE} ${DBFNAME}.gz --tag ${DOMAIN}
+    [ ! $? -eq 0  ] && notify "Restic error ${DOMAIN}" critical
 }
 
 set-permissions() {
-	if [ -z "$3" ]; then
-		wordpress-permissions "$DOMAIN" dev
-	fi
+    if [ -z "$3" ]; then
+        wordpress-permissions "$DOMAIN" dev
+    fi
 }
 
 set-permissions "$@"
@@ -258,34 +258,34 @@ wp-check
 echo "$(date) Proceeding with backup for ${DOMAIN}."
 
 if [ ${BACKUPTYPE} = "db" ]; then
-	echo "$(date) Database backup, skipping full sync."
-	rotate-db-backups
-	dump-db
+    echo "$(date) Database backup, skipping full sync."
+    rotate-db-backups
+    dump-db
 elif [ ${BACKUPTYPE} = "tmp" ]; then
-	echo "$(date) Backup db and codebase to /tmp, skipping restic."
-	echo "$(date) This backup will not be written to s3."
-	dump-db
-	sync-files
+    echo "$(date) Backup db and codebase to /tmp, skipping restic."
+    echo "$(date) This backup will not be written to s3."
+    dump-db
+    sync-files
 elif [ ${BACKUPTYPE} = "dbtmp" ]; then
-	echo "$(date) Backup db to /tmp, skipping restic."
-	echo "$(date) This backup will not be written to s3."
-	dump-db
+    echo "$(date) Backup db to /tmp, skipping restic."
+    echo "$(date) This backup will not be written to s3."
+    dump-db
 elif [ ${BACKUPTYPE} = "manual" ]; then
-	restic-check
-	dump-db
-	backup-db
-	sync-files
-	backup-full
-	compress_codebase
-	notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}."
+    restic-check
+    dump-db
+    backup-db
+    sync-files
+    backup-full
+    compress_codebase
+    notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}."
 else
-	restic-check
-	rotate-db-backups
-	dump-db
-	backup-db
-	sync-files
-	backup-full
-	notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}."
+    restic-check
+    rotate-db-backups
+    dump-db
+    backup-db
+    sync-files
+    backup-full
+    notify "Backup (${BACKUPTYPE}) completed for ${SITEURL}."
 fi
 
 exit 0
