@@ -72,7 +72,7 @@ msgfmt() {
         s="rsync error  while deploying $ROBOTSTXT"
     ;;
     botsexist)
-        s="Robots.txt exists on production domain $SITEURL"
+        s="Robots.txt exists on production domain https://${SITEURL}/robots.txt"
     ;;
     botsactual)
         s="Actual robots.txt after deployment: $ROBOTSREAL"
@@ -201,7 +201,7 @@ deploy_robots() {
 production_robots() {
     ssh $DOMAIN "[ -f $WEBROOT/robots.txt ] && exit 42" > /dev/null 2>&1
     if [ $? -eq 42 ]; then
-        msgfmt 'botsexist' critical
+        msgfmt 'botsexist' warning
     fi
 }
 
