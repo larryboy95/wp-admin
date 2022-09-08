@@ -4,7 +4,8 @@ USAGE="
 Usage:
 $(basename $0) HOST
 
-Will run apt-get update, autoremove, dist-upgrade and then reboot HOST.
+Runs apt update, autoremove, full-upgrade and then reboot on HOST.
+Requires notify-cli.
 "
 
 # Print USAGE if no args
@@ -13,9 +14,36 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-cmd="sudo apt-get update; \
-    sudo apt-get -y autoremove; \
-    sudo apt-get -y dist-upgrade; \
-    sudo reboot"
-ssh -t ${1} ${cmd}
+export SLACK_CHANNEL_NORMAL="__info"
+export SLACK_CHANNEL_CRITICAL="__info"
+export NOTIFY_HOSTNAME="$1"
+export NOTIFY_PARENT_SCRIPT="os-update"
+
+notify "os-update is running"
+
+ssh -t ${1} "sudo apt update"
+if [ ! $? -eq 0 ]; then
+    notify "apt update failed" critical
+    exit 2
+fi
+
+ssh -t ${1} "sudo apt autoremove -y"
+if [ ! $? -eq 0 ]; then
+    notify "apt autoremove failed" critical
+    exit 2
+fi
+
+ssh -t ${1} "sudo apt full-upgrade -y"
+if [ ! $? -eq 0 ]; then
+    notify "apt full-upgrade failed" critical
+    exit 2
+else
+    notify "host was updated"
+fi
+
+ssh -t ${1} "sudo reboot"
+
+notify "rebooting host, os-update is exiting"
+
+
 exit 0
