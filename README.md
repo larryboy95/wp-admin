@@ -10,7 +10,7 @@ Dependencies:
 ## Installation
 Clone this repo and add it to your path.
 ```
-git clone git@gitlab.com:neilscudder/wp-admin.git /path/to/wp-admin
+git clone git@github.com:larryboy95/wp-admin.git /path/to/wp-admin
 ```
 
 Add this line to your `~/.bashrc`:
